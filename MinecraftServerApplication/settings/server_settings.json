@@ -1,0 +1,11 @@
+[
+  {
+    "name": "TEST",
+    "minGB": 1.0,
+    "maxGB": 1.0,
+    "jarPath": "C:/Users/user/Desktop/MCSERVER/server.jar",
+    "maxRestartAttempts": -1,
+    "maxBackups": 11,
+    "additionalJvmArgs": ""
+  }
+]
