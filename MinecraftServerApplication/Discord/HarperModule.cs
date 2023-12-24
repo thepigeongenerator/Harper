@@ -82,7 +82,6 @@ internal class HarperModule : IModule {
                         optionA.Type == optionB.Type &&
                         optionA.IsDefault == optionB.IsDefault &&
                         optionA.IsRequired == optionB.IsRequired &&
-                        optionA.IsAutocomplete == optionB.IsAutocomplete &&
                         optionA.Choices.Count == optionB.Choices.Count;
                 }
 
