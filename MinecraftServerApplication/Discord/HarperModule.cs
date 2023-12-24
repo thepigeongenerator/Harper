@@ -95,8 +95,6 @@ internal class HarperModule : IModule {
         }
         #endregion //equality checker
 
-        await _client.SetStatusAsync(UserStatus.Idle);
-
         IReadOnlyCollection<SocketApplicationCommand> currentCommands;
 
         #region get commands
@@ -160,8 +158,6 @@ internal class HarperModule : IModule {
         #endregion //update commands
 
         await Task.WhenAll(updateCommands);
-
-        await _client.SetStatusAsync(UserStatus.Online);
     }
 
     private async Task CommandHandler(SocketSlashCommand command) {
