@@ -1,18 +1,22 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using System.ComponentModel.DataAnnotations;
 
 namespace MinecraftServerApplication.Discord;
 internal abstract class Command {
     private HarperModule? _harper;
-    private readonly SlashCommandBuilder _commandBuilder;
+    private readonly SlashCommandBuilder? _commandBuilder;
 
-    public Command(SlashCommandBuilder commandBuilder) {
+
+    public Command() {
         _harper = null;
-        _commandBuilder = commandBuilder;
+        _commandBuilder = null;
     }
 
+    [Required]
     public SlashCommandBuilder CommandBuilder {
-        get => _commandBuilder;
+        get => _commandBuilder ?? throw new NullReferenceException("you need to initialize a command builder!");
+        protected init => _commandBuilder = value;
     }
 
     public HarperModule Harper {

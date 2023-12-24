@@ -11,12 +11,22 @@ namespace MinecraftServerApplication.Discord.Commands;
 internal class StopCmd : Command {
     private MCServerModule _mcServer;
 
-    public StopCmd() : base(new SlashCommandBuilder()
-        .WithName("stop")
-        .WithDescription("stops the minecraft server")
-        .AddOption("server-name", ApplicationCommandOptionType.String, "specefies the name of the server to target", true)
-        ) {
+    public StopCmd() {
         _mcServer = Program.GetModuleOfType<MCServerModule>();
+
+        CommandBuilder = new SlashCommandBuilder()
+            .WithName("stop")
+            .WithDescription("stops the minecraft server");
+
+        List<ApplicationCommandOptionChoiceProperties> serverOptions = new();
+        foreach (string name in _mcServer.ServerNames) {
+            ApplicationCommandOptionChoiceProperties choice = new();
+            choice.Name = name;
+            choice.Value = name;
+            serverOptions.Add(choice);
+        }
+
+        CommandBuilder.AddOption("server-name", ApplicationCommandOptionType.String, "specefies the name of the server to target", true, choices: serverOptions.ToArray());
     }
 
     public override async Task Run(CommandHandler command) {

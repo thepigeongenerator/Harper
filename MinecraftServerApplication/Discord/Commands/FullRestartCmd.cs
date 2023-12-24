@@ -9,13 +9,10 @@ using System.Threading.Tasks;
 
 namespace MinecraftServerApplication.Discord.Commands;
 internal class FullRestartCmd : Command {
-    private MCServerModule _mcServer;
-
-    public FullRestartCmd() : base(new SlashCommandBuilder()
-        .WithName("full-restart")
-        .WithDescription("fully restarts the server WARN: HARPER AND SERVERS WILL BE OFFLINE FOR A WHILE")
-        ) {
-        _mcServer = Program.GetModuleOfType<MCServerModule>();
+    public FullRestartCmd() {
+        CommandBuilder = new SlashCommandBuilder()
+            .WithName("full-restart")
+            .WithDescription("fully restarts the server WARN: HARPER AND SERVERS WILL BE OFFLINE FOR A WHILE");
     }
 
     public override async Task Run(CommandHandler command) {

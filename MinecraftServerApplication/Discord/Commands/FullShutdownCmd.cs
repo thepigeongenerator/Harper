@@ -9,13 +9,10 @@ using System.Threading.Tasks;
 
 namespace MinecraftServerApplication.Discord.Commands;
 internal class FullShutdownCmd : Command {
-    private MCServerModule _mcServer;
-
-    public FullShutdownCmd() : base(new SlashCommandBuilder()
-    .WithName("full-shutdown")
-    .WithDescription("fully shuts down the server WARN: SHALL REQUIRE A MANUAL RESTART")
-    ) {
-        _mcServer = Program.GetModuleOfType<MCServerModule>();
+    public FullShutdownCmd() {
+        CommandBuilder = new SlashCommandBuilder()
+            .WithName("full-shutdown")
+            .WithDescription("fully shuts down the server WARN: SHALL REQUIRE A MANUAL RESTART");
     }
 
     public override async Task Run(CommandHandler command) {

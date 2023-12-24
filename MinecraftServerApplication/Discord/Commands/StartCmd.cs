@@ -11,12 +11,22 @@ namespace MinecraftServerApplication.Discord.Commands;
 internal class StartCmd : Command {
     private MCServerModule _mcServer;
 
-    public StartCmd() : base(new SlashCommandBuilder()
-        .WithName("start")
-        .WithDescription("starts the minecraft server")
-        .AddOption("server-name", ApplicationCommandOptionType.String, "specefies the name of the server to target", true)
-        ) {
+    public StartCmd() {
         _mcServer = Program.GetModuleOfType<MCServerModule>();
+
+        CommandBuilder = new SlashCommandBuilder()
+            .WithName("start")
+            .WithDescription("starts the minecraft server");
+
+        List<ApplicationCommandOptionChoiceProperties> serverOptions = new();
+        foreach (string name in _mcServer.ServerNames) {
+            ApplicationCommandOptionChoiceProperties choice = new();
+            choice.Name = name;
+            choice.Value = name;
+            serverOptions.Add(choice);
+        }
+
+        CommandBuilder.AddOption("server-name", ApplicationCommandOptionType.String, "specefies the name of the server to target", true, choices: serverOptions.ToArray());
     }
 
     public override async Task Run(CommandHandler command) {
