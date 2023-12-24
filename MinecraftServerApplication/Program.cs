@@ -4,12 +4,14 @@ using System.Diagnostics;
 
 namespace MinecraftServerApplication;
 
+//TODO: add logging script
 internal static class Program {
     public const string SETTINGS_PATH = "./settings";
     public const string DATA_PATH = "./data";
     public const string BACKUP_PATH = "./backups";
     public const string LOG_PATH = "./logs";
     private static readonly ManualResetEvent shutdownEvent = new(false);
+    //TODO: use reflection to load in modules (like harper's commands)
     private static readonly List<IModule> _modules = [
         new MCServerModule(),
         new HarperModule(),
