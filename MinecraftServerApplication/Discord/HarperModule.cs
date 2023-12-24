@@ -75,11 +75,15 @@ internal class HarperModule : IModule {
                     var optionA = optionsA.ElementAt(i);
                     var optionB = optionsB.ElementAt(i);
 
+                    //warning: this code is incomplete as I can't be bothered to check for every fucking option
                     result =
                         optionA.Name == optionB.Name &&
                         optionA.Description == optionB.Description &&
                         optionA.Type == optionB.Type &&
-                        optionA.IsDefault == optionB.IsDefault;
+                        optionA.IsDefault == optionB.IsDefault &&
+                        optionA.IsRequired == optionB.IsRequired &&
+                        optionA.IsAutocomplete == optionB.IsAutocomplete &&
+                        optionA.Choices.Count == optionB.Choices.Count;
                 }
 
                 return result;
@@ -140,6 +144,7 @@ internal class HarperModule : IModule {
                     //override the command
                     updateCommands.Add(_client.CreateGlobalApplicationCommandAsync(buildCommands[matchIndex].CommandBuilder.Build()));
                     buildCommands.RemoveAt(matchIndex);
+                    continue;
                 }
 
                 //no updating needed: remove the command from the build que
