@@ -21,7 +21,7 @@ internal class HarperModule : IModule {
             GatewayIntents = GatewayIntents.Guilds | GatewayIntents.GuildIntegrations | GatewayIntents.GuildMessageReactions
         };
 
-        keepAlive = true;
+        keepAlive = false;
         _commands = new List<Command>();
         _client = new DiscordSocketClient(config);
         _client.SlashCommandExecuted += CommandHandler;

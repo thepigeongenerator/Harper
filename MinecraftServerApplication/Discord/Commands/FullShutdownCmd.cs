@@ -18,6 +18,6 @@ internal class FullShutdownCmd : Command {
     public override async Task Run(CommandHandler command) {
         await command.SetInfo("Server is shutting down, **The server must be restarted manually to go online again!**");
         Harper.keepAlive = true;
-        await Program.Shutdown();
+        Program.Shutdown();
     }
 }

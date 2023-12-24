@@ -19,7 +19,7 @@ internal static class Program {
         MainAsync().Wait();
     }
 
-    public static async Task Shutdown() {
+    public static async void Shutdown() {
         shutdownEvent.Set();
 
         List<Task> shutdown = new();

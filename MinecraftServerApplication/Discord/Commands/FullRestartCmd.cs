@@ -17,6 +17,6 @@ internal class FullRestartCmd : Command {
 
     public override async Task Run(CommandHandler command) {
         await command.SetInfo("Server is restarting, it will be back online shortly!");
-        await Program.Shutdown();
+        Program.Shutdown();
     }
 }
