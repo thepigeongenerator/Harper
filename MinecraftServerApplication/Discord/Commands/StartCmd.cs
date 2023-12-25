@@ -46,5 +46,6 @@ internal class StartCmd : Command {
 
         await command.SetInfo($"starting {serverName}...");
         await server.Run();
+        await command.SetSuccess($"started {serverName}!");
     }
 }
