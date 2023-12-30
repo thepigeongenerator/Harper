@@ -1,6 +1,6 @@
 ﻿
-using Discord.Rest;
 using Discord;
+using Discord.Rest;
 using Discord.WebSocket;
 
 namespace MinecraftServerApplication.Discord;

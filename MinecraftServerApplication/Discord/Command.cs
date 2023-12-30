@@ -1,6 +1,4 @@
 ﻿using Discord;
-using Discord.WebSocket;
-using System.ComponentModel.DataAnnotations;
 
 namespace MinecraftServerApplication.Discord;
 internal abstract class Command {

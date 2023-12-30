@@ -1,14 +1,7 @@
 ﻿using Discord;
-using Discord.Rest;
 using Discord.WebSocket;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace MinecraftServerApplication.Discord;
 internal class HarperModule : IModule {

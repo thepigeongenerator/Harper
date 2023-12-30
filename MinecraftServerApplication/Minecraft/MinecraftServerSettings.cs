@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace MinecraftServerApplication.Minecraft;
+﻿namespace MinecraftServerApplication.Minecraft;
 internal struct MinecraftServerSettings {
     //TODO: add initial online state (whether to start or stop the server on startup)
     public string name;

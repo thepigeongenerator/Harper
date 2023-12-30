@@ -1,11 +1,6 @@
 ﻿using Discord;
 using MinecraftServerApplication.Minecraft;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MinecraftServerApplication.Discord.Commands;
 internal class InfoCmd : Command {

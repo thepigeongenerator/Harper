@@ -11,6 +11,7 @@ internal class MinecraftServer {
     private readonly string _backupDirectory;
     private readonly string _worldDirectory;
 
+    #region constructor
     public MinecraftServer(MinecraftServerSettings settings) {
         #region local functions
         static string GetJvmArguments(MinecraftServerSettings settings) {
@@ -20,7 +21,7 @@ internal class MinecraftServer {
                 $" -jar {Path.GetFileName(settings.jarPath)}" +
 #if !DEBUG //only add the nogui argument if it's not a debug build
                 $" -nogui" +
-#endif
+#endif //!DEBUG
                 $" {settings.additionalJvmArgs ?? string.Empty}";
         }
 
@@ -46,11 +47,11 @@ internal class MinecraftServer {
 
             return Path.Combine(serverDirectory, worldFolder);
         }
-        #endregion //local functions
 
         if (Path.GetExtension(settings.jarPath) != ".jar" || File.Exists(settings.jarPath) == false) {
             throw new Exception($"no .jar detected at path: '{settings.jarPath}'");
         }
+        #endregion //local functions
 
         string serverDirectory = Path.GetDirectoryName(settings.jarPath) ?? throw new NullReferenceException();
         ProcessStartInfo startInfo = new() {
@@ -75,6 +76,7 @@ internal class MinecraftServer {
 
         Directory.CreateDirectory(_backupDirectory);
     }
+    #endregion //constructor
 
     public bool Running {
         get => _running;
@@ -89,7 +91,7 @@ internal class MinecraftServer {
         if (_running == true) {
             throw new Exception($"the server is already running");
         }
-        
+
         async void Run() {
             do {
                 Start();

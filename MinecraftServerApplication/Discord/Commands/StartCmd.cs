@@ -1,11 +1,5 @@
 ﻿using Discord;
-using Discord.WebSocket;
 using MinecraftServerApplication.Minecraft;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MinecraftServerApplication.Discord.Commands;
 internal class StartCmd : Command {
