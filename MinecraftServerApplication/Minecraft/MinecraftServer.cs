@@ -7,6 +7,7 @@ internal class MinecraftServer {
     private int _faultyShutdownCount;
     private readonly int _maxRestartAttempts;
     private readonly int _maxBackups;
+    private readonly bool _automaticStartup;
     private readonly Process _serverProcess;
     private readonly string _backupDirectory;
     private readonly string _worldDirectory;
@@ -66,6 +67,7 @@ internal class MinecraftServer {
 
         _maxRestartAttempts = settings.maxRestartAttempts; //add one to make inclusive
         _maxBackups = settings.maxBackups;
+        _automaticStartup = settings.automaticStartup;
         _faultyShutdownCount = 0;
         _running = false;
         _worldDirectory = GetWorldDirectory(serverDirectory);
@@ -80,6 +82,10 @@ internal class MinecraftServer {
 
     public bool Running {
         get => _running;
+    }
+
+    public bool AutomaticStartup {
+        get => _automaticStartup;
     }
 
     public Process ServerProcess {

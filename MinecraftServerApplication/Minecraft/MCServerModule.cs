@@ -26,8 +26,11 @@ internal class MCServerModule : IModule {
     public async Task Run() {
         List<Task> runServers = [];
         foreach (string serverName in _servers.Keys) {
-            Task task = _servers[serverName].Run();
-            runServers.Add(task);
+            //if the server needs to automatically start
+            if (_servers[serverName].AutomaticStartup) {
+                Task task = _servers[serverName].Run();
+                runServers.Add(task);
+            }
         }
 
         await Task.WhenAll(runServers);

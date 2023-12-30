@@ -6,6 +6,7 @@
     "jarPath": "C:/Users/user/Desktop/MCSERVER/server.jar",
     "maxRestartAttempts": -1,
     "maxBackups": 11,
+    "automaticStartup": false,
     "additionalJvmArgs": ""
   }
 ]
