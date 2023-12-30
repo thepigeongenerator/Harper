@@ -80,6 +80,10 @@ internal class MinecraftServer {
         get => _running;
     }
 
+    public Process ServerProcess {
+        get => _serverProcess;
+    }
+
     #region startup & shutdown
     public Task Run() {
         if (_running == true) {

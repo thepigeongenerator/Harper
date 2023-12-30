@@ -13,7 +13,6 @@ using System.Windows.Input;
 namespace MinecraftServerApplication.Discord;
 internal class HarperModule : IModule {
     public bool keepAlive;
-    //TODO: add info command
     private List<Command> _commands;
     private readonly DiscordSocketClient _client;
 

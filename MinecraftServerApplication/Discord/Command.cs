@@ -13,7 +13,6 @@ internal abstract class Command {
         _commandBuilder = null;
     }
 
-    [Required]
     public SlashCommandBuilder CommandBuilder {
         get => _commandBuilder ?? throw new NullReferenceException("you need to initialize a command builder!");
         protected init => _commandBuilder = value;
