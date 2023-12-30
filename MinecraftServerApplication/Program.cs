@@ -1,6 +1,8 @@
 ﻿using MinecraftServerApplication.Discord;
 using MinecraftServerApplication.Minecraft;
 using System.Diagnostics;
+using System.Reflection;
+using System.Windows.Input;
 
 namespace MinecraftServerApplication;
 
@@ -11,11 +13,20 @@ internal static class Program {
     public const string BACKUP_PATH = "./backups";
     public const string LOG_PATH = "./logs";
     private static readonly ManualResetEvent shutdownEvent = new(false);
-    //TODO: use reflection to load in modules (like harper's commands)
-    private static readonly List<IModule> _modules = [
-        new MCServerModule(),
-        new HarperModule(),
-    ];
+    private static readonly List<IModule> _modules = [];
+
+    static Program() {
+        //load modules
+        foreach (Type type in Assembly.GetExecutingAssembly().GetTypes()) {
+            if (!type.IsAbstract && type.IsClass && type.IsAssignableTo(typeof(IModule))) {
+                //init command
+                IModule module = Activator.CreateInstance(type) as IModule ?? throw new NullReferenceException("wasn't able to create an instance of the command");
+
+                //add the command
+                _modules.Add(module);
+            }
+        }
+    }
 
     public static void Main() {
         MainAsync().Wait();
