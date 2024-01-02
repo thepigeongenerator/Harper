@@ -1,39 +1,23 @@
-﻿
-using Discord;
+﻿using Discord;
+using Discord.Interactions;
 using Discord.Rest;
 using Discord.WebSocket;
 
 namespace MinecraftServerApplication.Discord;
-internal class CommandHandler {
-    private readonly SocketSlashCommand _slashCommand;
-
-    public CommandHandler(SocketSlashCommand command) {
-        _slashCommand = command;
-    }
-
-    public SocketSlashCommand SlashCommand {
-        get => _slashCommand;
-    }
-
-    public SocketSlashCommandDataOption? TryGetOption(string optionName) {
-        return (from option in SlashCommand.Data.Options
-                where option.Name == optionName
-                select option).FirstOrDefault();
-    }
-
-    public async Task Initialize() => await SlashCommand.RespondAsync("Harper is thinking...", ephemeral: false);
+internal abstract class CommandHandler : InteractionModuleBase {
     public async Task SetSuccess(string message) => await Respond(message, Color.Green);
     public async Task SetInfo(string message) => await Respond(message, Color.LighterGrey);
     public async Task SetWarning(string message) => await Respond(message, Color.Gold);
     public async Task SetError(string message) => await Respond(message, Color.Red);
     public async Task SetCritical(string message) => await Respond(message, Color.DarkRed);
 
-    private async Task Respond(string message, Color color) {
-        RestInteractionMessage originalMessage;
+    public async Task Respond(string message, Color color) {
+        IUserMessage originalMessage;
         Embed newEmbed;
 
+
         //unpack the original response
-        originalMessage = SlashCommand.GetOriginalResponseAsync().Result;
+        originalMessage = await GetOriginalResponseAsync();
 
         //build embed to add
         newEmbed = new EmbedBuilder()
@@ -41,6 +25,12 @@ internal class CommandHandler {
             .WithColor(color)
             .Build();
 
+
+        if (originalMessage == null) {
+            await RespondAsync(string.Empty, embed:newEmbed);
+            return;
+        }
+        
         //modify the original message
         await originalMessage.ModifyAsync(properties => {
             properties.Content = string.Empty;

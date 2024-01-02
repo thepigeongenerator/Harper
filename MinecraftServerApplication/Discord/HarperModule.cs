@@ -1,13 +1,15 @@
 ﻿using Discord;
+using Discord.Interactions;
 using Discord.WebSocket;
+using MinecraftServerApplication.Discord.Commands;
 using System.Diagnostics;
 using System.Reflection;
 
 namespace MinecraftServerApplication.Discord;
 internal class HarperModule : IModule {
     public bool keepAlive;
-    private List<Command> _commands;
     private readonly DiscordSocketClient _client;
+    private readonly InteractionService _interactionService;
 
     public HarperModule() {
         DiscordSocketConfig config = new() {
@@ -15,13 +17,18 @@ internal class HarperModule : IModule {
         };
 
         keepAlive = false;
-        _commands = new List<Command>();
         _client = new DiscordSocketClient(config);
         _client.SlashCommandExecuted += CommandHandler;
         _client.Ready += ReadyHandler;
 #if DEBUG
         _client.Log += (entry) => Task.Run(() => Debug.WriteLine(entry.ToString()));
 #endif
+
+        _interactionService = new(_client.Rest);
+        _client.AutocompleteExecuted += async (SocketAutocompleteInteraction arg) => {
+            var context = new InteractionContext(_client, arg, arg.Channel);
+            await _interactionService.ExecuteCommandAsync(context, null);
+        };
     }
 
     #region startup / shutdown
@@ -49,120 +56,16 @@ internal class HarperModule : IModule {
 
     #region event listeners
     private async Task ReadyHandler() {
-        #region equality checker
-        static bool AreCommandsEqual(SocketApplicationCommand command, SlashCommandBuilder builder) {
-            static bool AreOptionsEqual(IReadOnlyCollection<SocketApplicationCommandOption> optionsA, List<SlashCommandOptionBuilder> optionsB) {
-                if (optionsA.Count == 0 && optionsB == null) {
-                    return true;
-                }
-                if (optionsA.Count != optionsB.Count) {
-                    return false;
-                }
-
-                bool result = true;
-                for (int i = 0; i < optionsA.Count; i++) {
-                    if (result == false) {
-                        break;
-                    }
-
-                    var optionA = optionsA.ElementAt(i);
-                    var optionB = optionsB.ElementAt(i);
-
-                    //warning: this code is incomplete as I can't be bothered to check for every fucking option
-                    result =
-                        optionA.Name == optionB.Name &&
-                        optionA.Description == optionB.Description &&
-                        optionA.Type == optionB.Type &&
-                        optionA.IsDefault == optionB.IsDefault &&
-                        optionA.IsRequired == optionB.IsRequired &&
-                        optionA.Choices.Count == optionB.Choices.Count;
-                }
-
-                return result;
-            }
-
-            return command.Name == builder.Name &&
-            command.Description == builder.Description &&
-            command.IsNsfw == builder.IsNsfw &&
-            AreOptionsEqual(command.Options, builder.Options);
-        }
-        #endregion //equality checker
-
-        IReadOnlyCollection<SocketApplicationCommand> currentCommands;
-
-        #region get commands
-        {
-            //get the commands that the bot already has
-            var getApplicationCommands = _client.GetGlobalApplicationCommandsAsync();
-            foreach (Type type in Assembly.GetExecutingAssembly().GetTypes()) {
-                if (!type.IsAbstract && type.IsClass && type.IsAssignableTo(typeof(Command))) {
-                    //init command
-                    Command command = Activator.CreateInstance(type) as Command ?? throw new NullReferenceException("wasn't able to create an instance of the command");
-                    command.Harper = this;
-
-                    //add the command
-                    _commands.Add(command);
-                }
-            }
-
-            //wait till the process is done
-            await getApplicationCommands;
-            currentCommands = getApplicationCommands.Result;
-        }
-        #endregion //get commands
-
-        List<Command> buildCommands = _commands.ToList();
-        List<Task> updateCommands = new();
-
-        #region update commands
-        await Task.Run(() => {
-            //update the commands with a match
-            foreach (var command in currentCommands) {
-                //try to find a match for the command
-                int matchIndex = buildCommands.FindIndex((cmd) => (command.Name == cmd.CommandBuilder.Name));
-
-                //delete the command if no match was found
-                if (matchIndex == -1) {
-                    Debug.WriteLine($"deleting '{command.Name}' command...");
-                    updateCommands.Add(command.DeleteAsync());
-                    continue;
-                }
-
-                //check whether the old command isn't equal to the new one
-                if (AreCommandsEqual(command, buildCommands[matchIndex].CommandBuilder) == false) {
-                    Debug.WriteLine($"overwriting '{buildCommands[matchIndex].CommandBuilder.Name}' command...");
-                    //override the command
-                    updateCommands.Add(_client.CreateGlobalApplicationCommandAsync(buildCommands[matchIndex].CommandBuilder.Build()));
-                    buildCommands.RemoveAt(matchIndex);
-                    continue;
-                }
-
-                //no updating needed: remove the command from the build que
-                buildCommands.RemoveAt(matchIndex);
-            }
-
-            //add the commands that didn't have a match
-            while (buildCommands.Count > 0) {
-                Debug.WriteLine($"adding '{buildCommands[0].CommandBuilder.Name}' command...");
-                updateCommands.Add(_client.CreateGlobalApplicationCommandAsync(buildCommands[0].CommandBuilder.Build()));
-                buildCommands.RemoveAt(0);
-            }
-        });
-        #endregion //update commands
-
-        await Task.WhenAll(updateCommands);
+        await _interactionService.AddModuleAsync<UtilCommands>(null);
+        await _interactionService.AddModuleAsync<ServerCommands>(null);
+        await _interactionService.AddModuleAsync<MinecraftCommmands>(null);
+        await _interactionService.RegisterCommandsGloballyAsync(true);
     }
 
     private async Task CommandHandler(SocketSlashCommand command) {
-        Command? commandRunner = _commands.FirstOrDefault((cmd) => (command.CommandName == cmd.CommandBuilder.Name));
-
-        if (commandRunner == null) {
-            Debug.WriteLine($"Couldn't find a command with the name: '{command.CommandName}'!");
-            return;
-        }
-        CommandHandler commandHandler = new CommandHandler(command);
-        await commandHandler.Initialize();
-        await commandRunner.Run(commandHandler);
+        await command.RespondAsync("harper is thinking...");
+        var context = new InteractionContext(_client, command, command.Channel);
+        await _interactionService.ExecuteCommandAsync(context, null);
     }
     #endregion //event listeners
 }
