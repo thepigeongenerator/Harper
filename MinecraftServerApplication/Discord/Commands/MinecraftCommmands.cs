@@ -29,7 +29,7 @@ internal class MinecraftCommmands : CommandHandler {
 
             return $"{bytes} {suffixes[suffixIndex]}";
         }
-        
+
         string response = string.Empty;
 
         foreach (string name in _mcServer.ServerNames) {
@@ -73,6 +73,24 @@ internal class MinecraftCommmands : CommandHandler {
     public async Task StopCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(ServerNameAutocomplete))] string serverName) {
         MinecraftServer? server = _mcServer.TryGetServer(serverName);
         if (server == null) {
+            await SetError($"{serverName} is already running!");
+            return;
+        }
+
+        if (server.Running == false) {
+            await SetError($"`{serverName}` is already shut down!");
+            return;
+        }
+
+        await SetInfo($"shutting down `{serverName}`...");
+        await server.Stop();
+        await SetSuccess($"`{serverName}` was shut down!");
+    }
+
+    [SlashCommand("restart", "restarts the minecraft server")]
+    public async Task RestartCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(ServerNameAutocomplete))] string serverName) {
+        MinecraftServer? server = _mcServer.TryGetServer(serverName);
+        if (server == null) {
             await SetError($"couldn't find a server with the name `{serverName}`");
             return;
         }
@@ -86,24 +104,6 @@ internal class MinecraftCommmands : CommandHandler {
         await server.Stop();
         await SetSuccess($"{serverName} was shut down! restarting...");
         await server.Run();
-    }
-
-    [SlashCommand("restart", "restarts the minecraft server")]
-    public async Task RestartCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(ServerNameAutocomplete))] string serverName) {
-        MinecraftServer? server = _mcServer.TryGetServer(serverName);
-        if (server == null) {
-            await SetError($"couldn't find a server with the name `{serverName}`");
-            return;
-        }
-
-        if (server.Running == false) {
-            await SetError($"{serverName} is already shut down!");
-            return;
-        }
-
-        await SetInfo($"shutting down {serverName}...");
-        await server.Stop();
-        await SetSuccess($"{serverName} was shut down!");
     }
 
 
