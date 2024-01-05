@@ -60,20 +60,20 @@ internal class MinecraftCommmands : CommandHandler {
         }
 
         if (server.Running == true) {
-            await SetError($"{serverName} is already running!");
+            await SetError($"`{serverName}` is already running!");
             return;
         }
 
-        await SetInfo($"starting {serverName}...");
+        await SetInfo($"starting `{serverName}`...");
         await server.Run();
-        await SetSuccess($"started {serverName}!");
+        await SetSuccess($"started `{serverName}`!");
     }
 
     [SlashCommand("stop", "stops the minecraft server")]
     public async Task StopCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(ServerNameAutocomplete))] string serverName) {
         MinecraftServer? server = _mcServer.TryGetServer(serverName);
         if (server == null) {
-            await SetError($"{serverName} is already running!");
+            await SetError($"`{serverName}` is already running!");
             return;
         }
 
@@ -96,13 +96,13 @@ internal class MinecraftCommmands : CommandHandler {
         }
 
         if (server.Running == false) {
-            await SetError($"{serverName} is already running!");
+            await SetError($"`{serverName}` is already running!");
             return;
         }
 
         await SetInfo($"shutting down {serverName}...");
         await server.Stop();
-        await SetSuccess($"{serverName} was shut down! restarting...");
+        await SetSuccess($"`{serverName}` was shut down! restarting...");
         await server.Run();
     }
 
