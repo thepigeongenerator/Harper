@@ -6,7 +6,7 @@ using System.Windows.Input;
 
 namespace MinecraftServerApplication;
 
-//TODO: add logging script
+//TODO: use Microsoft.Extensions.Logging for logging
 internal static class Program {
     public const string SETTINGS_PATH = "./settings";
     public const string DATA_PATH = "./data";
