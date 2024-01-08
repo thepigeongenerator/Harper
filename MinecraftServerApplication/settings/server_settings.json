@@ -10,10 +10,10 @@
     "additionalJvmArgs": ""
   },
   {
-    "name": "TEST2",
+    "name": "ERROR",
     "minGB": 1.0,
     "maxGB": 1.0,
-    "jarPath": "C:/Users/user/Desktop/MCSERVER/server.jar",
+    "jarPath": "C:/Users/user/Desktop/MCSERVER/not_server.jar",
     "maxRestartAttempts": -1,
     "maxBackups": 11,
     "automaticStartup": false,

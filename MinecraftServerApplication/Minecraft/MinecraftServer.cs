@@ -50,7 +50,11 @@ internal class MinecraftServer {
         }
 
         if (Path.GetExtension(settings.jarPath) != ".jar" || File.Exists(settings.jarPath) == false) {
-            throw new Exception($"no .jar detected at path: '{settings.jarPath}'");
+            const string ERROR_STRING = "no .jar detected at path: '{0}'";
+            string error = string.Format(ERROR_STRING, settings.jarPath);
+            //error logging
+            Debug.Fail(error);
+            throw new Exception(error);
         }
         #endregion //local functions
 
