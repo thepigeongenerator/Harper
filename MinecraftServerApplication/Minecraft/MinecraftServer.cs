@@ -3,7 +3,7 @@ using System.IO.Compression;
 
 namespace MinecraftServerApplication.Minecraft;
 internal class MinecraftServer {
-    private bool _running;
+    private State _state;
     private int _faultyShutdownCount;
     private readonly int _maxRestartAttempts;
     private readonly int _maxBackups;
@@ -54,7 +54,14 @@ internal class MinecraftServer {
         }
         #endregion //local functions
 
-        string serverDirectory = Path.GetDirectoryName(settings.jarPath) ?? throw new NullReferenceException();
+        string? serverDirectory = Path.GetDirectoryName(settings.jarPath);
+        if (serverDirectory == null) {
+            const string ERROR_STRING= "the file at '{0}' doesn't exist!";
+            string error = string.Format(ERROR_STRING, settings.jarPath);
+            Debug.Fail(error);
+            throw new NullReferenceException(string.Format(error));
+        }
+
         ProcessStartInfo startInfo = new() {
             FileName = "java",                      //run with java
             Arguments = GetJvmArguments(settings),  //the jvm arguments
@@ -69,7 +76,7 @@ internal class MinecraftServer {
         _maxBackups = settings.maxBackups;
         _automaticStartup = settings.automaticStartup;
         _faultyShutdownCount = 0;
-        _running = false;
+        _state = State.STOPPED;
         _worldDirectory = GetWorldDirectory(serverDirectory);
         _backupDirectory = Path.Combine(serverDirectory, "backups");
         _serverProcess = new() {
@@ -80,8 +87,8 @@ internal class MinecraftServer {
     }
     #endregion //constructor
 
-    public bool Running {
-        get => _running;
+    public State State {
+        get => _state;
     }
 
     public bool AutomaticStartup {
@@ -94,32 +101,39 @@ internal class MinecraftServer {
 
     #region startup & shutdown
     public Task Run() {
-        if (_running == true) {
+        if (_state is State.RUNNING or State.STARTING) {
             throw new Exception($"the server is already running");
         }
 
         async void Run() {
             do {
                 Start();
+
+                if (_state is State.ERROR) {
+                    break;
+                }
+
                 await _serverProcess.WaitForExitAsync();
                 await Task.Delay(30);
 
                 await Task.Run(CreateBackup);
 
                 //if running is false, it means that the shutdown was intended; no need for restarting.
-                if (_running == false) {
+                if (_state is State.STOPPED) {
                     _faultyShutdownCount = 0;
                     break;
                 }
 
                 _faultyShutdownCount++;
-                _running = false;
+                _state = State.ERROR;
             }
             while (_faultyShutdownCount <= _maxRestartAttempts || _maxRestartAttempts < 0); //do lower than 0 check to allow for restart attempts to be disabled
 
-            if (_faultyShutdownCount > _maxRestartAttempts && _maxRestartAttempts >= 0) {
-                Debug.WriteLine($"the server restarted too many times! {_maxRestartAttempts}");
-                _running = false;
+            //if an error occured;
+            //this means that either the server was automatically restarted too many times
+            //or an error occured whilst running
+            if (_state is State.ERROR) {
+                Debug.WriteLine($"the server either automatically restarted too many times or an error occured! {_maxRestartAttempts}");
             }
         }
 
@@ -129,20 +143,29 @@ internal class MinecraftServer {
     }
 
     public void Start() {
-        if (_running == true) {
-            Debug.WriteLine("start was called whilst the server was already running, ignoring call.");
+        //if the state is starting or running; ignore
+        if (_state is State.RUNNING or State.STARTING) {
+            Debug.WriteLine("start was called whilst the server wasn't stopped, ignoring call.");
             return;
         }
 
-        _running = true;
-        _running &= _serverProcess.Start();
+        _state = State.STARTING;
+        bool success =  _serverProcess.Start();
+        _state = success ? State.RUNNING : State.ERROR;
     }
 
     public async Task Stop() {
+        //if the state is not starting or running; ignore
+        if (_state is not State.STARTING or State.RUNNING) {
+            Debug.WriteLine("start was called whilst the server wasn't starting, ignoring call.");
+            return;
+        }
+
+        _state = State.STOPPING;
         SendCommand("kick @a Server has shut down");
         SendCommand("stop"); //send the 'stop' command to the server
         await _serverProcess.WaitForExitAsync();
-        _running = false;
+        _state = State.STOPPED;
     }
     #endregion //startup & shutdown
 

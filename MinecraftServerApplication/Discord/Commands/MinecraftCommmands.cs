@@ -35,14 +35,15 @@ internal class MinecraftCommmands : CommandHandler {
         foreach (string name in _mcServer.ServerNames) {
             MinecraftServer server = _mcServer.TryGetServer(name) ?? throw new NullReferenceException($"couldn't find a server with the name {name}");
             response += $"### {name}:\n" +
-                $"> running: {server.Running}\n";
-            if (server.Running) {
+                $"> state: {server.State}\n";
+            // if the server is running
+            if (server.State is State.RUNNING) {
                 Process serverProcess = server.ServerProcess;
                 response +=
                     $"> threads: {serverProcess.Threads.Count}\n" +
                     $"> memory used: {FormatBytes(serverProcess.WorkingSet64)}\n" +
                     $"> responding: {serverProcess.Responding}\n" +
-                    $"> running: `{(DateTime.Now - serverProcess.StartTime).ToString(@"hh\:mm")}`\n";
+                    $"> running: `{(DateTime.Now - serverProcess.StartTime).ToString(@"hh\:mm")}` (hh:mm)\n";
             }
         }
 
@@ -59,13 +60,28 @@ internal class MinecraftCommmands : CommandHandler {
             return;
         }
 
-        if (server.Running == true) {
+        if (server.State is State.RUNNING or State.STARTING) {
             await SetError($"`{serverName}` is already running!");
             return;
         }
 
-        await SetInfo($"starting `{serverName}`...");
+        //check whether the state is ERROR before starting (becomes ERROR if there were issues when starting it last or )
+        if (server.State is State.ERROR) {
+            await SetWarning($"an error occured when last starting `{serverName}`! Starting anyway...");
+        }
+        else {
+            await SetInfo($"starting `{serverName}`...");
+        }
+
+        //run the actual server
         await server.Run();
+
+        //if the server's state is now ERROR
+        if (server.State is State.ERROR) {
+            await SetError($"an error occured when starting `{serverName}`!");
+            return;
+        }
+
         await SetSuccess($"started `{serverName}`!");
     }
 
@@ -77,7 +93,7 @@ internal class MinecraftCommmands : CommandHandler {
             return;
         }
 
-        if (server.Running == false) {
+        if (server.State is not State.RUNNING or State.STARTING) {
             await SetError($"`{serverName}` is already shut down!");
             return;
         }
@@ -95,7 +111,7 @@ internal class MinecraftCommmands : CommandHandler {
             return;
         }
 
-        if (server.Running == false) {
+        if (server.State is State.RUNNING or State.STARTING) {
             await SetError($"`{serverName}` is already running!");
             return;
         }

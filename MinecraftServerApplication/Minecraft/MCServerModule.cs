@@ -39,7 +39,7 @@ internal class MCServerModule : IModule {
     public async Task Shutdown() {
         List<Task> shutdownServers = new();
         foreach (string key in _servers.Keys) {
-            if (_servers[key].Running) {
+            if (_servers[key].State is State.RUNNING or State.STARTING) {
                 shutdownServers.Add(_servers[key].Stop());
             }
         }
