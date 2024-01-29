@@ -153,9 +153,9 @@ internal class MinecraftServer {
     }
 
     public void Start() {
-        //if the state is starting or running; ignore
-        if (_state is State.RUNNING or State.STARTING) {
-            _log.LogWarning("start was called whilst the server wasn't stopped, ignoring call.");
+        //if the state doesn't conain a state that can be started; ignore
+        if ((_state & State.CAN_START) == 0) {
+            _log.LogWarning($"{nameof(Start)}() was called whilst the server state was '{_state}', ignoring call.");
             return;
         }
 
@@ -165,9 +165,9 @@ internal class MinecraftServer {
     }
 
     public async Task Stop() {
-        //if the state is not starting or running; ignore
-        if (_state is not State.STARTING or State.RUNNING) {
-            _log.LogWarning("stop was called whilst the server wasn't running, ignoring call.");
+        //if the state doesn't conain a state that can be stopped; ignore
+        if ((_state & State.CAN_STOP) == 0) {
+            _log.LogWarning($"{nameof(Stop)}() was called whilst the server state was '{_state}', ignoring call.");
             return;
         }
 
