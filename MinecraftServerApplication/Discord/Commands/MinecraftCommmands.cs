@@ -16,6 +16,7 @@ internal class MinecraftCommmands : CommandHandler {
         _mcServer = Program.GetModuleOfType<MCServerModule>();
     }
 
+    #region commands
     [SlashCommand("info", "gets the info of the Minecraft server")]
     public async Task InfoCmd() {
         static string FormatBytes(long bytes) {
@@ -53,7 +54,7 @@ internal class MinecraftCommmands : CommandHandler {
 
     //TODO: make shit less repetitive
     [SlashCommand("start", "starts the minecraft server")]
-    public async Task StartCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(ServerNameAutocomplete))] string serverName) {
+    public async Task StartCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(CanStartServerAutocomplete))] string serverName) {
         MinecraftServer? server = _mcServer.TryGetServer(serverName);
         if (server == null) {
             await SetError($"couldn't find a server with the name `{serverName}`");
@@ -86,7 +87,7 @@ internal class MinecraftCommmands : CommandHandler {
     }
 
     [SlashCommand("stop", "stops the minecraft server")]
-    public async Task StopCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(ServerNameAutocomplete))] string serverName) {
+    public async Task StopCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(CanStopServerAutocomplete))] string serverName) {
         MinecraftServer? server = _mcServer.TryGetServer(serverName);
         if (server == null) {
             await SetError($"`{serverName}` is already running!");
@@ -104,7 +105,7 @@ internal class MinecraftCommmands : CommandHandler {
     }
 
     [SlashCommand("restart", "restarts the minecraft server")]
-    public async Task RestartCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(ServerNameAutocomplete))] string serverName) {
+    public async Task RestartCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(CanStopServerAutocomplete))] string serverName) {
         MinecraftServer? server = _mcServer.TryGetServer(serverName);
         if (server == null) {
             await SetError($"couldn't find a server with the name `{serverName}`");
@@ -121,21 +122,47 @@ internal class MinecraftCommmands : CommandHandler {
         await SetSuccess($"`{serverName}` was shut down! restarting...");
         await server.Run();
     }
+    #endregion //commands
 
+    #region autocompleters
+    #region base
+    public abstract class ServerNameAutocomplete : AutocompleteHandler {
+        private static MCServerModule? _mcServer; //stores the minecraft server instance
 
-    public class ServerNameAutocomplete : AutocompleteHandler {
-        private static MCServerModule? _mcServer;
+        //contains the state that the autocompleter needs to match (uses OR comparison)
+        protected abstract State MatchState {
+            get;
+        }
 
         public override Task<AutocompletionResult> GenerateSuggestionsAsync(IInteractionContext context, IAutocompleteInteraction autocompleteInteraction, IParameterInfo parameter, IServiceProvider services) {
-            _mcServer ??= Program.GetModuleOfType<MCServerModule>();
+            _mcServer ??= Program.GetModuleOfType<MCServerModule>(); //get the minecraft server if it hasn't been gathered yet
 
+            //contains the suggestions for the servers to be started
             List<AutocompleteResult> suggestions = new();
+
+            //loop through the initialized server names
             foreach (string name in _mcServer.ServerNames) {
-                suggestions.Add(new AutocompleteResult(name, name));
+                //extract the minecraft server's state
+                State serverState = _mcServer.TryGetServer(name)?.State ?? throw new NullReferenceException();
+
+                //check whether the server's state matches with the flags provided
+                if ((serverState & MatchState) != 0) {
+                    //add the result to the auto complete result (use name for both the underlying value and display value)
+                    suggestions.Add(new AutocompleteResult(name, name));
+                }
             }
 
             //rate limit of 25 on the api
             return Task<AutocompletionResult>.FromResult(AutocompletionResult.FromSuccess(suggestions.Take(25)));
         }
     }
+    #endregion //base
+    public class CanStopServerAutocomplete : ServerNameAutocomplete {
+        protected override State MatchState => State.RUNNING | State.STARTING;
+    }
+
+    public class CanStartServerAutocomplete : ServerNameAutocomplete {
+        protected override State MatchState => State.ERROR | State.STOPPED;
+    }
+    #endregion //autocompleters
 }
