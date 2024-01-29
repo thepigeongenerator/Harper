@@ -1,4 +1,6 @@
-﻿using MinecraftServerApplication.Discord;
+﻿using Microsoft.Extensions.Logging;
+using MinecraftServerApplication.Discord;
+using MinecraftServerApplication.Logging;
 using MinecraftServerApplication.Minecraft;
 using System.Diagnostics;
 using System.Reflection;
@@ -6,24 +8,32 @@ using System.Windows.Input;
 
 namespace MinecraftServerApplication;
 
-//TODO: use Microsoft.Extensions.Logging for logging
 internal static class Program {
     public const string SETTINGS_PATH = "./settings";
     public const string DATA_PATH = "./data";
     public const string BACKUP_PATH = "./backups";
     public const string LOG_PATH = "./logs";
+    private static readonly ILogger _log;
     private static readonly ManualResetEvent shutdownEvent = new(false);
     private static readonly List<IModule> _modules = [];
 
     static Program() {
+        //init logger
+        _log = Log.CreateLogger("System");
+
         //load modules
         foreach (Type type in Assembly.GetExecutingAssembly().GetTypes()) {
             if (!type.IsAbstract && type.IsClass && type.IsAssignableTo(typeof(IModule))) {
-                //init command
-                IModule module = Activator.CreateInstance(type) as IModule ?? throw new NullReferenceException("wasn't able to create an instance of the command");
+                try {
+                    //init command
+                    IModule module = Activator.CreateInstance(type) as IModule ?? throw new NullReferenceException("wasn't able to create an instance of the command");
 
-                //add the command
-                _modules.Add(module);
+                    //add the command
+                    _modules.Add(module);
+                }
+                catch (Exception ex) {
+                    _log.LogError($"Something went wrong when initializing type '{type.FullName}':\n{ex}");
+                }
             }
         }
     }
@@ -58,12 +68,12 @@ internal static class Program {
         List<Task> runModules = [];
 
         for (int i = 0; i < _modules.Count; i++) {
-            Debug.WriteLine($"{MathF.Round((float)i / _modules.Count * 100)}% running '{_modules[i].GetType().Name}'...");
+            _log.LogInformation($"{MathF.Round((float)i / _modules.Count * 100)}% running '{_modules[i].GetType().Name}'...");
             Task task = _modules[i].Run();
             runModules.Add(task);
         }
 
-        Debug.WriteLine("100% done!");
+        _log.LogInformation("100% done!");
 
         await WaitShutdownAsync(); //await the shutdown event
         await Task.WhenAll(runModules); //await the modules from compleding

@@ -1,4 +1,5 @@
-﻿using QUtilities;
+﻿using MinecraftServerApplication.Logging;
+using QUtilities;
 
 namespace MinecraftServerApplication.Minecraft;
 internal class MCServerModule : IModule {
@@ -11,9 +12,10 @@ internal class MCServerModule : IModule {
 
         foreach (MinecraftServerSettings settings in serverSettings) {
             if (_servers.ContainsKey(settings.name)) {
-                throw new Exception($"a server with the name {settings.name} already exists!");
+                string error = $"a server with the name {settings.name} already exists!";
+                this.LogError(error);
+                throw new Exception(error);
             }
-
             _servers.Add(settings.name, new MinecraftServer(settings));
         }
     }

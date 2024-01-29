@@ -1,10 +1,13 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.Extensions.Logging;
+using MinecraftServerApplication.Logging;
+using System.Diagnostics;
 using System.IO.Compression;
 
 namespace MinecraftServerApplication.Minecraft;
 internal class MinecraftServer {
     private State _state;
     private int _faultyShutdownCount;
+    private readonly ILogger _log;
     private readonly int _maxRestartAttempts;
     private readonly int _maxBackups;
     private readonly bool _automaticStartup;
@@ -50,22 +53,29 @@ internal class MinecraftServer {
         }
 
         if (Path.GetExtension(settings.jarPath) != ".jar" || File.Exists(settings.jarPath) == false) {
-            const string ERROR_STRING = "no .jar detected at path: '{0}'";
-            string error = string.Format(ERROR_STRING, settings.jarPath);
-            //error logging
-            Debug.Fail(error);
-            throw new Exception(error);
+            throw new Exception(string.Format("no .jar detected at path: '{0}'", settings.jarPath));
         }
         #endregion //local functions
 
+        //pre-process initialization, init
+        _log = Log.CreateLogger(GetType().Name + '#' + settings.name);
+        _maxRestartAttempts = settings.maxRestartAttempts;
+        _maxBackups = settings.maxBackups;
+        _automaticStartup = settings.automaticStartup;
+        _faultyShutdownCount = 0;
+        _state = State.STOPPED;
+
+        //init directory
         string? serverDirectory = Path.GetDirectoryName(settings.jarPath);
         if (serverDirectory == null) {
-            const string ERROR_STRING= "the file at '{0}' doesn't exist!";
+            const string ERROR_STRING = "the file at '{0}' doesn't exist!";
             string error = string.Format(ERROR_STRING, settings.jarPath);
-            Debug.Fail(error);
+            //error logging
+            _log.LogError(error);
             throw new NullReferenceException(string.Format(error));
         }
 
+        //process startinfo init
         ProcessStartInfo startInfo = new() {
             FileName = "java",                      //run with java
             Arguments = GetJvmArguments(settings),  //the jvm arguments
@@ -76,11 +86,7 @@ internal class MinecraftServer {
             RedirectStandardError = true,           //for preventing error output to be written to the console
         };
 
-        _maxRestartAttempts = settings.maxRestartAttempts; //add one to make inclusive
-        _maxBackups = settings.maxBackups;
-        _automaticStartup = settings.automaticStartup;
-        _faultyShutdownCount = 0;
-        _state = State.STOPPED;
+        //post-process initialization, init
         _worldDirectory = GetWorldDirectory(serverDirectory);
         _backupDirectory = Path.Combine(serverDirectory, "backups");
         _serverProcess = new() {
@@ -137,7 +143,7 @@ internal class MinecraftServer {
             //this means that either the server was automatically restarted too many times
             //or an error occured whilst running
             if (_state is State.ERROR) {
-                Debug.WriteLine($"the server either automatically restarted too many times or an error occured! {_maxRestartAttempts}");
+                _log.LogWarning($"the server either automatically restarted too many times or an error occured! {_maxRestartAttempts}");
             }
         }
 
@@ -149,19 +155,19 @@ internal class MinecraftServer {
     public void Start() {
         //if the state is starting or running; ignore
         if (_state is State.RUNNING or State.STARTING) {
-            Debug.WriteLine("start was called whilst the server wasn't stopped, ignoring call.");
+            _log.LogWarning("start was called whilst the server wasn't stopped, ignoring call.");
             return;
         }
 
         _state = State.STARTING;
-        bool success =  _serverProcess.Start();
+        bool success = _serverProcess.Start();
         _state = success ? State.RUNNING : State.ERROR;
     }
 
     public async Task Stop() {
         //if the state is not starting or running; ignore
         if (_state is not State.STARTING or State.RUNNING) {
-            Debug.WriteLine("start was called whilst the server wasn't starting, ignoring call.");
+            _log.LogWarning("start was called whilst the server wasn't starting, ignoring call.");
             return;
         }
 
