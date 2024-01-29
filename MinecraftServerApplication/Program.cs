@@ -25,7 +25,11 @@ internal static class Program {
         _log = Log.CreateLogger("System");
 
         //log the application version
+#if DEBUG
+        _log.LogInformation($"Running version: v{FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion} (DEBUG)");
+#else
         _log.LogInformation($"Running version: v{FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion}");
+#endif
 
         //load modules
         foreach (Type type in assembly.GetTypes()) {
