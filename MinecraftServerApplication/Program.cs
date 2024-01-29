@@ -18,11 +18,17 @@ internal static class Program {
     private static readonly List<IModule> _modules = [];
 
     static Program() {
+        //get the executing assembly
+        Assembly assembly = Assembly.GetExecutingAssembly();
+
         //init logger
         _log = Log.CreateLogger("System");
 
+        //log the application version
+        _log.LogInformation($"Running version: v{FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion}");
+
         //load modules
-        foreach (Type type in Assembly.GetExecutingAssembly().GetTypes()) {
+        foreach (Type type in assembly.GetTypes()) {
             if (!type.IsAbstract && type.IsClass && type.IsAssignableTo(typeof(IModule))) {
                 try {
                     //init command
