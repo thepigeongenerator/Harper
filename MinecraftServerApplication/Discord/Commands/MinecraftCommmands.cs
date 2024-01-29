@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace MinecraftServerApplication.Discord.Commands;
 internal class MinecraftCommmands : CommandHandler {
+    private const string FAIL_MC_SERVER_MODULE = "Failed to find the module in charge for running Minecraft servers!";
     private readonly MCServerModule? _mcServer;
 
     public MinecraftCommmands() {
@@ -19,7 +20,7 @@ internal class MinecraftCommmands : CommandHandler {
     public async Task<MinecraftServer?> GetServer(string serverName, State matchEither) {
         //check whether the server module is available
         if (_mcServer == null) {
-            await SetCritical("Could not find the module in charge for running Minecraft Servers!");
+            await SetCritical(FAIL_MC_SERVER_MODULE);
             return null;
         }
 
@@ -52,6 +53,12 @@ internal class MinecraftCommmands : CommandHandler {
             }
 
             return $"{bytes} {suffixes[suffixIndex]}";
+        }
+
+        //if the minecraft server can't be found
+        if (_mcServer == null) {
+            await SetCritical(FAIL_MC_SERVER_MODULE);
+            return;
         }
 
         string response = string.Empty;
@@ -142,20 +149,23 @@ internal class MinecraftCommmands : CommandHandler {
         }
 
         public override Task<AutocompletionResult> GenerateSuggestionsAsync(IInteractionContext context, IAutocompleteInteraction autocompleteInteraction, IParameterInfo parameter, IServiceProvider services) {
-            _mcServer ??= Program.GetModuleOfType<MCServerModule>(); //get the minecraft server if it hasn't been gathered yet
-
             //contains the suggestions for the servers to be started
             List<AutocompleteResult> suggestions = new();
 
-            //loop through the initialized server names
-            foreach (string name in _mcServer.ServerNames) {
-                //extract the minecraft server's state
-                State serverState = _mcServer.TryGetServer(name)?.State ?? throw new NullReferenceException();
+            _mcServer ??= Program.GetModuleOfType<MCServerModule>(); //get the minecraft server if it hasn't been found yet
 
-                //check whether the server's state matches with the flags provided
-                if ((serverState & MatchState) != 0) {
-                    //add the result to the auto complete result (use name for both the underlying value and display value)
-                    suggestions.Add(new AutocompleteResult(name, name));
+            //if the minecraft server was found
+            if (_mcServer != null) {
+                //loop through the initialized server names
+                foreach (string name in _mcServer.ServerNames) {
+                    //extract the minecraft server's state
+                    State serverState = _mcServer.TryGetServer(name)?.State ?? throw new NullReferenceException();
+
+                    //check whether the server's state matches with the flags provided
+                    if ((serverState & MatchState) != 0) {
+                        //add the result to the auto complete result (use name for both the underlying value and display value)
+                        suggestions.Add(new AutocompleteResult(name, name));
+                    }
                 }
             }
 

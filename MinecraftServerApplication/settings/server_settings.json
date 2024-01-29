@@ -10,7 +10,7 @@
     "additionalJvmArgs": ""
   },
   {
-    "name": "ERROR",
+    "name": "TEST",
     "minGB": 1.0,
     "maxGB": 1.0,
     "jarPath": "C:/Users/user/Desktop/MCSERVER/server.jar",

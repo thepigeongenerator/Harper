@@ -57,11 +57,11 @@ internal static class Program {
         return Task.Run(shutdownEvent.WaitOne);
     }
 
-    public static T GetModuleOfType<T>() where T : class, IModule {
+    public static T? GetModuleOfType<T>() where T : class, IModule {
         return (
             from module in _modules
             where module is T
-            select module as T).First();
+            select module as T).FirstOrDefault();
     }
 
     private static async Task MainAsync() {
