@@ -2,7 +2,6 @@
 using Discord.Interactions;
 using Discord.WebSocket;
 using MinecraftServerApplication.Discord.Commands;
-using MinecraftServerApplication.Logging;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -21,9 +20,6 @@ internal class HarperModule : IModule {
         _client = new DiscordSocketClient(config);
         _client.SlashCommandExecuted += CommandHandler;
         _client.Ready += ReadyHandler;
-#if DEBUG
-        _client.Log += (entry) => Task.Run(() => this.LogInfo(entry.ToString()));
-#endif
 
         _interactionService = new(_client.Rest);
         _client.AutocompleteExecuted += async (SocketAutocompleteInteraction arg) => {
@@ -64,7 +60,6 @@ internal class HarperModule : IModule {
     }
 
     private async Task CommandHandler(SocketSlashCommand command) {
-        this.LogInfo($"'{command.User.Username}' is executuing command '{command.CommandName}' in '{command.Channel.Name}'");
         await command.RespondAsync("harper is thinking...");
         var context = new InteractionContext(_client, command, command.Channel);
         await _interactionService.ExecuteCommandAsync(context, null);

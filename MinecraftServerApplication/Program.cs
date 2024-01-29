@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using MinecraftServerApplication.Discord;
-using MinecraftServerApplication.Logging;
+﻿using MinecraftServerApplication.Discord;
 using MinecraftServerApplication.Minecraft;
 using System.Diagnostics;
 using System.Reflection;
@@ -13,7 +11,6 @@ internal static class Program {
     public const string DATA_PATH = "./data";
     public const string BACKUP_PATH = "./backups";
     public const string LOG_PATH = "./logs";
-    private static readonly ILogger _log;
     private static readonly ManualResetEvent shutdownEvent = new(false);
     private static readonly List<IModule> _modules = [];
 
@@ -22,13 +19,10 @@ internal static class Program {
         Assembly assembly = Assembly.GetExecutingAssembly();
 
         //init logger
-        _log = Log.CreateLogger("System");
 
         //log the application version
 #if DEBUG
-        _log.LogInformation($"Running version: v{FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion} (DEBUG)");
 #else
-        _log.LogInformation($"Running version: v{FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion}");
 #endif
 
         //load modules
@@ -42,7 +36,6 @@ internal static class Program {
                     _modules.Add(module);
                 }
                 catch (Exception ex) {
-                    _log.LogError($"Something went wrong when initializing type '{type.FullName}':\n{ex}");
                 }
             }
         }
@@ -78,12 +71,10 @@ internal static class Program {
         List<Task> runModules = [];
 
         for (int i = 0; i < _modules.Count; i++) {
-            _log.LogInformation($"{MathF.Round((float)i / _modules.Count * 100)}% running '{_modules[i].GetType().Name}'...");
             Task task = _modules[i].Run();
             runModules.Add(task);
         }
 
-        _log.LogInformation("100% done!");
 
         await WaitShutdownAsync(); //await the shutdown event
         await Task.WhenAll(runModules); //await the modules from compleding

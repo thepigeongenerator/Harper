@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using MinecraftServerApplication.Logging;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO.Compression;
 using System.Reactive;
 
@@ -8,7 +6,6 @@ namespace MinecraftServerApplication.Minecraft;
 internal class MinecraftServer {
     private State _state;
     private int _faultyShutdownCount;
-    private readonly ILogger _log;
     private readonly int _maxRestartAttempts;
     private readonly int _maxBackups;
     private readonly bool _automaticStartup;
@@ -59,7 +56,6 @@ internal class MinecraftServer {
         #endregion //local functions
 
         //pre-process initialization, init
-        _log = Log.CreateLogger(GetType().Name + '#' + settings.name);
         _maxRestartAttempts = settings.maxRestartAttempts;
         _maxBackups = settings.maxBackups;
         _automaticStartup = settings.automaticStartup;
@@ -72,7 +68,6 @@ internal class MinecraftServer {
             const string ERROR_STRING = "the file at '{0}' doesn't exist!";
             string error = string.Format(ERROR_STRING, settings.jarPath);
             //error logging
-            _log.LogError(error);
             throw new NullReferenceException(string.Format(error));
         }
 
@@ -144,7 +139,6 @@ internal class MinecraftServer {
             //this means that either the server was automatically restarted too many times
             //or an error occured whilst running
             if (_state is State.ERROR) {
-                _log.LogWarning($"the server either automatically restarted too many times or an error occured! {_maxRestartAttempts}");
             }
         }
 
@@ -156,7 +150,6 @@ internal class MinecraftServer {
     public void Start() {
         //if the state doesn't conain a state that can be started; ignore
         if ((_state & State.CAN_START) == 0) {
-            _log.LogWarning($"{nameof(Start)}() was called whilst the server state was '{_state}', ignoring call.");
             return;
         }
 
@@ -168,7 +161,6 @@ internal class MinecraftServer {
     public async Task Stop() {
         //if the state doesn't conain a state that can be stopped; ignore
         if ((_state & State.CAN_STOP) == 0) {
-            _log.LogWarning($"{nameof(Stop)}() was called whilst the server state was '{_state}', ignoring call.");
             return;
         }
 
