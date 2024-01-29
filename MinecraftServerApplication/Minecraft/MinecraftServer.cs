@@ -167,7 +167,7 @@ internal class MinecraftServer {
     public async Task Stop() {
         //if the state is not starting or running; ignore
         if (_state is not State.STARTING or State.RUNNING) {
-            _log.LogWarning("start was called whilst the server wasn't starting, ignoring call.");
+            _log.LogWarning("stop was called whilst the server wasn't running, ignoring call.");
             return;
         }
 
