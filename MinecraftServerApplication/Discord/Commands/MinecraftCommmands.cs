@@ -10,10 +10,33 @@ using System.Threading.Tasks;
 
 namespace MinecraftServerApplication.Discord.Commands;
 internal class MinecraftCommmands : CommandHandler {
-    private readonly MCServerModule _mcServer;
+    private readonly MCServerModule? _mcServer;
 
     public MinecraftCommmands() {
         _mcServer = Program.GetModuleOfType<MCServerModule>();
+    }
+
+    public async Task<MinecraftServer?> GetServer(string serverName, State matchEither) {
+        //check whether the server module is available
+        if (_mcServer == null) {
+            await SetCritical("Could not find the module in charge for running Minecraft Servers!");
+            return null;
+        }
+
+        //find the server & check whether the it was found
+        MinecraftServer? server = _mcServer.TryGetServer(serverName);
+        if (server == null) {
+            await SetError($"couldn't find a server with the name `{serverName}`");
+            return null;
+        }
+
+        //check the server's state
+        if ((server.State & matchEither) == 0) {
+            await SetError($"`{serverName}` has an illegal state: `{server.State.ToString()}`!");
+            return null;
+        }
+
+        return server;
     }
 
     #region commands
@@ -55,14 +78,9 @@ internal class MinecraftCommmands : CommandHandler {
     //TODO: make shit less repetitive
     [SlashCommand("start", "starts the minecraft server")]
     public async Task StartCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(CanStartServerAutocomplete))] string serverName) {
-        MinecraftServer? server = _mcServer.TryGetServer(serverName);
-        if (server == null) {
-            await SetError($"couldn't find a server with the name `{serverName}`");
-            return;
-        }
+        MinecraftServer? server = await GetServer(serverName, State.CAN_START);
 
-        if (server.State is State.RUNNING or State.STARTING) {
-            await SetError($"`{serverName}` is already running!");
+        if (server == null) {
             return;
         }
 
@@ -88,14 +106,9 @@ internal class MinecraftCommmands : CommandHandler {
 
     [SlashCommand("stop", "stops the minecraft server")]
     public async Task StopCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(CanStopServerAutocomplete))] string serverName) {
-        MinecraftServer? server = _mcServer.TryGetServer(serverName);
-        if (server == null) {
-            await SetError($"`{serverName}` is already running!");
-            return;
-        }
+        MinecraftServer? server = await GetServer(serverName, State.CAN_STOP);
 
-        if (server.State is not State.RUNNING or State.STARTING) {
-            await SetError($"`{serverName}` is already shut down!");
+        if (server == null) {
             return;
         }
 
@@ -106,14 +119,9 @@ internal class MinecraftCommmands : CommandHandler {
 
     [SlashCommand("restart", "restarts the minecraft server")]
     public async Task RestartCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(CanStopServerAutocomplete))] string serverName) {
-        MinecraftServer? server = _mcServer.TryGetServer(serverName);
-        if (server == null) {
-            await SetError($"couldn't find a server with the name `{serverName}`");
-            return;
-        }
+        MinecraftServer? server = await GetServer(serverName, State.CAN_STOP);
 
-        if (server.State is State.RUNNING or State.STARTING) {
-            await SetError($"`{serverName}` is already running!");
+        if (server == null) {
             return;
         }
 
@@ -158,11 +166,11 @@ internal class MinecraftCommmands : CommandHandler {
     }
     #endregion //base
     public class CanStopServerAutocomplete : ServerNameAutocomplete {
-        protected override State MatchState => State.RUNNING | State.STARTING;
+        protected override State MatchState => State.CAN_STOP;
     }
 
     public class CanStartServerAutocomplete : ServerNameAutocomplete {
-        protected override State MatchState => State.ERROR | State.STOPPED;
+        protected override State MatchState => State.CAN_START;
     }
     #endregion //autocompleters
 }
