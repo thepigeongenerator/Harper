@@ -75,7 +75,6 @@ internal class MinecraftCommmands : CommandHandler {
         await SetInfo(response);
     }
 
-    //TODO: make shit less repetitive
     [SlashCommand("start", "starts the minecraft server")]
     public async Task StartCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(CanStartServerAutocomplete))] string serverName) {
         MinecraftServer? server = await GetServer(serverName, State.CAN_START);
@@ -165,6 +164,10 @@ internal class MinecraftCommmands : CommandHandler {
         }
     }
     #endregion //base
+    public class AllServerAutocomplete : ServerNameAutocomplete {
+        protected override State MatchState => State.ANY;
+    }
+
     public class CanStopServerAutocomplete : ServerNameAutocomplete {
         protected override State MatchState => State.CAN_STOP;
     }

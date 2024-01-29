@@ -12,7 +12,7 @@ internal class ServerCommands : CommandHandler {
     [SlashCommand("full-restart", "fully restarts the server WARN: HARPER AND SERVERS WILL BE OFFLINE FOR A WHILE")]
     public async Task FullRestartCmd() {
         await SetInfo("Server is restarting, it will be back online shortly!");
-        Program.Shutdown(); //
+        Program.Shutdown();
     }
 
     [SlashCommand("full-shutdown", "fully shuts down the server WARN: SHALL REQUIRE A MANUAL RESTART")]
