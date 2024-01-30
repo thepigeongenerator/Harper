@@ -4,8 +4,8 @@ namespace MinecraftServerApplication.Discord.Commands;
 internal class ServerCommands : CommandHandler {
     private readonly HarperModule _harper;
 
-    public ServerCommands()
-    {
+    public ServerCommands() {
+        //BUG: possible null reference (unlikely though)
         _harper = Program.GetModuleOfType<HarperModule>();
     }
 

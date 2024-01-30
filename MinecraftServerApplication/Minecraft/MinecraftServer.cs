@@ -1,11 +1,15 @@
-﻿using System.Diagnostics;
+﻿using log4net;
+using MinecraftServerApplication.Logging;
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Reactive;
 
 namespace MinecraftServerApplication.Minecraft;
+//TODO:add error logging
 internal class MinecraftServer {
     private State _state;
     private int _faultyShutdownCount;
+    private readonly ILog _log;
     private readonly int _maxRestartAttempts;
     private readonly int _maxBackups;
     private readonly bool _automaticStartup;
@@ -56,6 +60,7 @@ internal class MinecraftServer {
         #endregion //local functions
 
         //pre-process initialization, init
+        _log = LogManager.GetLogger(GetType().Name + '.' + settings.name);
         _maxRestartAttempts = settings.maxRestartAttempts;
         _maxBackups = settings.maxBackups;
         _automaticStartup = settings.automaticStartup;
@@ -68,6 +73,7 @@ internal class MinecraftServer {
             const string ERROR_STRING = "the file at '{0}' doesn't exist!";
             string error = string.Format(ERROR_STRING, settings.jarPath);
             //error logging
+            _log.Error(error);
             throw new NullReferenceException(string.Format(error));
         }
 
@@ -107,6 +113,7 @@ internal class MinecraftServer {
 
     #region startup & shutdown
     public Task Run() {
+        //BUG: not using new flags
         if (_state is State.RUNNING or State.STARTING) {
             throw new Exception($"the server is already running");
         }
@@ -139,6 +146,7 @@ internal class MinecraftServer {
             //this means that either the server was automatically restarted too many times
             //or an error occured whilst running
             if (_state is State.ERROR) {
+                _log.Warn($"the server either automatically restarted too many times or an error occured! {_maxRestartAttempts}");
             }
         }
 
@@ -147,9 +155,11 @@ internal class MinecraftServer {
         return Task.CompletedTask;
     }
 
+    //TODO: add start logging
     public void Start() {
         //if the state doesn't conain a state that can be started; ignore
         if ((_state & State.CAN_START) == 0) {
+            _log.Warn($"{nameof(Start)}() was called whilst the server state was '{_state}', ignoring call.");
             return;
         }
 
@@ -158,9 +168,11 @@ internal class MinecraftServer {
         _state = success ? State.RUNNING : State.ERROR;
     }
 
+    //TODO: add shutdown logging
     public async Task Stop() {
         //if the state doesn't conain a state that can be stopped; ignore
         if ((_state & State.CAN_STOP) == 0) {
+            _log.Warn($"{nameof(Stop)}() was called whilst the server state was '{_state}', ignoring call.");
             return;
         }
 
@@ -176,6 +188,7 @@ internal class MinecraftServer {
         _serverProcess.StandardInput.WriteLine(command);
     }
 
+    //TODO: add backup logging
     private void CreateBackup() {
         #region sorter
         static int SortPaths(string a, string b) {
