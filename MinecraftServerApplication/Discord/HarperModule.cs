@@ -44,6 +44,7 @@ internal class HarperModule : IModule {
             ValueTask<string> getToken = File.ReadLinesAsync(Path.Combine(Program.SETTINGS_PATH, "bot_token.txt")).FirstAsync();
             await getToken;
 
+            await _client.SetStatusAsync(UserStatus.Online);
             await _client.LoginAsync(TokenType.Bot, getToken.Result);
         }
 
@@ -57,6 +58,7 @@ internal class HarperModule : IModule {
     }
 
     public async Task Shutdown() {
+        await _client.SetStatusAsync(UserStatus.Offline);
         await _client.LogoutAsync();
     }
     #endregion //startup / shutdown
