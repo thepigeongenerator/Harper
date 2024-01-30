@@ -21,7 +21,9 @@ internal class HarperModule : IModule {
         _client = new DiscordSocketClient(config);
         _client.SlashCommandExecuted += CommandHandler;
         _client.Ready += ReadyHandler;
+        //BUG: make logs no longer just appear when debugging
 #if DEBUG
+        //BUG: format logs properly
         _client.Log += (entry) => Task.Run(() => this.LogInfo(entry.ToString()));
 #endif
 
