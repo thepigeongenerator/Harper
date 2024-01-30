@@ -3,12 +3,13 @@ using MinecraftServerApplication.Logging;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Reactive;
+using System.Reflection;
 
 namespace MinecraftServerApplication.Minecraft;
-//TODO:add error logging
 internal class MinecraftServer {
     private State _state;
     private int _faultyShutdownCount;
+    private bool _readingError;
     private readonly ILog _log;
     private readonly int _maxRestartAttempts;
     private readonly int _maxBackups;
@@ -60,19 +61,20 @@ internal class MinecraftServer {
         #endregion //local functions
 
         //pre-process initialization, init
-        _log = LogManager.GetLogger(GetType().Name + '.' + settings.name);
+        _log = LogManager.GetLogger("McServer" + '.' + settings.name);
         _maxRestartAttempts = settings.maxRestartAttempts;
         _maxBackups = settings.maxBackups;
         _automaticStartup = settings.automaticStartup;
         _faultyShutdownCount = 0;
         _state = State.STOPPED;
+        _readingError = false;
 
         //init directory
         string? serverDirectory = Path.GetDirectoryName(settings.jarPath);
         if (serverDirectory == null) {
             const string ERROR_STRING = "the file at '{0}' doesn't exist!";
             string error = string.Format(ERROR_STRING, settings.jarPath);
-            //error logging
+            //log error
             _log.Error(error);
             throw new NullReferenceException(string.Format(error));
         }
@@ -94,10 +96,17 @@ internal class MinecraftServer {
         _serverProcess = new() {
             StartInfo = startInfo,
         };
+        _serverProcess.ErrorDataReceived += (sender, e) => _log.Error(e.Data);
 
+        //create the backup directory in the server directory
         Directory.CreateDirectory(_backupDirectory);
     }
     #endregion //constructor
+
+    //finalizer
+    ~MinecraftServer() {
+        _serverProcess.Dispose();
+    }
 
     public State State {
         get => _state;
@@ -113,7 +122,6 @@ internal class MinecraftServer {
 
     #region startup & shutdown
     public Task Run() {
-        //BUG: not using new flags
         if (_state is State.RUNNING or State.STARTING) {
             throw new Exception($"the server is already running");
         }
@@ -155,7 +163,6 @@ internal class MinecraftServer {
         return Task.CompletedTask;
     }
 
-    //TODO: add start logging
     public void Start() {
         //if the state doesn't conain a state that can be started; ignore
         if ((_state & State.CAN_START) == 0) {
@@ -163,18 +170,25 @@ internal class MinecraftServer {
             return;
         }
 
+        _log.Info($"starting server...");
+
         _state = State.STARTING;
         bool success = _serverProcess.Start();
         _state = success ? State.RUNNING : State.ERROR;
+
+        if (success && _readingError == false) {
+            _serverProcess.BeginErrorReadLine();
+        }
     }
 
-    //TODO: add shutdown logging
     public async Task Stop() {
         //if the state doesn't conain a state that can be stopped; ignore
         if ((_state & State.CAN_STOP) == 0) {
             _log.Warn($"{nameof(Stop)}() was called whilst the server state was '{_state}', ignoring call.");
             return;
         }
+
+        _log.Info($"stopping server...");
 
         _state = State.STOPPING;
         SendCommand("kick @a Server has shut down");
@@ -188,7 +202,6 @@ internal class MinecraftServer {
         _serverProcess.StandardInput.WriteLine(command);
     }
 
-    //TODO: add backup logging
     private void CreateBackup() {
         #region sorter
         static int SortPaths(string a, string b) {
@@ -234,12 +247,19 @@ internal class MinecraftServer {
             filePath = Path.Combine(_backupDirectory, fileName);
         }
 
-        ZipFile.CreateFromDirectory(_worldDirectory, filePath);
+        //backup creation
+        {
+            DateTime start = DateTime.Now;
+            _log.Info($"creating a backup ({Path.GetFileName(filePath)})...");
+            ZipFile.CreateFromDirectory(_worldDirectory, filePath);
+            _log.Info($"finished creating a backup! (took {Math.Round((DateTime.Now - start).TotalSeconds, 1)}s)");
+        }
 
         //delete old backups if there are too many backups
         List<string> backups = Directory.GetFiles(_backupDirectory, "*.zip").ToList();
         backups.Sort(SortPaths);
         while (_maxBackups > 0 && backups.Count > _maxBackups) { //greater than 0 check
+            _log.Warn($"too many backups! deleting backup: '{Path.GetFileName(backups[0])}'");
             File.Delete(backups[0]);
             backups.RemoveAt(0);
         }

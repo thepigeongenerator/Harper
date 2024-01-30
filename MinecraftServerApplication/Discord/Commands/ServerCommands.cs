@@ -5,8 +5,7 @@ internal class ServerCommands : CommandHandler {
     private readonly HarperModule _harper;
 
     public ServerCommands() {
-        //BUG: possible null reference (unlikely though)
-        _harper = Program.GetModuleOfType<HarperModule>();
+        _harper = Program.GetModuleOfType<HarperModule>() ?? throw new NullReferenceException("couldn't find harper module");
     }
 
     [SlashCommand("full-restart", "fully restarts the server WARN: HARPER AND SERVERS WILL BE OFFLINE FOR A WHILE")]

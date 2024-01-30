@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using log4net;
 using MinecraftServerApplication.Discord.Commands;
 using MinecraftServerApplication.Logging;
 using System.Diagnostics;
@@ -21,11 +22,14 @@ internal class HarperModule : IModule {
         _client = new DiscordSocketClient(config);
         _client.SlashCommandExecuted += CommandHandler;
         _client.Ready += ReadyHandler;
-        //BUG: make logs no longer just appear when debugging
-#if DEBUG
-        //BUG: format logs properly
-        _client.Log += (entry) => Task.Run(() => this.LogInfo(entry.ToString()));
-#endif
+        _client.Log += (entry) => Task.Run(entry.Severity switch {
+            LogSeverity.Info => () => this.LogInfo(entry.Message),
+            LogSeverity.Warning => () => this.LogWarn(entry.Message),
+            LogSeverity.Error => () => this.LogError(entry.Message),
+            LogSeverity.Critical => () => this.LogFatal(entry.Message),
+            LogSeverity.Debug => () => this.LogDebug(entry.Message),
+            _ => () => this.LogInfo(entry.Message),
+        });
 
         _interactionService = new(_client.Rest);
         _client.AutocompleteExecuted += async (SocketAutocompleteInteraction arg) => {
