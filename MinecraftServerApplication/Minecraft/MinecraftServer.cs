@@ -109,17 +109,9 @@ internal class MinecraftServer {
         _serverProcess.Dispose();
     }
 
-    public State State {
-        get => _state;
-    }
-
-    public bool AutomaticStartup {
-        get => _automaticStartup;
-    }
-
-    public Process ServerProcess {
-        get => _serverProcess;
-    }
+    public State State => _state;
+    public bool AutomaticStartup => _automaticStartup;
+    public Process ServerProcess => _serverProcess;
 
     #region startup & shutdown
     public Task Run() {
@@ -202,6 +194,22 @@ internal class MinecraftServer {
 
     public void SendCommand(string command) {
         _serverProcess.StandardInput.WriteLine(command);
+    }
+
+    public void RunFunction(string functionName) {
+        var mcServerMod = Program.GetModuleOfType<MCServerModule>() ?? throw new Exception("this can't happen, this won't exist without McServerModule");
+
+        string[]? function =  mcServerMod.TryGetFunction(functionName);
+
+        if (function == null) {
+            _log.Warn($"couldn't find a function with the name: '{functionName}', ignoring function call");
+            return;
+        }
+
+        _log.Info($"executuing function: '{functionName}'");
+        foreach (string cmd in function) {
+            SendCommand(cmd);
+        }
     }
 
     private void CreateBackup() {

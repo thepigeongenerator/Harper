@@ -37,9 +37,8 @@ internal class MCServerModule : IModule {
     }
     #endregion //constructor
 
-    public string[] ServerNames {
-        get => _servers.Keys.ToArray();
-    }
+    public string[] ServerNames => _servers.Keys.ToArray();
+    public string[] FunctionNames => _functions.Keys.ToArray();
 
     #region startup / shutdown
     public async Task Run() {
@@ -68,10 +67,12 @@ internal class MCServerModule : IModule {
     #endregion
 
     public MinecraftServer? TryGetServer(string name) {
-        if (_servers.ContainsKey(name) == false) {
-            return null;
-        }
-
-        return _servers[name];
+        _servers.TryGetValue(name, out MinecraftServer? server);
+        return server;
+    }
+    
+    public string[]? TryGetFunction(string name) {
+        _functions.TryGetValue(name, out string[]? function);
+        return function;
     }
 }
