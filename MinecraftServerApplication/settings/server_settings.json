@@ -25,7 +25,15 @@
     {
       "name": "Operator Mode",
       "commands": [
-        "op quinnbitz"
+        "op quinnbitz",
+        "say §4operator mode is active..."
+      ]
+    },
+    {
+      "name": "Disable Operator Mode",
+      "commands": [
+        "deop quinnbitz",
+        "say §4operator mode is no longer active."
       ]
     }
   ]
