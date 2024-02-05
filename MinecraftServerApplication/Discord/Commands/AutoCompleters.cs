@@ -20,7 +20,9 @@ internal static class AutoCompleters {
             _mcServer ??= Program.GetModuleOfType<MCServerModule>();
 
             if (_mcServer != null) {
-                //TODO: read the function names and put them in the suggestions list
+                foreach (string name in _mcServer.FunctionNames) {
+                    suggestions.Add(new AutocompleteResult(name, name));
+                }
             }
 
             //rate limit of 25 on the api
