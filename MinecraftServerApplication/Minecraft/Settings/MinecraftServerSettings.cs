@@ -1,4 +1,4 @@
-﻿namespace MinecraftServerApplication.Minecraft;
+﻿namespace MinecraftServerApplication.Minecraft.Settings;
 internal struct MinecraftServerSettings {
     public string name;
     public float minGB;

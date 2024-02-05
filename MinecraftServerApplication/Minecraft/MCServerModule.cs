@@ -1,4 +1,5 @@
-﻿using QUtilities;
+﻿using MinecraftServerApplication.Minecraft.Settings;
+using QUtilities;
 
 namespace MinecraftServerApplication.Minecraft;
 //TODO: add a dictionary which will contain the functions and their options (string, string[])
@@ -7,10 +8,12 @@ internal class MCServerModule : IModule {
 
     public MCServerModule() {
         _servers = [];
-        var serverSettings = JsonUtils.InitFile<MinecraftServerSettings[]>(Program.SETTINGS_PATH + "/server_settings.json", true);
-        serverSettings ??= [];
+        var serverSettings = JsonUtils.InitFile<ServerSettings>(Program.SETTINGS_PATH + "/server_settings.json", true);
 
-        foreach (MinecraftServerSettings settings in serverSettings) {
+        serverSettings.servers ??= [];
+        serverSettings.functions ??= [];
+
+        foreach (MinecraftServerSettings settings in serverSettings.servers) {
             if (_servers.ContainsKey(settings.name)) {
                 string error = $"a server with the name {settings.name} already exists!";
                 throw new Exception(error);
