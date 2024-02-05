@@ -9,6 +9,8 @@ using System.Windows.Input;
 
 namespace MinecraftServerApplication;
 
+//BUG: ___FATAL___ crash whenever restarting
+//TODO: add error logging for spontanious errors
 internal static class Program {
     public const string SETTINGS_PATH = "./settings";
     public const string DATA_PATH = "./data";

@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MinecraftServerApplication.Discord.Commands;
+//TODO: add so you can run commands (defined in JSON) on any server /run-function <function> (harper) command
 internal class MinecraftCommmands : CommandHandler {
     private const string FAIL_MC_SERVER_MODULE = "Failed to find the module in charge for running Minecraft servers!";
     private readonly MCServerModule? _mcServer;

@@ -22,6 +22,7 @@ internal class HarperModule : IModule {
         _client = new DiscordSocketClient(config);
         _client.SlashCommandExecuted += CommandHandler;
         _client.Ready += ReadyHandler;
+        //BUG: potential nullreference
         _client.Log += (entry) => Task.Run(entry.Severity switch {
             LogSeverity.Info => () => this.LogInfo(entry.Message),
             LogSeverity.Warning => () => this.LogWarn(entry.Message),
