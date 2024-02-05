@@ -33,7 +33,7 @@ internal class MinecraftCommmands : CommandHandler {
 
         //check the server's state
         if ((server.State & matchEither) == 0) {
-            await SetError($"`{serverName}` has an illegal state: `{server.State.ToString()}`!");
+            await SetError($"`{serverName}` has an illegal state `{server.State.ToString()}`!");
             return null;
         }
 
@@ -84,19 +84,23 @@ internal class MinecraftCommmands : CommandHandler {
     }
     #endregion //info cmd
 
-    //TODO: add so you can run commands (defined in JSON) on any server /run-function <function> (harper) command
     #region run-function cmd
     [SlashCommand("run-function", "runs a pre-programmed function on the selected server")]
-    public async Task RunFunctionCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.CanStopServers))] string serverName, [Summary("function-name", "the pre-programmed function"), Autocomplete(typeof(AutoCompleters.PreprogrammedFunctions))] string function) {
+    public async Task RunFunctionCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.CanStopServers))] string serverName, [Summary("function-name", "the pre-programmed function"), Autocomplete(typeof(AutoCompleters.PreprogrammedFunctions))] string functionName) {
         MinecraftServer? server = await GetServer(serverName, State.CAN_STOP);
 
         if (server == null || _mcServer == null) {
             return;
         }
 
-        //TODO: get the commands from the _mcServer functions dictionary
-        //TODO: execute the commands on the server one by one
-        throw new NotImplementedException();
+        if (_mcServer.TryGetFunction(functionName) == null) {
+            await SetError($"couldn't find a function with the name `{functionName}`");
+            return;
+        }
+
+        await SetInfo($"executing function `{functionName}`...");
+        server.RunFunction(functionName);
+        await SetSuccess($"successfully executed the function `{functionName}`!");
     }
     #endregion //run-function cmd
 
