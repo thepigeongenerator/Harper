@@ -14,10 +14,17 @@ internal static class AutoCompleters {
     #region
     public class PreprogrammedFunctions : AutocompleteHandler {
         public override Task<AutocompletionResult> GenerateSuggestionsAsync(IInteractionContext context, IAutocompleteInteraction autocompleteInteraction, IParameterInfo parameter, IServiceProvider services) {
+            //contains the suggestions for the functions the user can run
+            List<AutocompleteResult> suggestions = new();
+
             _mcServer ??= Program.GetModuleOfType<MCServerModule>();
 
-            //TODO: read the different function options from _mcServer
-            throw new NotImplementedException();
+            if (_mcServer != null) {
+                //TODO: read the function names and put them in the suggestions list
+            }
+
+            //rate limit of 25 on the api
+            return Task<AutocompletionResult>.FromResult(AutocompletionResult.FromSuccess(suggestions.Take(25)));
         }
     }
     #endregion
@@ -56,6 +63,7 @@ internal static class AutoCompleters {
         }
     }
     #endregion //base
+
     public class AllServers : ServerNameAutocompleteHandler {
         protected override State MatchState => State.ANY;
     }
