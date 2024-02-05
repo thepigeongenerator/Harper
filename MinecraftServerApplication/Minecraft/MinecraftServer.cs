@@ -9,6 +9,7 @@ namespace MinecraftServerApplication.Minecraft;
 internal class MinecraftServer {
     private State _state;
     private int _faultyShutdownCount;
+    //BUG: incorrect async reading thingie
     private bool _readingError;
     private readonly ILog _log;
     private readonly int _maxRestartAttempts;
