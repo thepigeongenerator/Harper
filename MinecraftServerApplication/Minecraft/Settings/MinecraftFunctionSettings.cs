@@ -1,5 +1,5 @@
 ﻿namespace MinecraftServerApplication.Minecraft.Settings;
-internal struct MinecraftFunction {
+internal struct MinecraftFunctionSettings {
     public string name;
     public string[] commands;
 }

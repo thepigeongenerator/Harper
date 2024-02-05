@@ -1,26 +1,41 @@
-﻿using MinecraftServerApplication.Minecraft.Settings;
+﻿using MinecraftServerApplication.Logging;
+using MinecraftServerApplication.Minecraft.Settings;
 using QUtilities;
+using System.Reactive;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MinecraftServerApplication.Minecraft;
-//TODO: add a dictionary which will contain the functions and their options (string, string[])
 internal class MCServerModule : IModule {
     private readonly Dictionary<string, MinecraftServer> _servers;
+    private readonly Dictionary<string, string[]> _functions;
 
+    #region constructor
     public MCServerModule() {
         _servers = [];
+        _functions = [];
         var serverSettings = JsonUtils.InitFile<ServerSettings>(Program.SETTINGS_PATH + "/server_settings.json", true);
 
+        //init minecraft servers
         serverSettings.servers ??= [];
-        serverSettings.functions ??= [];
-
-        foreach (MinecraftServerSettings settings in serverSettings.servers) {
-            if (_servers.ContainsKey(settings.name)) {
-                string error = $"a server with the name {settings.name} already exists!";
-                throw new Exception(error);
+        foreach (MinecraftServerSettings server in serverSettings.servers) {
+            if (_servers.ContainsKey(server.name)) {
+                this.LogError($"a server with the name {server.name} already exists! Ignoring...");
+                continue;
             }
-            _servers.Add(settings.name, new MinecraftServer(settings));
+            _servers.Add(server.name, new MinecraftServer(server));
+        }
+
+        //init minecraft functions
+        serverSettings.functions ??= [];
+        foreach (MinecraftFunctionSettings function in serverSettings.functions) {
+            if (_functions.ContainsKey(function.name)) {
+                this.LogError($"a function with the name {function.name} already exists! Ignoring...");
+                continue;
+            }
+            _functions.Add(function.name, function.commands);
         }
     }
+    #endregion //constructor
 
     public string[] ServerNames {
         get => _servers.Keys.ToArray();
