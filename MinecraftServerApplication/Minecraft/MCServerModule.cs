@@ -1,6 +1,7 @@
 ﻿using QUtilities;
 
 namespace MinecraftServerApplication.Minecraft;
+//TODO: add a dictionary which will contain the functions and their options (string, string[])
 internal class MCServerModule : IModule {
     private readonly Dictionary<string, MinecraftServer> _servers;
 

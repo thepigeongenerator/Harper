@@ -9,7 +9,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MinecraftServerApplication.Discord.Commands;
-//TODO: add so you can run commands (defined in JSON) on any server /run-function <function> (harper) command
 internal class MinecraftCommmands : CommandHandler {
     private const string FAIL_MC_SERVER_MODULE = "Failed to find the module in charge for running Minecraft servers!";
     private readonly MCServerModule? _mcServer;
@@ -42,6 +41,7 @@ internal class MinecraftCommmands : CommandHandler {
     }
 
     #region commands
+    #region info cmd
     [SlashCommand("info", "gets the info of the Minecraft server")]
     public async Task InfoCmd() {
         static string FormatBytes(long bytes) {
@@ -82,9 +82,27 @@ internal class MinecraftCommmands : CommandHandler {
         response = response[..^1]; //exclude the last character
         await SetInfo(response);
     }
+    #endregion //info cmd
 
+    //TODO: add so you can run commands (defined in JSON) on any server /run-function <function> (harper) command
+    #region run-function cmd
+    [SlashCommand("run-function", "runs a pre-programmed function on the selected server")]
+    public async Task RunFunctionCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.CanStopServers))] string serverName, [Summary("function-name", "the pre-programmed function"), Autocomplete(typeof(AutoCompleters.PreprogrammedFunctions))] string function) {
+        MinecraftServer? server = await GetServer(serverName, State.CAN_STOP);
+
+        if (server == null || _mcServer == null) {
+            return;
+        }
+
+        //TODO: get the commands from the _mcServer functions dictionary
+        //TODO: execute the commands on the server one by one
+        throw new NotImplementedException();
+    }
+    #endregion //run-function cmd
+
+    #region start cmd
     [SlashCommand("start", "starts the minecraft server")]
-    public async Task StartCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(CanStartServerAutocomplete))] string serverName) {
+    public async Task StartCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.CanStartServers))] string serverName) {
         MinecraftServer? server = await GetServer(serverName, State.CAN_START);
 
         if (server == null) {
@@ -110,9 +128,11 @@ internal class MinecraftCommmands : CommandHandler {
 
         await SetSuccess($"started `{serverName}`!");
     }
+    #endregion //start cmd
 
+    #region stop cmd
     [SlashCommand("stop", "stops the minecraft server")]
-    public async Task StopCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(CanStopServerAutocomplete))] string serverName) {
+    public async Task StopCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.CanStopServers))] string serverName) {
         MinecraftServer? server = await GetServer(serverName, State.CAN_STOP);
 
         if (server == null) {
@@ -123,9 +143,11 @@ internal class MinecraftCommmands : CommandHandler {
         await server.Stop();
         await SetSuccess($"`{serverName}` was shut down!");
     }
+    #endregion //stop cmd
 
+    #region restart cmd
     [SlashCommand("restart", "restarts the minecraft server")]
-    public async Task RestartCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(CanStopServerAutocomplete))] string serverName) {
+    public async Task RestartCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.CanStopServers))] string serverName) {
         MinecraftServer? server = await GetServer(serverName, State.CAN_STOP);
 
         if (server == null) {
@@ -137,54 +159,6 @@ internal class MinecraftCommmands : CommandHandler {
         await SetSuccess($"`{serverName}` was shut down! restarting...");
         await server.Run();
     }
+    #endregion //restart cmd
     #endregion //commands
-
-    #region autocompleters
-    #region base
-    public abstract class ServerNameAutocomplete : AutocompleteHandler {
-        private static MCServerModule? _mcServer; //stores the minecraft server instance
-
-        //contains the state that the autocompleter needs to match (uses OR comparison)
-        protected abstract State MatchState {
-            get;
-        }
-
-        public override Task<AutocompletionResult> GenerateSuggestionsAsync(IInteractionContext context, IAutocompleteInteraction autocompleteInteraction, IParameterInfo parameter, IServiceProvider services) {
-            //contains the suggestions for the servers to be started
-            List<AutocompleteResult> suggestions = new();
-
-            _mcServer ??= Program.GetModuleOfType<MCServerModule>(); //get the minecraft server if it hasn't been found yet
-
-            //if the minecraft server was found
-            if (_mcServer != null) {
-                //loop through the initialized server names
-                foreach (string name in _mcServer.ServerNames) {
-                    //extract the minecraft server's state
-                    State serverState = _mcServer.TryGetServer(name)?.State ?? throw new NullReferenceException();
-
-                    //check whether the server's state matches with the flags provided
-                    if ((serverState & MatchState) != 0) {
-                        //add the result to the auto complete result (use name for both the underlying value and display value)
-                        suggestions.Add(new AutocompleteResult(name, name));
-                    }
-                }
-            }
-
-            //rate limit of 25 on the api
-            return Task<AutocompletionResult>.FromResult(AutocompletionResult.FromSuccess(suggestions.Take(25)));
-        }
-    }
-    #endregion //base
-    public class AllServerAutocomplete : ServerNameAutocomplete {
-        protected override State MatchState => State.ANY;
-    }
-
-    public class CanStopServerAutocomplete : ServerNameAutocomplete {
-        protected override State MatchState => State.CAN_STOP;
-    }
-
-    public class CanStartServerAutocomplete : ServerNameAutocomplete {
-        protected override State MatchState => State.CAN_START;
-    }
-    #endregion //autocompleters
 }
