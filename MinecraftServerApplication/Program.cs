@@ -52,8 +52,11 @@ internal static class Program {
 
     //in charge for initializing the application
     private static void Init() {
-        
+        //init the log4net logger using the configuration
         XmlConfigurator.Configure(new FileInfo(Path.Combine(SETTINGS_PATH, "log4.config")));
+
+        //init unhandled exception logging
+        AppDomain.CurrentDomain.UnhandledException += (sender, exception) => _log.Fatal(exception.ToString());
 
 #if DEBUG
         _log.Info($"Running application version: v{_appVersion} (DEBUG)");
