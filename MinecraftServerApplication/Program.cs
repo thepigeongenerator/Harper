@@ -55,7 +55,7 @@ internal static class Program {
         XmlConfigurator.Configure(new FileInfo(Path.Combine(SETTINGS_PATH, "log4.config")));
 
         //init unhandled exception logging
-        AppDomain.CurrentDomain.UnhandledException += (sender, exception) => _log.Fatal(exception.ToString());
+        AppDomain.CurrentDomain.UnhandledException += (sender, exception) => _log.Fatal(((Exception)exception.ExceptionObject).ToString());
 
 #if DEBUG
         _log.Info($"Running application version: v{_appVersion} (DEBUG)");
