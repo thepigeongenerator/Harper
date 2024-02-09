@@ -97,7 +97,7 @@ internal class MinecraftServer {
         _serverProcess = new() {
             StartInfo = startInfo,
         };
-        _serverProcess.ErrorDataReceived += (sender, e) => _log.Error(e.Data);
+        _serverProcess.ErrorDataReceived += (sender, e) => _log.Error(e.Data ?? "null");
 
         //create the backup directory in the server directory
         Directory.CreateDirectory(_backupDirectory);
