@@ -5,14 +5,17 @@ using Discord.WebSocket;
 using log4net;
 using MinecraftServerApplication.Discord.Commands;
 using MinecraftServerApplication.Logging;
+using QUtilities;
+using System.Configuration;
 using System.Diagnostics;
 using System.Reflection;
 
 namespace MinecraftServerApplication.Discord;
 internal class HarperModule : IModule {
-    public bool keepAlive;
     private readonly DiscordSocketClient _client;
     private readonly InteractionService _interactionService;
+    private readonly ulong[] _allowedUserIds;
+    public bool keepAlive;
 
     public HarperModule() {
         DiscordSocketConfig config = new() {
@@ -37,6 +40,8 @@ internal class HarperModule : IModule {
             var context = new InteractionContext(_client, arg, arg.Channel);
             await _interactionService.ExecuteCommandAsync(context, null);
         };
+
+        _allowedUserIds = JsonUtils.InitFile<ulong[]>(Path.Combine(Program.SETTINGS_PATH, "harper_allowed_users.json")) ?? new ulong[0];
     }
 
     #region startup / shutdown
@@ -74,10 +79,16 @@ internal class HarperModule : IModule {
     }
 
     private async Task CommandHandler(SocketSlashCommand command) {
-        this.LogInfo($"'{command.User.Username}' is executuing command '{command.CommandName}' in '{command.Channel.Name}'");
-        await command.RespondAsync("harper is thinking...");
-        var context = new InteractionContext(_client, command, command.Channel);
-        await _interactionService.ExecuteCommandAsync(context, null);
+        if (_allowedUserIds.Contains(command.User.Id)) {
+            this.LogInfo($"'{command.User.Username}' is executuing command '{command.CommandName}' in '{command.Channel.Name}'");
+            await command.RespondAsync("harper is thinking...");
+            var context = new InteractionContext(_client, command, command.Channel);
+            await _interactionService.ExecuteCommandAsync(context, null);
+        }
+        else {
+            this.LogWarn($"'the user {command.User.Username}' had insufficient permissions to execute command: '{command.CommandName}'");
+            await command.RespondAsync(":x: You don't have sufficient permissions to exectute commands!");
+        }
     }
     #endregion //event listeners
 }

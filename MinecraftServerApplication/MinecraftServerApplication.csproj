@@ -23,6 +23,9 @@
     <None Update="settings\bot_token.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="settings\harper_allowed_users.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="settings\log4.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
