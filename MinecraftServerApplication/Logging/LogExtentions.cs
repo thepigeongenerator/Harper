@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace MinecraftServerApplication.Logging;
 internal static class LogExtentions {
+    //BUG: this is bad -.-
     [MethodImpl(MethodImplOptions.AggressiveInlining)] public static void LogInfo(this IModule module, string msg, params object[] args) => LogManager.GetLogger(module.GetType().Name).Info(string.Format(msg, args));
     [MethodImpl(MethodImplOptions.AggressiveInlining)] public static void LogWarn(this IModule module, string msg, params object[] args) => LogManager.GetLogger(module.GetType().Name).Warn(string.Format(msg, args));
     [MethodImpl(MethodImplOptions.AggressiveInlining)] public static void LogError(this IModule module, string msg, params object[] args) => LogManager.GetLogger(module.GetType().Name).Error(string.Format(msg, args));
