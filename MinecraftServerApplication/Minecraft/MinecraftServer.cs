@@ -140,6 +140,12 @@ internal class MinecraftServer {
 
                 _faultyShutdownCount++;
                 _state = State.ERROR;
+                if (_faultyShutdownCount <= _maxRestartAttempts) {
+                    _log.Warn($"an unexpected shutdown occured! restarting ({_faultyShutdownCount}/{_maxRestartAttempts})");
+                }
+                else {
+                    _log.Warn($"max amount of restart attempts reached! ({_maxRestartAttempts})");
+                }
             }
             while (_faultyShutdownCount <= _maxRestartAttempts || _maxRestartAttempts < 0); //do lower than 0 check to allow for restart attempts to be disabled
 
@@ -199,7 +205,7 @@ internal class MinecraftServer {
     public void RunFunction(string functionName) {
         var mcServerMod = Program.GetModuleOfType<MCServerModule>() ?? throw new Exception("this can't happen, this won't exist without McServerModule");
 
-        string[]? function =  mcServerMod.TryGetFunction(functionName);
+        string[]? function = mcServerMod.TryGetFunction(functionName);
 
         if (function == null) {
             _log.Warn($"couldn't find a function with the name: '{functionName}', ignoring function call");
