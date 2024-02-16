@@ -152,8 +152,8 @@ internal class MinecraftServer {
             //if an error occured;
             //this means that either the server was automatically restarted too many times
             //or an error occured whilst running
-            if (_state is State.ERROR) {
-                _log.Warn($"the server either automatically restarted too many times or an error occured! {_maxRestartAttempts}");
+            if (_state is State.ERROR && ((_faultyShutdownCount <= _maxRestartAttempts) == false)) {
+                _log.Warn($"an error occured!");
             }
         }
 
