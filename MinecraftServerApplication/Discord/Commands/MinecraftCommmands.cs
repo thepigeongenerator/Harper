@@ -104,6 +104,7 @@ internal class MinecraftCommmands : CommandHandler {
     }
     #endregion //run-function cmd
 
+    //BUG: the server might be making a backup when attempting to start
     #region start cmd
     [SlashCommand("start", "starts the minecraft server")]
     public async Task StartCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.CanStartServers))] string serverName) {
@@ -149,6 +150,7 @@ internal class MinecraftCommmands : CommandHandler {
     }
     #endregion //stop cmd
 
+    //BUG: the server might be making a backup when attempting to restart
     #region restart cmd
     [SlashCommand("restart", "restarts the minecraft server")]
     public async Task RestartCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.CanStopServers))] string serverName) {
