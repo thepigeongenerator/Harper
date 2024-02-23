@@ -15,14 +15,12 @@ internal class HarperModule : IModule {
     private readonly DiscordSocketClient _client;
     private readonly InteractionService _interactionService;
     private readonly ulong[] _allowedUserIds;
-    public bool keepAlive;
 
     public HarperModule() {
         DiscordSocketConfig config = new() {
             GatewayIntents = GatewayIntents.Guilds | GatewayIntents.GuildIntegrations | GatewayIntents.GuildMessageReactions
         };
 
-        keepAlive = false;
         _client = new DiscordSocketClient(config);
         _client.SlashCommandExecuted += CommandHandler;
         _client.Ready += ReadyHandler;
@@ -57,10 +55,6 @@ internal class HarperModule : IModule {
         await _client.StartAsync();
 
         await Program.WaitShutdownAsync();
-
-        if (keepAlive) {
-            await Task.Delay(-1);
-        }
     }
 
     public async Task Shutdown() {

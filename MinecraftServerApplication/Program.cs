@@ -17,15 +17,17 @@ internal static class Program {
     private static readonly ILog _log = LogManager.GetLogger("System");
     private static readonly ManualResetEvent shutdownEvent = new(false);
     private static readonly List<IModule> _modules = [];
+    private static int _exitCode = -1; //default value -1: assume an error has occured if this hasn't been set
 
     //programs entry point
-    public static void Main() {
+    public static int Main() {
         Init();
         RunAsync().Wait();
+        return _exitCode;
     }
 
     //manages when the program is shut down
-    public static async void Shutdown() {
+    public static async void Shutdown(int exitCode) {
         shutdownEvent.Set();
 
         List<Task> shutdown = new();
@@ -34,6 +36,7 @@ internal static class Program {
         }
 
         await Task.WhenAll(shutdown);
+        _exitCode = exitCode;
     }
 
     //awaits until the application is shut down
