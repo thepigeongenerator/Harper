@@ -1,5 +1,4 @@
-﻿//TODO: add permission system so users can't run commands all willy-nilly
-using Discord;
+﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using log4net;
