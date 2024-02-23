@@ -13,7 +13,7 @@ internal static class Program {
     public const string SETTINGS_PATH = "./settings";
     public const string DATA_PATH = "./data";
     public const string BACKUP_PATH = "./backups";
-    public static readonly Version _appVersion = new(5, 10);
+    public static readonly Version _appVersion = new(5, 11);
     private static readonly ILog _log = LogManager.GetLogger("System");
     private static readonly ManualResetEvent shutdownEvent = new(false);
     private static readonly List<IModule> _modules = [];
