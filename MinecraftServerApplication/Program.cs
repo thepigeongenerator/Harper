@@ -23,20 +23,22 @@ internal static class Program {
     public static int Main() {
         Init();
         RunAsync().Wait();
+        _log.Info($"exit code: {_exitCode}");
         return _exitCode;
     }
 
     //manages when the program is shut down
     public static async void Shutdown(int exitCode) {
-        shutdownEvent.Set();
+        _exitCode = exitCode;
 
         List<Task> shutdown = new();
         foreach (IModule module in _modules) {
             shutdown.Add(module.Shutdown());
         }
 
+        shutdownEvent.Set();
+
         await Task.WhenAll(shutdown);
-        _exitCode = exitCode;
     }
 
     //awaits until the application is shut down
