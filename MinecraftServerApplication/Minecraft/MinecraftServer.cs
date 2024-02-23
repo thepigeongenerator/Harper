@@ -11,6 +11,7 @@ internal class MinecraftServer {
     private State _state;
     private int _faultyShutdownCount;
     private bool _readingError;
+    private object _serverProcessLock;
     private readonly ILog _log;
     private readonly int _maxRestartAttempts;
     private readonly int _maxBackups;
@@ -69,6 +70,7 @@ internal class MinecraftServer {
         _faultyShutdownCount = 0;
         _state = State.STOPPED;
         _readingError = false;
+        _serverProcessLock = new object();
 
         //init directory
         string? serverDirectory = Path.GetDirectoryName(settings.jarPath);
@@ -130,7 +132,9 @@ internal class MinecraftServer {
                 await _serverProcess.WaitForExitAsync();
                 await Task.Delay(30);
 
-                await Task.Run(CreateBackup);
+                lock (_serverProcessLock) {
+                    CreateBackup();
+                }
 
                 //if running is false, it means that the shutdown was intended; no need for restarting.
                 if (_state is State.STOPPED) {
@@ -169,15 +173,17 @@ internal class MinecraftServer {
             return;
         }
 
-        _log.Info($"starting server...");
+        lock (_serverProcessLock) {
+            _log.Info($"starting server...");
 
-        _state = State.STARTING;
-        bool success = _serverProcess.Start();
-        _state = success ? State.RUNNING : State.ERROR;
+            _state = State.STARTING;
+            bool success = _serverProcess.Start();
+            _state = success ? State.RUNNING : State.ERROR;
 
-        if (success && _readingError == false) {
-            _serverProcess.BeginErrorReadLine();
-            _readingError = true;
+            if (success && _readingError == false) {
+                _serverProcess.BeginErrorReadLine();
+                _readingError = true;
+            }
         }
     }
 
