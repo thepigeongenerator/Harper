@@ -41,6 +41,7 @@ internal class MinecraftCommmands : CommandHandler {
         return server;
     }
 
+    //TODO: add kill command to kill a server instantly
     #region commands
     #region info cmd
     [SlashCommand("info", "gets the info of the Minecraft server")]
