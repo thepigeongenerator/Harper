@@ -159,7 +159,7 @@ internal class MinecraftCommmands : CommandHandler {
             return;
         }
 
-        await SetInfo($"shutting down {serverName}...");
+        await SetInfo($"shutting down `{serverName}`...");
         await server.Stop();
         await SetSuccess($"`{serverName}` was shut down! restarting...");
         await server.Run();
