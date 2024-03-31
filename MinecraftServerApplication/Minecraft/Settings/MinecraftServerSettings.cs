@@ -1,4 +1,5 @@
-﻿namespace MinecraftServerApplication.Minecraft.Settings;
+﻿#nullable disable
+namespace MinecraftServerApplication.Minecraft.Settings;
 internal struct MinecraftServerSettings {
     public string name;
     public float minGB;

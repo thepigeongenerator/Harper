@@ -1,4 +1,5 @@
-﻿namespace MinecraftServerApplication.Minecraft.Settings;
+﻿#nullable disable
+namespace MinecraftServerApplication.Minecraft.Settings;
 internal struct ServerSettings {
     public MinecraftServerSettings[] servers;
     public MinecraftFunctionSettings[] functions;
