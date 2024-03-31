@@ -62,6 +62,9 @@ internal static class Program {
         //init unhandled exception logging
         AppDomain.CurrentDomain.UnhandledException += (sender, exception) => _log.Fatal(((Exception)exception.ExceptionObject).ToString());
 
+        //init shutdown signal handling
+        AppDomain.CurrentDomain.ProcessExit += (sender, exception) => Shutdown(0);
+
 #if DEBUG
         _log.Info($"Running application version: v{_appVersion} (DEBUG)");
 #else
