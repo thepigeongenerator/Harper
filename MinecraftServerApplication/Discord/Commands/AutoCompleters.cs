@@ -8,19 +8,24 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MinecraftServerApplication.Discord.Commands;
-internal static class AutoCompleters {
+internal static class AutoCompleters
+{
     private static MCServerModule? _mcServer; //stores the minecraft server instance
 
     #region
-    public class PreprogrammedFunctions : AutocompleteHandler {
-        public override Task<AutocompletionResult> GenerateSuggestionsAsync(IInteractionContext context, IAutocompleteInteraction autocompleteInteraction, IParameterInfo parameter, IServiceProvider services) {
+    public class PreprogrammedFunctions : AutocompleteHandler
+    {
+        public override Task<AutocompletionResult> GenerateSuggestionsAsync(IInteractionContext context, IAutocompleteInteraction autocompleteInteraction, IParameterInfo parameter, IServiceProvider services)
+        {
             //contains the suggestions for the functions the user can run
             List<AutocompleteResult> suggestions = new();
 
             _mcServer ??= Program.GetModuleOfType<MCServerModule>();
 
-            if (_mcServer != null) {
-                foreach (string name in _mcServer.FunctionNames) {
+            if (_mcServer != null)
+            {
+                foreach (string name in _mcServer.FunctionNames)
+                {
                     suggestions.Add(new AutocompleteResult(name, name));
                 }
             }
@@ -33,27 +38,33 @@ internal static class AutoCompleters {
 
     #region server autocompleters
     #region base
-    public abstract class ServerNameAutocompleteHandler : AutocompleteHandler {
+    public abstract class ServerNameAutocompleteHandler : AutocompleteHandler
+    {
         //contains the state that the autocompleter needs to match (uses OR comparison)
-        protected abstract State MatchState {
+        protected abstract State MatchState
+        {
             get;
         }
 
-        public override Task<AutocompletionResult> GenerateSuggestionsAsync(IInteractionContext context, IAutocompleteInteraction autocompleteInteraction, IParameterInfo parameter, IServiceProvider services) {
+        public override Task<AutocompletionResult> GenerateSuggestionsAsync(IInteractionContext context, IAutocompleteInteraction autocompleteInteraction, IParameterInfo parameter, IServiceProvider services)
+        {
             //contains the suggestions for the servers to be started
             List<AutocompleteResult> suggestions = new();
 
             _mcServer ??= Program.GetModuleOfType<MCServerModule>(); //get the minecraft server if it hasn't been found yet
 
             //if the minecraft server was found
-            if (_mcServer != null) {
+            if (_mcServer != null)
+            {
                 //loop through the initialized server names
-                foreach (string name in _mcServer.ServerNames) {
+                foreach (string name in _mcServer.ServerNames)
+                {
                     //extract the minecraft server's state
                     State serverState = _mcServer.TryGetServer(name)?.State ?? throw new NullReferenceException();
 
                     //check whether the server's state matches with the flags provided
-                    if ((serverState & MatchState) != 0) {
+                    if ((serverState & MatchState) != 0)
+                    {
                         //add the result to the auto complete result (use name for both the underlying value and display value)
                         suggestions.Add(new AutocompleteResult(name, name));
                     }
@@ -66,15 +77,18 @@ internal static class AutoCompleters {
     }
     #endregion //base
 
-    public class AllServers : ServerNameAutocompleteHandler {
+    public class AllServers : ServerNameAutocompleteHandler
+    {
         protected override State MatchState => State.ANY;
     }
 
-    public class CanStopServers : ServerNameAutocompleteHandler {
+    public class CanStopServers : ServerNameAutocompleteHandler
+    {
         protected override State MatchState => State.CAN_STOP;
     }
 
-    public class CanStartServers : ServerNameAutocompleteHandler {
+    public class CanStartServers : ServerNameAutocompleteHandler
+    {
         protected override State MatchState => State.CAN_START;
     }
     #endregion //server autocompleters

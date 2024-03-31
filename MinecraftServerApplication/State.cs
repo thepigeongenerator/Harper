@@ -1,6 +1,7 @@
 ﻿namespace MinecraftServerApplication;
 [Flags]
-internal enum State : byte {
+internal enum State : byte
+{
     ERROR = 1,
     STOPPED = 2,
     RUNNING = 4,

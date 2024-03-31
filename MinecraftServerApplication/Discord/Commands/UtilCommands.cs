@@ -1,9 +1,11 @@
 ﻿using Discord.Interactions;
 
 namespace MinecraftServerApplication.Discord.Commands;
-internal class UtilCommands : CommandHandler {
+internal class UtilCommands : CommandHandler
+{
     [SlashCommand("ping", "generic command which responds with 'pong'")]
-    public async Task PingCmd() {
+    public async Task PingCmd()
+    {
         await SetInfo("pong!");
     }
 }

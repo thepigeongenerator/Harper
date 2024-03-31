@@ -10,20 +10,24 @@ using System.Diagnostics;
 using System.Reflection;
 
 namespace MinecraftServerApplication.Discord;
-internal class HarperModule : IModule {
+internal class HarperModule : IModule
+{
     private readonly DiscordSocketClient _client;
     private readonly InteractionService _interactionService;
     private readonly ulong[] _allowedUserIds;
 
-    public HarperModule() {
-        DiscordSocketConfig config = new() {
+    public HarperModule()
+    {
+        DiscordSocketConfig config = new()
+        {
             GatewayIntents = GatewayIntents.Guilds | GatewayIntents.GuildIntegrations | GatewayIntents.GuildMessageReactions
         };
 
         _client = new DiscordSocketClient(config);
         _client.SlashCommandExecuted += CommandHandler;
         _client.Ready += ReadyHandler;
-        _client.Log += (entry) => Task.Run(entry.Severity switch {
+        _client.Log += (entry) => Task.Run(entry.Severity switch
+        {
             LogSeverity.Info => () => this.LogInfo(entry.Message),
             LogSeverity.Warning => () => this.LogWarn(entry.Message),
             LogSeverity.Error => () => this.LogError(entry.Message),
@@ -33,7 +37,8 @@ internal class HarperModule : IModule {
         });
 
         _interactionService = new(_client.Rest);
-        _client.AutocompleteExecuted += async (SocketAutocompleteInteraction arg) => {
+        _client.AutocompleteExecuted += async (SocketAutocompleteInteraction arg) =>
+        {
             var context = new InteractionContext(_client, arg, arg.Channel);
             await _interactionService.ExecuteCommandAsync(context, null);
         };
@@ -42,7 +47,8 @@ internal class HarperModule : IModule {
     }
 
     #region startup / shutdown
-    public async Task Run() {
+    public async Task Run()
+    {
         {
             ValueTask<string> getToken = File.ReadLinesAsync(Path.Combine(Program.SETTINGS_PATH, "bot_token.txt")).FirstAsync();
             await getToken;
@@ -56,7 +62,8 @@ internal class HarperModule : IModule {
         await Program.WaitShutdownAsync();
     }
 
-    public async Task Shutdown() {
+    public async Task Shutdown()
+    {
         await _client.SetStatusAsync(UserStatus.Offline);
         await _client.LogoutAsync();
         await _client.StopAsync();
@@ -64,21 +71,25 @@ internal class HarperModule : IModule {
     #endregion //startup / shutdown
 
     #region event listeners
-    private async Task ReadyHandler() {
+    private async Task ReadyHandler()
+    {
         await _interactionService.AddModuleAsync<UtilCommands>(null);
         await _interactionService.AddModuleAsync<ServerCommands>(null);
         await _interactionService.AddModuleAsync<MinecraftCommmands>(null);
         await _interactionService.RegisterCommandsGloballyAsync(true);
     }
 
-    private async Task CommandHandler(SocketSlashCommand command) {
-        if (_allowedUserIds.Contains(command.User.Id)) {
+    private async Task CommandHandler(SocketSlashCommand command)
+    {
+        if (_allowedUserIds.Contains(command.User.Id))
+        {
             this.LogInfo($"'{command.User.Username}' is executuing command '{command.CommandName}' in '{command.Channel.Name}'");
             await command.RespondAsync("harper is thinking...");
             var context = new InteractionContext(_client, command, command.Channel);
             await _interactionService.ExecuteCommandAsync(context, null);
         }
-        else {
+        else
+        {
             this.LogWarn($"'the user {command.User.Username}' had insufficient permissions to execute command: '{command.CommandName}'");
             await command.RespondAsync(":x: You don't have sufficient permissions to exectute commands!");
         }
