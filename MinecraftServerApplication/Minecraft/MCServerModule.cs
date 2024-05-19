@@ -15,7 +15,10 @@ internal class MCServerModule : IModule
     {
         _servers = [];
         _functions = [];
-        var serverSettings = JsonUtils.InitFile<ServerSettings>(Program.SETTINGS_PATH + "/server_settings.json", true);
+        //HACK: kinda dirty, but ey, it works!
+        const string PATH = Program.SETTINGS_PATH + "/server_settings.jsonc";
+        var serverSettings = JsonUtils.InitFile<ServerSettings>(PATH, true);
+        File.WriteAllText(PATH, "//note: jarPath can be a .sh file, if this is the case arguments are not automatically built.\n" + File.ReadAllText(PATH));
 
         //init minecraft servers
         serverSettings.servers ??= [];

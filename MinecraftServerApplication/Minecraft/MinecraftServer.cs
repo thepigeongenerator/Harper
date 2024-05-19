@@ -64,9 +64,10 @@ internal class MinecraftServer
             return Path.Combine(serverDirectory, worldFolder);
         }
 
-        if (Path.GetExtension(settings.jarPath) != ".jar" || File.Exists(settings.jarPath) == false)
+        string pathExtension = Path.GetExtension(settings.jarPath);
+        if ((pathExtension == ".jar" || pathExtension == ".sh") == false || File.Exists(settings.jarPath) == false)
         {
-            throw new Exception(string.Format("no .jar detected at path: '{0}'", settings.jarPath));
+            throw new Exception(string.Format("no .jar or .sh detected at path: '{0}'", settings.jarPath));
         }
         #endregion //local functions
 
@@ -92,16 +93,33 @@ internal class MinecraftServer
         }
 
         //process startinfo init
-        ProcessStartInfo startInfo = new()
+        ProcessStartInfo startInfo;
+
+        if (pathExtension == ".jar")
         {
-            FileName = "java",                      //run with java
-            Arguments = GetJvmArguments(settings),  //the jvm arguments
-            WorkingDirectory = serverDirectory,     //working directory = folder containing jar
-            UseShellExecute = false,                //makes the process start locally
-            RedirectStandardInput = true,           //for preventing input to be written to the application
-            RedirectStandardOutput = true,          //for preventing output to be written to the console
-            RedirectStandardError = true,           //for preventing error output to be written to the console
-        };
+            startInfo = new()
+            {
+                FileName = "java",                      //run with java
+                Arguments = GetJvmArguments(settings),  //the jvm arguments
+                WorkingDirectory = serverDirectory,     //working directory = folder containing jar
+                UseShellExecute = false,                //makes the process start locally
+                RedirectStandardInput = true,           //for preventing input to be written to the application
+                RedirectStandardOutput = true,          //for preventing output to be written to the console
+                RedirectStandardError = true,           //for preventing error output to be written to the console
+            };
+        }
+        else //assumed extension is .sh now, since there is no way it's something else, also is unix-only, why tf would you want to run this on windows?
+        {
+            startInfo = new() {
+                FileName = "/bin/bash",                 //run with batch
+                Arguments = settings.jarPath,           //run the script
+                WorkingDirectory = serverDirectory,     //working directory = folder containing script
+                UseShellExecute = false,                //makes the process start locally
+                RedirectStandardInput = true,           //for preventing input to be written to the application
+                RedirectStandardOutput = true,          //for preventing output to be written to the console
+                RedirectStandardError = true,           //for preventing error output to be written to the console
+            };
+        }
 
         //post-process initialization, init
         _worldDirectory = GetWorldDirectory(serverDirectory);

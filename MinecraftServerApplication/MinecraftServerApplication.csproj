@@ -29,7 +29,7 @@
     <None Update="settings\log4.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="settings\server_settings.json">
+    <None Update="settings/server_settings.jsonc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
