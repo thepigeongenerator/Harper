@@ -28,12 +28,12 @@ internal class HarperModule : IModule
         _client.Ready += ReadyHandler;
         _client.Log += (entry) => Task.Run(entry.Severity switch
         {
-            LogSeverity.Info => () => this.LogInfo(entry.Message),
-            LogSeverity.Warning => () => this.LogWarn(entry.Message),
-            LogSeverity.Error => () => this.LogError(entry.Message),
-            LogSeverity.Critical => () => this.LogFatal(entry.Message),
-            LogSeverity.Debug => () => this.LogDebug(entry.Message),
-            _ => () => this.LogInfo(entry.Message),
+            LogSeverity.Info => () => this.LogInfo(entry.Message ?? "null"),
+            LogSeverity.Warning => () => this.LogWarn(entry.Message ?? "null"),
+            LogSeverity.Error => () => this.LogError(entry.Message ?? "null"),
+            LogSeverity.Critical => () => this.LogFatal(entry.Message ?? "null"),
+            LogSeverity.Debug => () => this.LogDebug(entry.Message ?? "null"),
+            _ => () => this.LogInfo(entry.Message ?? "null"),
         });
 
         _interactionService = new(_client.Rest);
