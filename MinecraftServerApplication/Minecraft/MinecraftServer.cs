@@ -227,8 +227,15 @@ internal class MinecraftServer
         _state = State.STOPPING;
         SendCommand("kick @a Server has shut down");
         SendCommand("stop"); //send the 'stop' command to the server
+        //TODO: KILL SERVER IF IT TAKES TOO LONG
         await _serverProcess.WaitForExitAsync();
         _state = State.STOPPED;
+    }
+
+    public void Kill()
+    {
+        _log.Warn("Forcefully killing server!");
+        ServerProcess.Kill();
     }
     #endregion //startup & shutdown
 

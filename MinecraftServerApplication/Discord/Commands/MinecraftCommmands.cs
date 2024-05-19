@@ -47,7 +47,6 @@ internal class MinecraftCommmands : CommandHandler
         return server;
     }
 
-    //TODO: add kill command to kill a server instantly
     #region commands
     #region info cmd
     [SlashCommand("info", "gets the info of the Minecraft server")]
@@ -188,6 +187,23 @@ internal class MinecraftCommmands : CommandHandler
         await server.Stop();
         await SetSuccess($"`{serverName}` was shut down! restarting...");
         await server.Run();
+    }
+    #endregion //restart cmd
+
+    #region kill cmd
+    [SlashCommand("kill", "forcefully kills a minecraft server *only run if there is an issue*")]
+    public async Task KillCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.CanStopServers))] string serverName)
+    {
+        MinecraftServer? server = await GetServer(serverName, State.CAN_STOP);
+
+        if (server == null)
+        {
+            return;
+        }
+
+        await SetInfo($"killing `{serverName}`...");
+        server.Kill();
+        await SetSuccess($"killed `{serverName}`!");
     }
     #endregion //restart cmd
     #endregion //commands
