@@ -87,8 +87,7 @@ internal class MinecraftCommmands : CommandHandler
                 response +=
                     $"> threads: {serverProcess.Threads.Count}\n" +
                     $"> memory used: {FormatBytes(serverProcess.WorkingSet64)}\n" +
-                    $"> responding: {serverProcess.Responding}\n" +
-                    $"> running: `{(DateTime.Now - serverProcess.StartTime).ToString(@"hh\:mm")}` (hh:mm)\n";
+                    $"> responding: {serverProcess.Responding}\n";
             }
         }
 
