@@ -110,7 +110,8 @@ internal class MinecraftServer
         }
         else //assumed extension is .sh now, since there is no way it's something else, also is unix-only, why tf would you want to run this on windows?
         {
-            startInfo = new() {
+            startInfo = new()
+            {
                 FileName = "/bin/bash",                 //run with batch
                 Arguments = settings.jarPath,           //run the script
                 WorkingDirectory = serverDirectory,     //working directory = folder containing script
@@ -167,9 +168,13 @@ internal class MinecraftServer
                 await _serverProcess.WaitForExitAsync();
                 await Task.Delay(30);
 
-                lock (_serverProcessLock)
+                //don't create a backup if the process was killed; something definately went wrong this time
+                if (_state is not State.KILLED)
                 {
-                    CreateBackup();
+                    lock (_serverProcessLock)
+                    {
+                        CreateBackup();
+                    }
                 }
 
                 //if running is false, it means that the shutdown was intended; no need for restarting.
@@ -254,7 +259,7 @@ internal class MinecraftServer
     {
         _log.Warn("Forcefully killing server!");
         ServerProcess.Kill();
-        _state = State.ERROR;
+        _state = State.KILLED;
     }
     #endregion //startup & shutdown
 
