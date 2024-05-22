@@ -94,7 +94,8 @@ internal static class Program
                 }
                 catch (Exception ex)
                 {
-                    _log.Error($" |- something went wrong when initializing type '{type.FullName}':\n{ex}");
+                    _log.Error(" |- something went wrong when initializing type '{type.FullName}'");
+                    _log.Debug(ex.ToString());
                 }
             }
         }
