@@ -39,7 +39,15 @@ internal class MinecraftServer
 
         static string GetWorldDirectory(string serverDirectory)
         {
-            StreamReader reader = new(new FileStream(Path.Combine(serverDirectory, "server.properties"), FileMode.Open, FileAccess.Read));
+            string propertiesPath = Path.Combine(serverDirectory, "server.properties");
+            
+            // if server.properties doesn't exist, just assume the default value
+            if (File.Exists(propertiesPath) == false)
+            {
+                return Path.Combine(serverDirectory, "world"); ;
+            }
+            
+            StreamReader reader = new(new FileStream(propertiesPath, FileMode.Open, FileAccess.Read));
             string? line;
 
             string? worldFolder = null;
@@ -124,7 +132,17 @@ internal class MinecraftServer
 
         //post-process initialization, init
         _worldDirectory = GetWorldDirectory(serverDirectory);
-        _backupDirectory = Path.Combine(serverDirectory, "backups");
+
+        //set the backup directory
+        if (((string.IsNullOrWhiteSpace(settings.backupDir) == false) && Directory.Exists(settings.backupDir)))
+        {
+            _backupDirectory = settings.backupDir;
+        }
+        else
+        {
+            _backupDirectory = Path.Combine(serverDirectory, "backups");
+        }
+
         _serverProcess = new()
         {
             StartInfo = startInfo,
@@ -169,7 +187,7 @@ internal class MinecraftServer
                 await _serverProcess.WaitForExitAsync();
                 await Task.Delay(30);
 
-                
+
                 if (_state is not State.KILLED && _serverProcess.ExitCode == 143) //check whether the server has received the SIGTERM signal (to catch from an outside source)
                 {
                     _log.Error("the server was killed from an outside source");
