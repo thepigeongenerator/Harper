@@ -6,7 +6,7 @@ internal enum State : byte
     TRANSITION = 2,
     STOPPED = 4,
     RUNNING = 8,
-    KILLED = STOPPED | ERROR,
+    KILLED = 16,
     STOPPING = STOPPED | TRANSITION,
     STARTING = RUNNING | TRANSITION,
     CAN_STOP = RUNNING | STARTING,

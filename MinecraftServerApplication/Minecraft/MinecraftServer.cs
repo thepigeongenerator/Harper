@@ -193,12 +193,12 @@ internal class MinecraftServer
                     _log.Error("the server was killed from an outside source");
                     _state = State.KILLED;
                 }
-                else if (_state is not State.ERROR && _serverProcess.ExitCode != 0) //if the exit code isn't success
+                else if (_state is not State.ERROR && _serverProcess.ExitCode is not 0 or 143) //if the exit code isn't success
                 {
                     _log.Error("the server incountered an error");
                     _state = State.ERROR;
                 }
-                else if (_state is not State.STOPPED)
+                else if ((_state & (State.TRANSITION | State.STARTING)) != 0)
                 {
                     _state = State.STOPPED;
                 }
