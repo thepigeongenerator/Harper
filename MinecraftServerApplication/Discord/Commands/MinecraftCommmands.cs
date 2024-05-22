@@ -165,9 +165,11 @@ internal class MinecraftCommmands : CommandHandler
             return;
         }
 
-        await SetInfo($"shutting down `{serverName}`...");
+        await SetInfo($"shutting down `{serverName}`... (this can take a while if a backup is being made)");
+        DateTime start = DateTime.Now;
         await server.Stop();
-        await SetSuccess($"`{serverName}` was shut down!");
+        TimeSpan duration = DateTime.Now - start;
+        await SetSuccess($"`{serverName}` was shut down! (took ${Math.Round(duration.TotalSeconds, 1)}s)");
     }
     #endregion //stop cmd
 
@@ -182,9 +184,11 @@ internal class MinecraftCommmands : CommandHandler
             return;
         }
 
-        await SetInfo($"shutting down `{serverName}`...");
+        await SetInfo($"shutting down `{serverName}`... (this can take a while if a backup is being made)");
+        DateTime start = DateTime.Now;
         await server.Stop();
-        await SetSuccess($"`{serverName}` was shut down! restarting...");
+        TimeSpan duration = DateTime.Now - start;
+        await SetSuccess($"`{serverName}` was shut down! (took ${Math.Round(duration.TotalSeconds, 1)}s) restarting...");
         await server.Run();
     }
     #endregion //restart cmd
