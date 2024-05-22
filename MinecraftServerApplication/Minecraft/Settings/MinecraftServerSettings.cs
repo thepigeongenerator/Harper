@@ -8,6 +8,7 @@ internal struct MinecraftServerSettings
     public string jarPath;
     public int maxRestartAttempts;
     public int maxBackups;
+    public string backupDir;
     public bool automaticStartup;
     public string additionalJvmArgs;
 }

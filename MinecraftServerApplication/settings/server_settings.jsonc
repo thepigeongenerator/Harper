@@ -5,9 +5,10 @@
       "name": "ajfhasihfaiheiu",
       "minGB": 1.0,
       "maxGB": 1.0,
-      "jarPath": "/home/user/Desktop/MCSERVER/run.sh",
+      "jarPath": "/home/user/Software/misc/MCSERVER/server.jar",
       "maxRestartAttempts": 0,
       "maxBackups": 0,
+      "backupDir": null,
       "automaticStartup": false,
       "additionalJvmArgs": null
     }
