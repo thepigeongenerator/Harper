@@ -29,8 +29,16 @@ internal class MCServerModule : IModule
                 this.LogError($"a server with the name {server.name} already exists! Ignoring...");
                 continue;
             }
-            _servers.Add(server.name, new MinecraftServer(server));
-            this.LogInfo($"loaded minecraft server '{server.name}' from '{server.jarPath}'");
+            try
+            {
+                _servers.Add(server.name, new MinecraftServer(server));
+                this.LogInfo($"loaded minecraft server '{server.name}' from '{server.jarPath}'");
+            }
+            catch (Exception ex)
+            {
+                this.LogError($"failed to load minecraft server '{server.name}'");
+                this.LogDebug(ex.ToString());
+            }
         }
 
         //init minecraft functions
