@@ -191,9 +191,9 @@ internal class MinecraftCommmands : CommandHandler
 
     #region kill cmd
     [SlashCommand("kill", "forcefully kills a minecraft server *only run if there is an issue*")]
-    public async Task KillCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.CanStopServers))] string serverName)
+    public async Task KillCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.CanKillServers))] string serverName)
     {
-        MinecraftServer? server = await GetServer(serverName, State.CAN_STOP);
+        MinecraftServer? server = await GetServer(serverName, State.CAN_KILL);
 
         if (server == null)
         {

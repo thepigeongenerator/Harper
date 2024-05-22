@@ -87,6 +87,11 @@ internal static class AutoCompleters
         protected override State MatchState => State.CAN_STOP;
     }
 
+public class CanKillServers : ServerNameAutocompleteHandler
+    {
+        protected override State MatchState => State.CAN_KILL;
+    }
+
     public class CanStartServers : ServerNameAutocompleteHandler
     {
         protected override State MatchState => State.CAN_START;

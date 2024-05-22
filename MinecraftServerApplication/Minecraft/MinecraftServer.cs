@@ -254,6 +254,7 @@ internal class MinecraftServer
     {
         _log.Warn("Forcefully killing server!");
         ServerProcess.Kill();
+        _state = State.ERROR;
     }
     #endregion //startup & shutdown
 
