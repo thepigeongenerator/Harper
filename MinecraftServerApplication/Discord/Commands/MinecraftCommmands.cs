@@ -169,7 +169,7 @@ internal class MinecraftCommmands : CommandHandler
         DateTime start = DateTime.Now;
         await server.Stop();
         TimeSpan duration = DateTime.Now - start;
-        await SetSuccess($"`{serverName}` was shut down! (took ${Math.Round(duration.TotalSeconds, 1)}s)");
+        await SetSuccess($"`{serverName}` was shut down! (took {Math.Round(duration.TotalSeconds, 1)}s)");
     }
     #endregion //stop cmd
 
@@ -188,7 +188,7 @@ internal class MinecraftCommmands : CommandHandler
         DateTime start = DateTime.Now;
         await server.Stop();
         TimeSpan duration = DateTime.Now - start;
-        await SetSuccess($"`{serverName}` was shut down! (took ${Math.Round(duration.TotalSeconds, 1)}s) restarting...");
+        await SetSuccess($"`{serverName}` was shut down! (took {Math.Round(duration.TotalSeconds, 1)}s) restarting...");
         await server.Run();
     }
     #endregion //restart cmd
