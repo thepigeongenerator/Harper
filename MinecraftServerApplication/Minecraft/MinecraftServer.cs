@@ -154,7 +154,8 @@ internal class MinecraftServer
             throw new Exception($"the server is already running");
         }
 
-        async void Run()
+        //local function
+        async void ExecuteServer()
         {
             do
             {
@@ -222,8 +223,9 @@ internal class MinecraftServer
             }
         }
 
-        Thread runServerThread = new(Run);
+        Thread runServerThread = new(ExecuteServer);
         runServerThread.Start();
+        Task.Delay(30).Wait(); //wait for 30ms until returning the method to insure the states are correct
         return Task.CompletedTask;
     }
 
