@@ -30,7 +30,7 @@ internal class MCServerModule : IModule
                 continue;
             }
             _servers.Add(server.name, new MinecraftServer(server));
-            this.LogInfo($"loaded minecraft server '{server.name}' as '{server.jarPath}'");
+            this.LogInfo($"loaded minecraft server '{server.name}' from '{server.jarPath}'");
         }
 
         //init minecraft functions
