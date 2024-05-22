@@ -168,6 +168,22 @@ internal class MinecraftServer
                 await _serverProcess.WaitForExitAsync();
                 await Task.Delay(30);
 
+                
+                if (_state is not State.KILLED && _serverProcess.ExitCode == 143) //check whether the server has received the SIGTERM signal (to catch from an outside source)
+                {
+                    _log.Error("the server was killed from an outside source");
+                    _state = State.KILLED;
+                }
+                else if (_state is not State.ERROR && _serverProcess.ExitCode != 0) //if the exit code isn't success
+                {
+                    _log.Error("the server incountered an error");
+                    _state = State.ERROR;
+                }
+                else if (_state is not State.STOPPED)
+                {
+                    _state = State.STOPPED;
+                }
+
                 //don't create a backup if the process was killed; something definately went wrong this time
                 if (_state is not State.KILLED)
                 {
@@ -177,8 +193,8 @@ internal class MinecraftServer
                     }
                 }
 
-                //if running is false, it means that the shutdown was intended; no need for restarting.
-                if (_state is State.STOPPED)
+                //the shutdown was intended
+                if (_state is not State.ERROR or State.KILLED)
                 {
                     _faultyShutdownCount = 0;
                     break;
