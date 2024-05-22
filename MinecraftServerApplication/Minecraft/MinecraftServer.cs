@@ -212,8 +212,8 @@ internal class MinecraftServer
                     }
                 }
 
-                //the shutdown was intended
-                if (_state is not State.ERROR or State.KILLED)
+                //the shutdown was intended (includes KILLED, but if something went wrong you'd prefer not having theserver automatically restart)
+                if (_state is not State.ERROR)
                 {
                     _faultyShutdownCount = 0;
                     break;
