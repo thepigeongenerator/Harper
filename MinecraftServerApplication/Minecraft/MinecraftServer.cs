@@ -289,9 +289,24 @@ internal class MinecraftServer
         _state = State.STOPPING;
         SendCommand("kick @a Server has shut down");
         SendCommand("stop"); //send the 'stop' command to the server
-        //TODO: KILL SERVER IF IT TAKES TOO LONG
-        await _serverProcess.WaitForExitAsync();
-        _state = State.STOPPED;
+
+        // wait till the server has fully shut down, if it takes longer than X seconds, kill the server
+        Task timeout = Task.Delay(60 * 1000);
+        Task exiting = _serverProcess.WaitForExitAsync();
+        await Task.WhenAny(timeout, exiting);
+
+        // check whether the timeout has completed and the exiting task hasn't.
+        if (timeout.IsCompleted && (exiting.IsCompleted == false))
+        {
+            _serverProcess.Kill();
+            await exiting;
+            _state = State.KILLED;
+        }
+        else
+        {
+            // the exit task has succeeded.
+            _state = State.STOPPED;
+        }
     }
 
     public void Kill()
