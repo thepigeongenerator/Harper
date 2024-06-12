@@ -1,0 +1,8 @@
+#!/bin/bash
+
+systemctl enable harper.service
+systemctl start harper.service
+
+if [ ! -s /etc/harper/bot_token.txt ]; then
+    echo -e "\033[91mno bot token detected at /etc/harper/bot_token.txt\033[0m Make sure to add the bot token here!"
+fi

@@ -11,9 +11,11 @@ namespace MinecraftServerApplication;
 
 internal static class Program
 {
+    #if DEBUG
     public const string SETTINGS_PATH = "./settings";
-    public const string DATA_PATH = "./data";
-    public const string BACKUP_PATH = "./backups";
+    #else
+    public const string SETTINGS_PATH = "/etc/harper";
+    #endif
     public static readonly Version _appVersion = new(5, 13);
     private static readonly ILog _log = LogManager.GetLogger("System");
     private static readonly ManualResetEvent shutdownEvent = new(false);
