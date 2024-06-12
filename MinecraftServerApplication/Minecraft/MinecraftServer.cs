@@ -40,13 +40,13 @@ internal class MinecraftServer
         static string GetWorldDirectory(string serverDirectory)
         {
             string propertiesPath = Path.Combine(serverDirectory, "server.properties");
-            
+
             // if server.properties doesn't exist, just assume the default value
             if (File.Exists(propertiesPath) == false)
             {
                 return Path.Combine(serverDirectory, "world"); ;
             }
-            
+
             StreamReader reader = new(new FileStream(propertiesPath, FileMode.Open, FileAccess.Read));
             string? line;
 
@@ -157,7 +157,10 @@ internal class MinecraftServer
     //finalizer
     ~MinecraftServer()
     {
-        _serverProcess.Dispose();
+        if (_serverProcess != null)
+        {
+            _serverProcess.Dispose();
+        }
     }
 
     public State State => _state;
