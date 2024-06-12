@@ -1,0 +1,12 @@
+[Unit]
+Description=Wrapper application to manage multiple Minecraft servers and connect them to a discord bot
+After=network.target
+
+[Service]
+Type=simple
+Restart=on-failure
+RestartSec=0
+ExecStart=/usr/bin/harper/MinecraftServerApplication
+
+[Install]
+WantedBy=multi-user.target

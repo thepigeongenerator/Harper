@@ -40,13 +40,13 @@ internal class MinecraftServer
         static string GetWorldDirectory(string serverDirectory)
         {
             string propertiesPath = Path.Combine(serverDirectory, "server.properties");
-            
+
             // if server.properties doesn't exist, just assume the default value
             if (File.Exists(propertiesPath) == false)
             {
                 return Path.Combine(serverDirectory, "world"); ;
             }
-            
+
             StreamReader reader = new(new FileStream(propertiesPath, FileMode.Open, FileAccess.Read));
             string? line;
 
@@ -57,7 +57,9 @@ internal class MinecraftServer
 
                 if (line == null)
                 {
-                    throw new NullReferenceException($"couldn't find the world folder in server.properties from '{serverDirectory}'");
+                    // if no world folder is set in the server.properties; assume default
+                    worldFolder = "world";
+                    continue;
                 }
 
                 if (line.StartsWith("level-name"))
@@ -157,7 +159,10 @@ internal class MinecraftServer
     //finalizer
     ~MinecraftServer()
     {
-        _serverProcess.Dispose();
+        if (_serverProcess != null)
+        {
+            _serverProcess.Dispose();
+        }
     }
 
     public State State => _state;
@@ -169,7 +174,8 @@ internal class MinecraftServer
     {
         if (_state is State.RUNNING or State.STARTING)
         {
-            throw new Exception($"the server is already running");
+            _log.Error("the server is already running");
+            throw new Exception("the server is already running");
         }
 
         //local function
@@ -193,12 +199,12 @@ internal class MinecraftServer
                     _log.Error("the server was killed from an outside source");
                     _state = State.KILLED;
                 }
-                else if (_state is not State.ERROR && _serverProcess.ExitCode != 0) //if the exit code isn't success
+                else if (_state is not State.ERROR && _serverProcess.ExitCode is not 0 or 143) //if the exit code isn't success
                 {
                     _log.Error("the server incountered an error");
                     _state = State.ERROR;
                 }
-                else if (_state is not State.STOPPED)
+                else if ((_state & (State.TRANSITION | State.STARTING)) != 0)
                 {
                     _state = State.STOPPED;
                 }
@@ -212,8 +218,8 @@ internal class MinecraftServer
                     }
                 }
 
-                //the shutdown was intended
-                if (_state is not State.ERROR or State.KILLED)
+                //the shutdown was intended (includes KILLED, but if something went wrong you'd prefer not having theserver automatically restart)
+                if (_state is not State.ERROR)
                 {
                     _faultyShutdownCount = 0;
                     break;
@@ -243,7 +249,7 @@ internal class MinecraftServer
 
         Thread runServerThread = new(ExecuteServer);
         runServerThread.Start();
-        Task.Delay(30).Wait(); //wait for 30ms until returning the method to insure the states are correct
+        Task.Delay(100).Wait(); //wait for 100ms until returning the method to insure the states are correct
         return Task.CompletedTask;
     }
 
@@ -286,15 +292,30 @@ internal class MinecraftServer
         _state = State.STOPPING;
         SendCommand("kick @a Server has shut down");
         SendCommand("stop"); //send the 'stop' command to the server
-        //TODO: KILL SERVER IF IT TAKES TOO LONG
-        await _serverProcess.WaitForExitAsync();
-        _state = State.STOPPED;
+
+        // wait till the server has fully shut down, if it takes longer than X seconds, kill the server
+        Task timeout = Task.Delay(60 * 1000);
+        Task exiting = _serverProcess.WaitForExitAsync();
+        await Task.WhenAny(timeout, exiting);
+
+        // check whether the timeout has completed and the exiting task hasn't.
+        if (timeout.IsCompleted && (exiting.IsCompleted == false))
+        {
+            _serverProcess.Kill();
+            await exiting;
+            _state = State.KILLED;
+        }
+        else
+        {
+            // the exit task has succeeded.
+            _state = State.STOPPED;
+        }
     }
 
     public void Kill()
     {
         _log.Warn("Forcefully killing server!");
-        ServerProcess.Kill();
+        ServerProcess.Kill(true); //kill the entire process tree
         _state = State.KILLED;
     }
     #endregion //startup & shutdown
