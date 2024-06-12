@@ -297,7 +297,7 @@ internal class MinecraftServer
     public void Kill()
     {
         _log.Warn("Forcefully killing server!");
-        ServerProcess.Kill();
+        ServerProcess.Kill(true); //kill the entire process tree
         _state = State.KILLED;
     }
     #endregion //startup & shutdown
