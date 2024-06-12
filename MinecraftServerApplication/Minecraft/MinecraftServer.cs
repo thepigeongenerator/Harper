@@ -57,7 +57,9 @@ internal class MinecraftServer
 
                 if (line == null)
                 {
-                    throw new NullReferenceException($"couldn't find the world folder in server.properties from '{serverDirectory}'");
+                    // if no world folder is set in the server.properties; assume default
+                    worldFolder = "world";
+                    continue;
                 }
 
                 if (line.StartsWith("level-name"))
@@ -172,7 +174,8 @@ internal class MinecraftServer
     {
         if (_state is State.RUNNING or State.STARTING)
         {
-            throw new Exception($"the server is already running");
+            _log.Error("the server is already running");
+            throw new Exception("the server is already running");
         }
 
         //local function
