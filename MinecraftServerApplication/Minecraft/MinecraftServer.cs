@@ -249,7 +249,7 @@ internal class MinecraftServer
 
         Thread runServerThread = new(ExecuteServer);
         runServerThread.Start();
-        Task.Delay(30).Wait(); //wait for 30ms until returning the method to insure the states are correct
+        Task.Delay(100).Wait(); //wait for 100ms until returning the method to insure the states are correct
         return Task.CompletedTask;
     }
 
