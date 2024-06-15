@@ -155,7 +155,7 @@ internal class MinecraftCommmands : CommandHandler
     #endregion //start cmd
 
     #region stop cmd
-    [SlashCommand("stop", "stops the minecraft server")]
+    [SlashCommand("stop", "stops the minecraft server, if it takes too long the process is killed instead.")]
     public async Task StopCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.CanStopServers))] string serverName)
     {
         MinecraftServer? server = await GetServer(serverName, State.CAN_STOP);
@@ -182,7 +182,7 @@ internal class MinecraftCommmands : CommandHandler
     #endregion //stop cmd
 
     #region restart cmd
-    [SlashCommand("restart", "restarts the minecraft server")]
+    [SlashCommand("restart", "restarts the minecraft server. If stopping takes too long the process is killed instead.")]
     public async Task RestartCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.CanStopServers))] string serverName)
     {
         MinecraftServer? server = await GetServer(serverName, State.CAN_STOP);
