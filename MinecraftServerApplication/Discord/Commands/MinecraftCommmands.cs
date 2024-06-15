@@ -155,7 +155,7 @@ internal class MinecraftCommmands : CommandHandler
     #endregion //start cmd
 
     #region stop cmd
-    [SlashCommand("stop", "stops the minecraft server")]
+    [SlashCommand("stop", "stops the minecraft server, if it takes too long the process is killed instead.")]
     public async Task StopCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.CanStopServers))] string serverName)
     {
         MinecraftServer? server = await GetServer(serverName, State.CAN_STOP);
@@ -169,12 +169,20 @@ internal class MinecraftCommmands : CommandHandler
         DateTime start = DateTime.Now;
         await server.Stop();
         TimeSpan duration = DateTime.Now - start;
-        await SetSuccess($"`{serverName}` was shut down! (took {Math.Round(duration.TotalSeconds, 1)}s)");
+
+        if (server.State is not State.KILLED)
+        {
+            await SetSuccess($"`{serverName}` was shut down! (took {Math.Round(duration.TotalSeconds, 1)}s)");
+        }
+        else
+        {
+            await SetWarning($"shutting down `{serverName}` took too long and was killed! (took {Math.Round(duration.TotalSeconds, 1)}s)");
+        }
     }
     #endregion //stop cmd
 
     #region restart cmd
-    [SlashCommand("restart", "restarts the minecraft server")]
+    [SlashCommand("restart", "restarts the minecraft server. If stopping takes too long the process is killed instead.")]
     public async Task RestartCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.CanStopServers))] string serverName)
     {
         MinecraftServer? server = await GetServer(serverName, State.CAN_STOP);
@@ -188,7 +196,16 @@ internal class MinecraftCommmands : CommandHandler
         DateTime start = DateTime.Now;
         await server.Stop();
         TimeSpan duration = DateTime.Now - start;
-        await SetSuccess($"`{serverName}` was shut down! (took {Math.Round(duration.TotalSeconds, 1)}s) restarting...");
+
+        if (server.State is not State.KILLED)
+        {
+            await SetSuccess($"`{serverName}` was shut down! (took {Math.Round(duration.TotalSeconds, 1)}s) restarting...");
+        }
+        else
+        {
+            await SetWarning($"shutting down `{serverName}` took too long and was killed! (took {Math.Round(duration.TotalSeconds, 1)}s) restarting...");
+        }
+
         await server.Run();
     }
     #endregion //restart cmd
