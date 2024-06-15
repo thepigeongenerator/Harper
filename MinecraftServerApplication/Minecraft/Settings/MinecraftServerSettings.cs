@@ -5,7 +5,7 @@ internal struct MinecraftServerSettings
     public string name;
     public float minGB;
     public float maxGB;
-    public string jarPath;
+    public string executablePath;
     public int maxRestartAttempts;
     public int maxBackups;
     public string backupDir;

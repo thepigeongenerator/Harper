@@ -32,7 +32,7 @@ internal class MCServerModule : IModule
             try
             {
                 _servers.Add(server.name, new MinecraftServer(server));
-                this.LogInfo($"loaded minecraft server '{server.name}' from '{server.jarPath}'");
+                this.LogInfo($"loaded minecraft server '{server.name}' from '{server.executablePath}'");
             }
             catch (Exception ex)
             {

@@ -11,7 +11,7 @@ internal class MinecraftServer
 {
     private State _state;
     private int _faultyShutdownCount;
-    private bool _readingError;
+    private bool _readingOutput;
     private object _serverProcessLock;
     private readonly ILog _log;
     private readonly int _maxRestartAttempts;
@@ -30,7 +30,7 @@ internal class MinecraftServer
             return
                 $" -Xms{(int)MathF.Round(settings.minGB * 1024f)}M" +
                 $" -Xmx{(int)MathF.Round(settings.maxGB * 1024f)}M" +
-                $" -jar {Path.GetFileName(settings.jarPath)}" +
+                $" -jar {Path.GetFileName(settings.executablePath)}" +
 #if !DEBUG //only add the nogui argument if it's not a debug build
                 $" nogui" +
 #endif //!DEBUG
@@ -74,10 +74,10 @@ internal class MinecraftServer
             return Path.Combine(serverDirectory, worldFolder);
         }
 
-        string pathExtension = Path.GetExtension(settings.jarPath);
-        if ((pathExtension == ".jar" || pathExtension == ".sh") == false || File.Exists(settings.jarPath) == false)
+        string pathExtension = Path.GetExtension(settings.executablePath);
+        if ((pathExtension == ".jar" || pathExtension == ".sh") == false || File.Exists(settings.executablePath) == false)
         {
-            throw new Exception(string.Format("no .jar or .sh detected at path: '{0}'", settings.jarPath));
+            throw new Exception(string.Format("no .jar or .sh detected at path: '{0}'", settings.executablePath));
         }
         #endregion //local functions
 
@@ -88,15 +88,15 @@ internal class MinecraftServer
         _automaticStartup = settings.automaticStartup;
         _faultyShutdownCount = 0;
         _state = State.STOPPED;
-        _readingError = false;
+        _readingOutput = false;
         _serverProcessLock = new object();
 
         //init directory
-        string? serverDirectory = Path.GetDirectoryName(settings.jarPath);
+        string? serverDirectory = Path.GetDirectoryName(settings.executablePath);
         if (serverDirectory == null)
         {
             const string ERROR_STRING = "the file at '{0}' doesn't exist!";
-            string error = string.Format(ERROR_STRING, settings.jarPath);
+            string error = string.Format(ERROR_STRING, settings.executablePath);
             //log error
             _log.Error(error);
             throw new NullReferenceException(string.Format(error));
@@ -124,7 +124,7 @@ internal class MinecraftServer
             startInfo = new()
             {
                 FileName = "/bin/bash",                 //run with bash
-                Arguments = settings.jarPath,           //give the script's as an argument, so bash knows what to execute
+                Arguments = settings.executablePath,    //give the script's as an argument, so bash knows what to execute
                 WorkingDirectory = serverDirectory,     //working directory = folder containing script
                 UseShellExecute = false,                //makes the process start locally
                 RedirectStandardInput = true,           //for preventing input to be written to the application
@@ -152,6 +152,7 @@ internal class MinecraftServer
             StartInfo = startInfo,
         };
         _serverProcess.ErrorDataReceived += (sender, e) => _log.Error(e.Data ?? "null");
+        _serverProcess.OutputDataReceived += (sender, e) => { return; }; //just void stdout; we don't need it
 
         //create the backup directory in the server directory
         Directory.CreateDirectory(_backupDirectory);
@@ -272,10 +273,12 @@ internal class MinecraftServer
             bool success = _serverProcess.Start();
             _state = success ? State.RUNNING : State.ERROR;
 
-            if (success && _readingError == false)
+            if (success && _readingOutput == false)
             {
+                // begin reading the redirected output to clear the buffer
                 _serverProcess.BeginErrorReadLine();
-                _readingError = true;
+                _serverProcess.BeginOutputReadLine();
+                _readingOutput = true;
             }
         }
     }
