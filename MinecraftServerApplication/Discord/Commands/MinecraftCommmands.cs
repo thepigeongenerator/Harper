@@ -169,7 +169,15 @@ internal class MinecraftCommmands : CommandHandler
         DateTime start = DateTime.Now;
         await server.Stop();
         TimeSpan duration = DateTime.Now - start;
-        await SetSuccess($"`{serverName}` was shut down! (took {Math.Round(duration.TotalSeconds, 1)}s)");
+
+        if (server.State is not State.KILLED)
+        {
+            await SetSuccess($"`{serverName}` was shut down! (took {Math.Round(duration.TotalSeconds, 1)}s)");
+        }
+        else
+        {
+            await SetWarning($"shutting down `{serverName}` took too long and was killed! (took {Math.Round(duration.TotalSeconds, 1)}s)");
+        }
     }
     #endregion //stop cmd
 
@@ -188,7 +196,16 @@ internal class MinecraftCommmands : CommandHandler
         DateTime start = DateTime.Now;
         await server.Stop();
         TimeSpan duration = DateTime.Now - start;
-        await SetSuccess($"`{serverName}` was shut down! (took {Math.Round(duration.TotalSeconds, 1)}s) restarting...");
+
+        if (server.State is not State.KILLED)
+        {
+            await SetSuccess($"`{serverName}` was shut down! (took {Math.Round(duration.TotalSeconds, 1)}s) restarting...");
+        }
+        else
+        {
+            await SetWarning($"shutting down `{serverName}` took too long and was killed! (took {Math.Round(duration.TotalSeconds, 1)}s) restarting...");
+        }
+
         await server.Run();
     }
     #endregion //restart cmd
