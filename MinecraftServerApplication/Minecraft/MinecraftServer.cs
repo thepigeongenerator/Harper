@@ -122,7 +122,7 @@ internal class MinecraftServer
         {
             startInfo = new()
             {
-                FileName = "/bin/bash",                 //run with batch
+                FileName = "/bin/bash",                 //run with bash
                 Arguments = settings.jarPath,           //run the script
                 WorkingDirectory = serverDirectory,     //working directory = folder containing script
                 UseShellExecute = false,                //makes the process start locally
