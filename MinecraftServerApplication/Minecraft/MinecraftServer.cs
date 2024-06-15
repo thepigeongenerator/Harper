@@ -32,7 +32,7 @@ internal class MinecraftServer
                 $" -Xmx{(int)MathF.Round(settings.maxGB * 1024f)}M" +
                 $" -jar {Path.GetFileName(settings.jarPath)}" +
 #if !DEBUG //only add the nogui argument if it's not a debug build
-                $" -nogui" +
+                $" nogui" +
 #endif //!DEBUG
                 $" {settings.additionalJvmArgs ?? string.Empty}";
         }
