@@ -116,6 +116,7 @@ internal class MinecraftServer
                 RedirectStandardInput = true,           //for preventing input to be written to the application
                 RedirectStandardOutput = true,          //for preventing output to be written to the console
                 RedirectStandardError = true,           //for preventing error output to be written to the console
+                CreateNoWindow = true,                  //don't start the process in a new window
             };
         }
         else //assumed extension is .sh now, since there is no way it's something else, also is unix-only, why tf would you want to run this on windows?
@@ -129,6 +130,7 @@ internal class MinecraftServer
                 RedirectStandardInput = true,           //for preventing input to be written to the application
                 RedirectStandardOutput = true,          //for preventing output to be written to the console
                 RedirectStandardError = true,           //for preventing error output to be written to the console
+                CreateNoWindow = true,                  //don't start the process in a new window
             };
         }
 
