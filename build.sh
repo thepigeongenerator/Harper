@@ -12,8 +12,10 @@ if [ ! -d ./package ]; then
 fi
 
 cd package
+mkdir harper/usr harper/usr/bin harper/usr/bin/harper
 rm -rfv ./harper/usr/bin/harper/*
 cp -r ../MinecraftServerApplication/bin/Release/net8.0/linux-x64/* ./harper/usr/bin/harper
 mv ./harper/usr/bin/harper/settings ./harper/etc/harper
 echo "" > ./harper/etc/harper/bot_token.txt
+chmod +x harper/DEBIAN/postinst
 dpkg-deb --build harper/
