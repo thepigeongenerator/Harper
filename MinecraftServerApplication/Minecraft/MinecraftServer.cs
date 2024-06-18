@@ -112,8 +112,8 @@ internal class MinecraftServer
                 WorkingDirectory = serverDirectory,     //working directory = folder containing jar
                 UseShellExecute = false,                //makes the process start locally
                 RedirectStandardInput = true,           //for preventing input to be written to the application
-                RedirectStandardOutput = false,         //for preventing output to be written to the console
-                RedirectStandardError = false,          //for preventing error output to be written to the console
+                RedirectStandardOutput = false,         //for redirecting the standard output to an internal buffer
+                RedirectStandardError = false,          //for redirecting the standard error to an internal buffer
                 CreateNoWindow = true,                  //don't start the process in a new window
             };
         }
@@ -126,8 +126,8 @@ internal class MinecraftServer
                 WorkingDirectory = serverDirectory,     //working directory = folder containing script
                 UseShellExecute = false,                //makes the process start locally
                 RedirectStandardInput = true,           //for preventing input to be written to the application
-                RedirectStandardOutput = false,         //for preventing output to be written to the console
-                RedirectStandardError = false,          //for preventing error output to be written to the console
+                RedirectStandardOutput = false,         //for redirecting the standard output to an internal buffer
+                RedirectStandardError = false,          //for redirecting the standard error to an internal buffer
                 CreateNoWindow = true,                  //don't start the process in a new window
             };
         }
