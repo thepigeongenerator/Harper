@@ -114,7 +114,7 @@ internal class MinecraftServer
                 WorkingDirectory = serverDirectory,     //working directory = folder containing jar
                 UseShellExecute = false,                //makes the process start locally
                 RedirectStandardInput = true,           //for preventing input to be written to the application
-                RedirectStandardOutput = true,          //for preventing output to be written to the console
+                RedirectStandardOutput = false,         //for preventing output to be written to the console
                 RedirectStandardError = true,           //for preventing error output to be written to the console
                 CreateNoWindow = true,                  //don't start the process in a new window
             };
@@ -128,7 +128,7 @@ internal class MinecraftServer
                 WorkingDirectory = serverDirectory,     //working directory = folder containing script
                 UseShellExecute = false,                //makes the process start locally
                 RedirectStandardInput = true,           //for preventing input to be written to the application
-                RedirectStandardOutput = true,          //for preventing output to be written to the console
+                RedirectStandardOutput = false,         //for preventing output to be written to the console
                 RedirectStandardError = true,           //for preventing error output to be written to the console
                 CreateNoWindow = true,                  //don't start the process in a new window
             };
@@ -152,7 +152,6 @@ internal class MinecraftServer
             StartInfo = startInfo,
         };
         _serverProcess.ErrorDataReceived += (sender, e) => _log.Error(e.Data ?? "null");
-        _serverProcess.OutputDataReceived += (sender, e) => { return; }; //just void stdout; we don't need it
 
         //create the backup directory in the server directory
         Directory.CreateDirectory(_backupDirectory);
@@ -277,7 +276,6 @@ internal class MinecraftServer
             {
                 // begin reading the redirected output to clear the buffer
                 _serverProcess.BeginErrorReadLine();
-                _serverProcess.BeginOutputReadLine();
                 _readingOutput = true;
             }
         }
