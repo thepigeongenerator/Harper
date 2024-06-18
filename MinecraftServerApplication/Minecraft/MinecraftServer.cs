@@ -11,7 +11,6 @@ internal class MinecraftServer
 {
     private State _state;
     private int _faultyShutdownCount;
-    private bool _readingOutput;
     private object _serverProcessLock;
     private readonly ILog _log;
     private readonly int _maxRestartAttempts;
@@ -88,7 +87,6 @@ internal class MinecraftServer
         _automaticStartup = settings.automaticStartup;
         _faultyShutdownCount = 0;
         _state = State.STOPPED;
-        _readingOutput = false;
         _serverProcessLock = new object();
 
         //init directory
@@ -115,7 +113,7 @@ internal class MinecraftServer
                 UseShellExecute = false,                //makes the process start locally
                 RedirectStandardInput = true,           //for preventing input to be written to the application
                 RedirectStandardOutput = false,         //for preventing output to be written to the console
-                RedirectStandardError = true,           //for preventing error output to be written to the console
+                RedirectStandardError = false,          //for preventing error output to be written to the console
                 CreateNoWindow = true,                  //don't start the process in a new window
             };
         }
@@ -129,7 +127,7 @@ internal class MinecraftServer
                 UseShellExecute = false,                //makes the process start locally
                 RedirectStandardInput = true,           //for preventing input to be written to the application
                 RedirectStandardOutput = false,         //for preventing output to be written to the console
-                RedirectStandardError = true,           //for preventing error output to be written to the console
+                RedirectStandardError = false,          //for preventing error output to be written to the console
                 CreateNoWindow = true,                  //don't start the process in a new window
             };
         }
@@ -151,7 +149,6 @@ internal class MinecraftServer
         {
             StartInfo = startInfo,
         };
-        _serverProcess.ErrorDataReceived += (sender, e) => _log.Error(e.Data ?? "null");
 
         //create the backup directory in the server directory
         Directory.CreateDirectory(_backupDirectory);
@@ -271,13 +268,6 @@ internal class MinecraftServer
             _state = State.STARTING;
             bool success = _serverProcess.Start();
             _state = success ? State.RUNNING : State.ERROR;
-
-            if (success && _readingOutput == false)
-            {
-                // begin reading the redirected output to clear the buffer
-                _serverProcess.BeginErrorReadLine();
-                _readingOutput = true;
-            }
         }
     }
 
