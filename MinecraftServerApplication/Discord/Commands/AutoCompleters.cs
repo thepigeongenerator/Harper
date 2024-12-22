@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace MinecraftServerApplication.Discord.Commands;
 internal static class AutoCompleters
 {
-    private static MCServerModule? _mcServer; //stores the minecraft server instance
+    private static MCServerModule _mcServer; //stores the minecraft server instance
 
     #region
     public class PreprogrammedFunctions : AutocompleteHandler

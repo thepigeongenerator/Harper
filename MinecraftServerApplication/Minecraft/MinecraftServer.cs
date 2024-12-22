@@ -47,9 +47,9 @@ internal class MinecraftServer
             }
 
             StreamReader reader = new(new FileStream(propertiesPath, FileMode.Open, FileAccess.Read));
-            string? line;
+            string line;
 
-            string? worldFolder = null;
+            string worldFolder = null;
             do
             {
                 line = reader.ReadLine();
@@ -90,7 +90,7 @@ internal class MinecraftServer
         _serverProcessLock = new object();
 
         //init directory
-        string? serverDirectory = Path.GetDirectoryName(settings.executablePath);
+        string serverDirectory = Path.GetDirectoryName(settings.executablePath);
         if (serverDirectory == null)
         {
             const string ERROR_STRING = "the file at '{0}' doesn't exist!";
@@ -322,7 +322,7 @@ internal class MinecraftServer
     {
         var mcServerMod = Program.GetModuleOfType<MCServerModule>() ?? throw new Exception("this can't happen, this won't exist without McServerModule");
 
-        string[]? function = mcServerMod.TryGetFunction(functionName);
+        string[] function = mcServerMod.TryGetFunction(functionName);
 
         if (function == null)
         {

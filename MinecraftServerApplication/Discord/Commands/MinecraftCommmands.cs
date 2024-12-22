@@ -13,14 +13,14 @@ namespace MinecraftServerApplication.Discord.Commands;
 internal class MinecraftCommmands : CommandHandler
 {
     private const string FAIL_MC_SERVER_MODULE = "Failed to find the module in charge for running Minecraft servers!";
-    private readonly MCServerModule? _mcServer;
+    private readonly MCServerModule _mcServer;
 
     public MinecraftCommmands()
     {
         _mcServer = Program.GetModuleOfType<MCServerModule>();
     }
 
-    public async Task<MinecraftServer?> GetServer(string serverName, State matchEither)
+    public async Task<MinecraftServer> GetServer(string serverName, State matchEither)
     {
         //check whether the server module is available
         if (_mcServer == null)
@@ -30,7 +30,7 @@ internal class MinecraftCommmands : CommandHandler
         }
 
         //find the server & check whether the it was found
-        MinecraftServer? server = _mcServer.TryGetServer(serverName);
+        MinecraftServer server = _mcServer.TryGetServer(serverName);
         if (server == null)
         {
             await SetError($"couldn't find a server with the name `{serverName}`");
@@ -100,7 +100,7 @@ internal class MinecraftCommmands : CommandHandler
     [SlashCommand("run-function", "runs a pre-programmed function on the selected server")]
     public async Task RunFunctionCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.CanStopServers))] string serverName, [Summary("function-name", "the pre-programmed function"), Autocomplete(typeof(AutoCompleters.PreprogrammedFunctions))] string functionName)
     {
-        MinecraftServer? server = await GetServer(serverName, State.CAN_STOP);
+        MinecraftServer server = await GetServer(serverName, State.CAN_STOP);
 
         if (server == null || _mcServer == null)
         {
@@ -123,7 +123,7 @@ internal class MinecraftCommmands : CommandHandler
     [SlashCommand("start", "starts the minecraft server")]
     public async Task StartCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.CanStartServers))] string serverName)
     {
-        MinecraftServer? server = await GetServer(serverName, State.CAN_START);
+        MinecraftServer server = await GetServer(serverName, State.CAN_START);
 
         if (server == null)
         {
@@ -158,7 +158,7 @@ internal class MinecraftCommmands : CommandHandler
     [SlashCommand("stop", "stops the minecraft server, if it takes too long the process is killed instead.")]
     public async Task StopCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.CanStopServers))] string serverName)
     {
-        MinecraftServer? server = await GetServer(serverName, State.CAN_STOP);
+        MinecraftServer server = await GetServer(serverName, State.CAN_STOP);
 
         if (server == null)
         {
@@ -185,7 +185,7 @@ internal class MinecraftCommmands : CommandHandler
     [SlashCommand("restart", "restarts the minecraft server. If stopping takes too long the process is killed instead.")]
     public async Task RestartCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.CanStopServers))] string serverName)
     {
-        MinecraftServer? server = await GetServer(serverName, State.CAN_STOP);
+        MinecraftServer server = await GetServer(serverName, State.CAN_STOP);
 
         if (server == null)
         {
@@ -214,7 +214,7 @@ internal class MinecraftCommmands : CommandHandler
     [SlashCommand("kill", "forcefully kills a minecraft server *only run if there is an issue*")]
     public async Task KillCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.CanKillServers))] string serverName)
     {
-        MinecraftServer? server = await GetServer(serverName, State.CAN_KILL);
+        MinecraftServer server = await GetServer(serverName, State.CAN_KILL);
 
         if (server == null)
         {

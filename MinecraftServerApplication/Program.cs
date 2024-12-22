@@ -56,7 +56,7 @@ internal static class Program
     }
 
     //gets a loaded module
-    public static T? GetModuleOfType<T>() where T : class, IModule
+    public static T GetModuleOfType<T>() where T : class, IModule
     {
         return (
             from module in _modules
