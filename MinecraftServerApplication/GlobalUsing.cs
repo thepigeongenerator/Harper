@@ -7,3 +7,5 @@ global using uint8 = System.Byte;
 global using uint16 = System.UInt16;
 global using uint32 = System.UInt32;
 global using uint64 = System.UInt64;
+
+global using static MinecraftServerApplication.Util.Const;
