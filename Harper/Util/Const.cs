@@ -20,6 +20,8 @@ public static class Const
         // set other paths
         public const string SETTING_HARPER_ALLOWED_USERS = SETTING + "allowed_users";
         public const string TEMPLATE_HARPER_ALLOWED_USERS = TEMPLATE + "allowed_users";
+        public const string SETTING_MCSERVER_SETTINGS = SETTING + "mcserver_settings.jsonc";
+        public const string TEMPLATE_MCSERVER_SETTINGS = TEMPLATE + "mcserver_settings.jsonc";
     }
 
     public const string ENV_HARPER_BOT_TOKEN = "HARPER_BOT_TOKEN";

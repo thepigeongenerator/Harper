@@ -9,11 +9,11 @@ namespace Harper.Minecraft;
 
 public class MCServer : IDisposable
 {
+    private readonly ILog log = null;
     public readonly MCServerSettings settings = default;
     public readonly Process serverProcess = null;
-    private readonly ILog log = null;
-    private readonly string serverDir = null;
-    private readonly string worldDir = null;
+    public readonly string serverDir = null;
+    public readonly string worldDir = null;
 
     private ServerState state = ServerState.ERROR;
     private object serverProcessLock = null;
