@@ -1,24 +1,26 @@
 ﻿using MinecraftServerApplication.Logging;
 using MinecraftServerApplication.Minecraft.Settings;
-using QUtilities;
+using Newtonsoft.Json;
 using System.Reactive;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MinecraftServerApplication.Minecraft;
 internal class MCServerModule : IModule
 {
-    private readonly Dictionary<string, MinecraftServer> _servers;
-    private readonly Dictionary<string, string[]> _functions;
+    const string PATH = Program.SETTINGS_PATH + "/server_settings.jsonc";
+    private readonly Dictionary<string, MinecraftServer> _servers = [];
+    private readonly Dictionary<string, string[]> _functions = [];
 
     #region constructor
     public MCServerModule()
     {
-        _servers = [];
-        _functions = [];
+        if (File.Exists(PATH) == false)
+            throw new FileNotFoundException($"could not find a file at '{PATH}'", Path.GetFileName(PATH));
+
         //HACK: kinda dirty, but ey, it works!
-        const string PATH = Program.SETTINGS_PATH + "/server_settings.jsonc";
-        var serverSettings = JsonUtils.InitFile<ServerSettings>(PATH, true);
         File.WriteAllText(PATH, "//note: jarPath can be a .sh file, if this is the case arguments are not automatically built.\n" + File.ReadAllText(PATH));
+
+        ServerSettings serverSettings = JsonConvert.DeserializeObject<ServerSettings>(File.ReadAllText(PATH));
 
         //init minecraft servers
         serverSettings.servers ??= [];

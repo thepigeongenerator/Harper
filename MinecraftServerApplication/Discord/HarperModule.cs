@@ -4,7 +4,7 @@ using Discord.WebSocket;
 using log4net;
 using MinecraftServerApplication.Discord.Commands;
 using MinecraftServerApplication.Logging;
-using QUtilities;
+using Newtonsoft.Json;
 using System.Configuration;
 using System.Diagnostics;
 using System.Reflection;
@@ -12,9 +12,9 @@ using System.Reflection;
 namespace MinecraftServerApplication.Discord;
 internal class HarperModule : IModule
 {
-    private readonly DiscordSocketClient _client;
-    private readonly InteractionService _interactionService;
-    private readonly ulong[] _allowedUserIds;
+    private readonly DiscordSocketClient _client = null;
+    private readonly InteractionService _interactionService = null;
+    private readonly ulong[] _allowedUserIds = new ulong[0];
 
     public HarperModule()
     {
@@ -43,7 +43,9 @@ internal class HarperModule : IModule
             await _interactionService.ExecuteCommandAsync(context, null);
         };
 
-        _allowedUserIds = JsonUtils.InitFile<ulong[]>(Path.Combine(Program.SETTINGS_PATH, "harper_allowed_users.json")) ?? new ulong[0];
+        string path = Path.Combine(Program.SETTINGS_PATH, "harper_allowed_users.json");
+        if (File.Exists(path))
+            _allowedUserIds = JsonConvert.DeserializeObject<ulong[]>(File.ReadAllText(path));
     }
 
     #region startup / shutdown

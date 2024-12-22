@@ -16,6 +16,7 @@ internal static class Program
     #else
     public const string SETTINGS_PATH = "/etc/harper";
     #endif
+
     public static readonly Version _appVersion = new(5, 15);
     private static readonly ILog _log = LogManager.GetLogger("System");
     private static readonly ManualResetEvent shutdownEvent = new(false);

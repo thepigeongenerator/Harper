@@ -4,4 +4,10 @@ internal struct ServerSettings
 {
     public MinecraftServerSettings[] servers;
     public MinecraftFunctionSettings[] functions;
+
+    public ServerSettings()
+    {
+        servers = [];
+        functions = [];
+    }
 }
