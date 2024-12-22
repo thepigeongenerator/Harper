@@ -16,23 +16,26 @@ public static class FileUtil
             using FileStream fs = File.OpenRead(path);
             using StreamReader reader = new(fs);
 
-            uint16 c = 0;
-            string ln = null;
+            uint16 c = 0;       // for keeping track of the loop count
+            string ln = null;   // stores the current line
 
             do
             {
-                ln = reader.ReadLine();
+                c++;                    // increase the count size
+                ln = reader.ReadLine(); // read a singular line
 
+                // break if the line is null
                 if (ln == null)
                     break;
 
+                // skip if the line is a comment
                 if (ln[0] == '#')
                     continue;
 
+                // use the given parser to get a result. Add to the data if successful
                 (bool success, T res) = parser.Invoke(ln);
                 if (success)
                     data.AddFirst(res);
-
             } while (c < uint16.MaxValue);
         }
 

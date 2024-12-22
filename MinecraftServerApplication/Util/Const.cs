@@ -6,6 +6,7 @@ public static class Const
 {
     public static class FilePath
     {
+        // set the setting and template path based on whether we're debugging or not
 #if DEBUG
         public const string SETTING = "./settings/";
         public const string TEMPLATE = "./templates/";
@@ -16,6 +17,7 @@ public static class Const
 #error platform is unsupported
 #endif
 
+        // set other paths
         public const string SETTING_HARPER_ALLOWED_USERS = SETTING + "allowed_users";
         public const string TEMPLATE_HARPER_ALLOWED_USERS = TEMPLATE + "allowed_users";
     }
