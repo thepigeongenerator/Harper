@@ -14,13 +14,13 @@ internal class ServerCommands : CommandHandler
     public async Task FullRestartCmd()
     {
         await SetInfo("Server is restarting, it will be back online shortly!");
-        Program.Shutdown(1); //give an exit code of 1; meaning the program exited with no faults, but should still restart
+        Program.Restart();
     }
 
     [SlashCommand("full-shutdown", "fully shuts down the server WARN: SHALL REQUIRE A MANUAL RESTART")]
     public async Task FullShutdownCmd()
     {
         await SetInfo("Server is shutting down, **The server must be restarted manually to go online again!**");
-        Program.Shutdown(0); //give an exit code of 0; meaning the program exited with no faults
+        Program.Shutdown();
     }
 }

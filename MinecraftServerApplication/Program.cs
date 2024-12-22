@@ -20,10 +20,10 @@ internal static class Program
     private static readonly ILog _log = LogManager.GetLogger("System");
     private static readonly ManualResetEvent shutdownEvent = new(false);
     private static readonly List<IModule> _modules = [];
-    private static int _exitCode = -1; //default value -1: assume an error has occured if this hasn't been set
+    private static sbyte _exitCode = 1; //default value -1: assume an error has occurred if this hasn't been set
 
-    //programs entry point
-    public static int Main()
+    //program's entry point
+    public static sbyte Main()
     {
         Init();
         RunAsync().Wait();
@@ -32,7 +32,8 @@ internal static class Program
     }
 
     //manages when the program is shut down
-    public static async void Shutdown(int exitCode)
+    public static void Restart() => Shutdown(0); //give an exit code of 0; meaning the program exited with no faults, but should restart
+    public static async void Shutdown(sbyte exitCode = 2) //give an exit code of 2; meaning the program exited with no faults, and should not restart
     {
         _exitCode = exitCode;
 
