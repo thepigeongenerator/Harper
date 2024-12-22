@@ -8,6 +8,7 @@ using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Harper.Util;
+using log4net;
 
 namespace Harper.Discord;
 
@@ -15,6 +16,7 @@ public class DiscordBot : IDisposable
 {
     private const GatewayIntents INTENTS = GatewayIntents.Guilds | GatewayIntents.GuildIntegrations | GatewayIntents.GuildMessageReactions;
 
+    private readonly ILog log = null;
     private readonly DiscordSocketClient client = null;
     private readonly InteractionService interactionService = null;
     private readonly uint64[] allowedIds = [];
@@ -22,6 +24,9 @@ public class DiscordBot : IDisposable
 
     public DiscordBot()
     {
+        // initialize the logger
+        log = LogManager.GetLogger(typeof(DiscordBot));
+
         // initialize the discord client
         client = new(new() { GatewayIntents = INTENTS });
         interactionService = new(client.Rest);
@@ -95,24 +100,17 @@ public class DiscordBot : IDisposable
     // for converting the discord logs into the current application runtime's logs
     private Task LogHandler(LogMessage msg)
     {
-        switch (msg.Severity)
+        string entry = msg.Message ?? null;
+        Action act = msg.Severity switch
         {
-            case LogSeverity.Info:
-                //this.LogInfo(msg.Message ?? "null");
-                break;
-            case LogSeverity.Warning:
-                //this.LogWarn(msg.Message ?? "null");
-                break;
-            case LogSeverity.Error:
-                //this.LogError(msg.Message ?? "null");
-                break;
-            case LogSeverity.Critical:
-                //this.LogFatal(msg.Message ?? "null");
-                break;
-            case LogSeverity.Debug:
-                //this.LogDebug(msg.Message ?? "null");
-                break;
-        }
+            LogSeverity.Info => () => log.Info(entry),
+            LogSeverity.Warning => () => log.Warn(entry),
+            LogSeverity.Error => () => log.Error(entry),
+            LogSeverity.Critical => () => log.Fatal(entry),
+            LogSeverity.Debug => () => log.Debug(entry),
+            _ => () => log.Debug(entry),
+        };
+        act.Invoke();
 
         return Task.CompletedTask;
     }
