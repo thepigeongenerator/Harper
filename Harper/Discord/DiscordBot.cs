@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using MinecraftServerApplication.Util;
+using Harper.Util;
 
-namespace MinecraftServerApplication.Discord;
+namespace Harper.Discord;
 
 public class DiscordBot : IDisposable
 {

@@ -1,6 +1,6 @@
 using System;
 
-namespace MinecraftServerApplication.Util;
+namespace Harper.Util;
 
 // exitcode is a signed 8 bit integer, because the available range of exit codes is 0-127.
 // this puts negative exit codes to be reserved for operating system signals

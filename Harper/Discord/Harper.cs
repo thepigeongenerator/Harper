@@ -1,6 +1,6 @@
 using System;
 
-namespace MinecraftServerApplication.Discord;
+namespace Harper.Discord;
 
 public class Harper
 {

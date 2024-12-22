@@ -11,4 +11,4 @@ global using uint32 = System.UInt32;
 global using uint64 = System.UInt64;
 
 // other usings
-global using static MinecraftServerApplication.Util.Const;
+global using static Harper.Util.Const;

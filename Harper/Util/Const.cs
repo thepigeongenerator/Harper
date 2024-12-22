@@ -1,6 +1,6 @@
 using System;
 
-namespace MinecraftServerApplication.Util;
+namespace Harper.Util;
 
 public static class Const
 {
