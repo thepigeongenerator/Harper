@@ -24,7 +24,7 @@ internal static class Program
     private static sbyte _exitCode = 1; //default value -1: assume an error has occurred if this hasn't been set
 
     //program's entry point
-    public static sbyte Main()
+    public static int Main()
     {
         Init();
         RunAsync().Wait();
