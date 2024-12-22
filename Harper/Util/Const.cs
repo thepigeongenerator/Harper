@@ -23,4 +23,5 @@ public static class Const
     }
 
     public const string ENV_HARPER_BOT_TOKEN = "HARPER_BOT_TOKEN";
+    public const int32 MC_SERVER_SHUTDOWN_TIMEOUT_MS = 1000 * 60;
 }

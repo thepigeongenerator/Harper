@@ -20,7 +20,6 @@ public static class FileUtil
 
         do
         {
-            c++;                    // increase the count size
             ln = reader.ReadLine(); // read a singular line
 
             // break if the line is null
@@ -33,7 +32,7 @@ public static class FileUtil
 
             // invoke the action
             action.Invoke(ln);
-        } while (c < uint16.MaxValue);
+        } while (c++ < uint16.MaxValue);
     }
 
     // deserializes a list of objects, ignoring lines that start with '#'
