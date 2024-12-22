@@ -5,7 +5,7 @@ using Harper.Util;
 
 namespace Harper.Minecraft.Data;
 
-public readonly struct MinecraftServerSettings
+public readonly struct MCServerSettings
 {
     public readonly string name;
     public readonly float minGB;

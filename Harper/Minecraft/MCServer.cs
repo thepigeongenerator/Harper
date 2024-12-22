@@ -7,9 +7,9 @@ using log4net;
 
 namespace Harper.Minecraft;
 
-public class MinecraftServer : IDisposable
+public class MCServer : IDisposable
 {
-    public readonly MinecraftServerSettings settings = default;
+    public readonly MCServerSettings settings = default;
     public readonly Process serverProcess = null;
     private readonly ILog log = null;
     private readonly string serverDir = null;
@@ -25,7 +25,7 @@ public class MinecraftServer : IDisposable
     public bool Running => (state & ServerState.RUNNING) != 0;
 
     // constructor
-    public MinecraftServer(MinecraftServerSettings settings)
+    public MCServer(MCServerSettings settings)
     {
         this.settings = settings;
         serverProcessLock = new object();
@@ -39,7 +39,7 @@ public class MinecraftServer : IDisposable
 
         // init other fields
         worldDir = settings.GetWorldPath(serverDir);
-        log = LogManager.GetLogger(typeof(MinecraftServer));
+        log = LogManager.GetLogger(typeof(MCServer));
 
         // get the start info for the server process
         ProcessStartInfo startInfo = new()
@@ -60,6 +60,7 @@ public class MinecraftServer : IDisposable
         state = ServerState.STOPPED;
     }
 
+    // sends a command to the server (shorthand)
     public void SendCommand(string command)
     {
         serverProcess.StandardInput.WriteLine(command);
@@ -88,6 +89,7 @@ public class MinecraftServer : IDisposable
         log.Info($"stopping server...");
         state = ServerState.STOPPING;
 
+        // send shutdown commands
         SendCommand("kick @a Server has shut down");
         SendCommand("stop");
 
@@ -96,6 +98,7 @@ public class MinecraftServer : IDisposable
         Task exiting = serverProcess.WaitForExitAsync();
         await Task.WhenAny(timeout, exiting);
 
+        // if the process still hasn't exited, kill the server instead.
         if (timeout.IsCompleted && exiting.IsCompleted == false)
         {
             log.Error("shutdown took too long! Killing the server instead.");
@@ -113,10 +116,12 @@ public class MinecraftServer : IDisposable
         serverProcess.Kill(true); // kill the entire process tree
         state = ServerState.KILLED;
 
+        // wait for the process to exit, or for the timeout to be reached
         Task timeout = Task.Delay(MC_SERVER_SHUTDOWN_TIMEOUT_MS);
         Task exiting = serverProcess.WaitForExitAsync();
         await Task.WhenAny(timeout, exiting);
 
+        // if the process still hasn't exited, throw an exception
         if (exiting.IsCompleted == false)
             Throw(log, new TimeoutException($"attempted to kill '{settings.name}', but took too long."));
     }
