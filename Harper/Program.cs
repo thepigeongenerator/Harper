@@ -1,5 +1,3 @@
-using System;
-using Harper.Logging;
-
-Log.Initialize();
-return 0;
+using Harper.Core application = new();
+application.Run();
+return application.ExitCode;
