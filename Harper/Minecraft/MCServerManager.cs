@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
+using Harper.Logging;
 using Harper.Minecraft.Data;
 using Harper.Util;
 using log4net;
@@ -17,7 +18,7 @@ public class MCServerManager : IDisposable
 
     public MCServerManager()
     {
-        log = LogManager.GetLogger(typeof(MCServerManager));
+        log = this.GetLogger();
 
         // init or get the file
         FileUtil.CopyTemplateIfNotExists(FilePath.SETTING_MCSERVER_SETTINGS, FilePath.TEMPLATE_MCSERVER_SETTINGS);

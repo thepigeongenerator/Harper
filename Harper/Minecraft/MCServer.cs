@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using Harper.Logging;
 using Harper.Minecraft.Data;
 using log4net;
 
@@ -41,7 +42,7 @@ public class MCServer : IDisposable
 
         // init other fields
         worldDir = settings.GetWorldPath(serverDir);
-        log = LogManager.GetLogger(typeof(MCServer));
+        log = this.GetLogger();
 
         // get the start info for the server process
         ProcessStartInfo startInfo = new()

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Harper.Logging;
 using Harper.Util;
 using log4net;
 
@@ -25,7 +26,7 @@ public class DiscordBot : IDisposable
     public DiscordBot()
     {
         // initialize the logger
-        log = LogManager.GetLogger(typeof(DiscordBot));
+        log = this.GetLogger();
 
         // initialize the discord client
         client = new(new() { GatewayIntents = INTENTS });

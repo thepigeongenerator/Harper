@@ -48,4 +48,6 @@ public static class Log
         // configure the repository with the appender
         BasicConfigurator.Configure(console);
     }
+
+    public static ILog GetLogger(this object obj) => LogManager.GetLogger(obj.GetType());
 }
