@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Harper.Discord;
 using Harper.Logging;
 using Harper.Minecraft;
+using Harper.Minecraft.Data;
 using log4net;
 
 namespace Harper;
@@ -14,6 +16,7 @@ public class Core : IDisposable
     private readonly ILog log = null;
     private readonly IModule[] modules;                 // contains the modules of this application
     private readonly ManualResetEvent exited = null;    // signals when the application has quit
+    private readonly ErrorHandler errorHandler = null;
     private int8 exitCode = 1;                          // assume an exit code of 1; failure
     private bool running = false;
     private bool disposed = false;
@@ -27,58 +30,46 @@ public class Core : IDisposable
         Log.Initialize();
         log = this.GetLogger();
         exited = new ManualResetEvent(false);
+        errorHandler = new ErrorHandler(this, log);
 
-        // subscribe to exit events
-        PosixSignalRegistration.Create(PosixSignal.SIGINT, c => PosixSignalHandler(c, ExitGracefully));
-        PosixSignalRegistration.Create(PosixSignal.SIGQUIT, c => PosixSignalHandler(c, ExitGracefully));
-        PosixSignalRegistration.Create(PosixSignal.SIGTERM, c => PosixSignalHandler(c, ExitImmediately));
-        AppDomain.CurrentDomain.ProcessExit += (s, a) => ExitGracefully();
-        AppDomain.CurrentDomain.UnhandledException += (s, a) => ExitImmediately();
+        modules = [
+            new DiscordBot(),
+            new MCServerManager(),
+        ];
     }
 
-    // called when the program has started
-    private async Task Start() { }
-
-    // called when the program needs to stop
-    public async Task Stop()
+    // executes something for each module
+    private Task ForEachModule(Func<IModule, Task> exec)
     {
-        if (running == false)
-            return;
+        List<Task> tasks = new(modules.Length);
 
-        // lastly; dispose of everything
-        Dispose();
+        foreach (IModule mod in modules)
+            tasks.Add(exec.Invoke(mod));
+
+        return Task.WhenAny(tasks);
     }
 
     // called when the program is executed, keeps the thread until it's finished executing
     public void Run()
     {
         running = true;
-        Start().Wait();
+        ForEachModule(m => m.Start()).Wait();
 
         // wait for the application to exit
         exited.WaitOne();
         running = false;
     }
 
-    // allows the program's execution to run it's corse, then let execution terminate
-    private void ExitGracefully()
+    // called when the program needs to stop
+    public async Task Quit(uint8 exitCode = 0)
     {
-        Stop().Wait();
-    }
+        if (running == false)
+            return;
 
-    // call dispose to dispose of everything as fast as possible
-    private void ExitImmediately()
-    {
-        log.Error("exiting immediately! this might cause data loss.");
+        await ForEachModule(m => m.Stop());
 
+        // lastly; dispose of everything
         Dispose();
-    }
-
-    private void PosixSignalHandler(PosixSignalContext context, Action exec)
-    {
-        log.Info($"processing posix signal: {context.Signal}");
-        context.Cancel = true;
-        exec.Invoke();
     }
 
     // called when the program needs to stop immediately, cleans up all resources as fast as possible
