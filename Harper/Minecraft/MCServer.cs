@@ -18,7 +18,9 @@ public class MCServer : IDisposable
     private ServerState state = ServerState.ERROR;
     private object serverProcessLock = null;
     private uint32 faultyShutdownCount = 0;
+    private bool disposed = false;
 
+    // boolean shothands
     public bool CanStart => (state & ServerState.CAN_START) != 0;
     public bool CanStop => (state & ServerState.CAN_STOP) != 0;
     public bool CanKill => (state & ServerState.CAN_KILL) != 0;
@@ -57,6 +59,7 @@ public class MCServer : IDisposable
 
         // create the server process
         serverProcess = new Process() { StartInfo = startInfo };
+        serverProcess.Exited += OnShutdown;
         state = ServerState.STOPPED;
     }
 
@@ -126,8 +129,42 @@ public class MCServer : IDisposable
             Throw(log, new TimeoutException($"attempted to kill '{settings.name}', but took too long."));
     }
 
+    // called when the process has exited
+    private void OnShutdown(object sender, System.EventArgs e)
+    {
+        int8 exitcode = unchecked((int8)serverProcess.ExitCode); // truncate the exit code (we aren't on windows, so more isn't needed)
+        log.Info($"the server '{settings.name}' has exited! With code {exitcode:X2}"); // show the exit code in 2 base-16 digits.
+
+        // if the exit code is negative (ergo 127<), return; this exit code has been caused by the operating system.
+        // in the case that it's 0; also just return as this indicates success.
+        if (exitcode <= 0)
+            return;
+
+        // restart the server if we still can
+        if (faultyShutdownCount >= settings.maxRestartAttempts)
+        {
+            faultyShutdownCount++;
+            log.Warn($"abnormal exit code detected, restarting server '{settings.name}'... ({faultyShutdownCount}/{settings.maxRestartAttempts})");
+            Start();
+        }
+
+        log.Error($"abnormal exit code detected, won't restart server '{settings.name}', as the maximum number of restart attempts have has reached. ({settings.maxRestartAttempts})");
+    }
+
     public void Dispose()
     {
-        throw new NotImplementedException();
+        if (disposed)
+            return;
+
+        disposed = true;
+        GC.SuppressFinalize(this);
+
+        // kill the process if it's still running
+        // don't allow for a graceful exit, as we ain't got time for that.
+        if (serverProcess.HasExited == false)
+            Kill().Wait();
+
+        // dispose the process itself.
+        serverProcess.Dispose();
     }
 }
