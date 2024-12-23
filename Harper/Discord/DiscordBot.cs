@@ -13,7 +13,7 @@ using log4net;
 
 namespace Harper.Discord;
 
-public class DiscordBot : IDisposable
+public class DiscordBot : IModule
 {
     private const GatewayIntents INTENTS = GatewayIntents.Guilds | GatewayIntents.GuildIntegrations | GatewayIntents.GuildMessageReactions;
 
@@ -21,6 +21,7 @@ public class DiscordBot : IDisposable
     private readonly DiscordSocketClient client = null;
     private readonly InteractionService interactionService = null;
     private readonly uint64[] allowedIds = [];
+    private bool running = false;
     private bool disposed = false;
 
     public DiscordBot()
@@ -43,8 +44,11 @@ public class DiscordBot : IDisposable
         client.Log += LogHandler;
     }
 
-    private async Task Start()
+    // starts the discord bot
+    public async Task Start()
     {
+        running = true;
+
         string token = Environment.GetEnvironmentVariable(ENV_HARPER_BOT_TOKEN);
         if (token == null)
         {
@@ -57,11 +61,13 @@ public class DiscordBot : IDisposable
         await client.StartAsync();
     }
 
-    private async Task Stop()
+    // stops the discord bot
+    public async Task Stop()
     {
         await client.SetStatusAsync(UserStatus.Offline);
         await client.LogoutAsync();
         await client.StopAsync();
+        running = false;
     }
 
     // is called when the bot is in it's "ready" state
@@ -123,6 +129,9 @@ public class DiscordBot : IDisposable
             return;
 
         GC.SuppressFinalize(this);
-        Stop().Wait();
+        disposed = true;
+
+        if (running)
+            Stop().Wait();
     }
 }

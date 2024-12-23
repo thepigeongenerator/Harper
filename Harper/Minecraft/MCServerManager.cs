@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
+using System.Threading.Tasks;
 using Harper.Logging;
 using Harper.Minecraft.Data;
 using Harper.Util;
@@ -10,11 +11,12 @@ using Newtonsoft.Json;
 
 namespace Harper.Minecraft;
 
-public class MCServerManager : IDisposable
+public class MCServerManager : IModule
 {
     private readonly ILog log = null;
     private readonly Dictionary<string, MCServer> servers = null;
     private readonly string backupDir = null;
+    private bool disposed = false;
 
     public MCServerManager()
     {
@@ -38,8 +40,25 @@ public class MCServerManager : IDisposable
         }
     }
 
+    public Task Start()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task Stop()
+    {
+        throw new NotImplementedException();
+    }
+
+    // cleans up held resources as fast as possible
     public void Dispose()
     {
+        if (disposed)
+            return;
+
+        GC.SuppressFinalize(this);
+        disposed = true;
+
         // clean up the server list (dispose of all servers, and remove their references from the dict)
         foreach (string name in servers.Keys)
         {
