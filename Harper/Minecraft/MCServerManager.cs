@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace Harper.Minecraft;
 
-public class MCServerManager
+public class MCServerManager : IDisposable
 {
     private readonly ILog log = null;
     private readonly Dictionary<string, MCServer> servers = null;
@@ -34,6 +34,16 @@ public class MCServerManager
 
             // creates a new instance of the minecraft server, and adds it to the dictionary
             servers.Add(server.name, new MCServer(server));
+        }
+    }
+
+    public void Dispose()
+    {
+        // clean up the server list (dispose of all servers, and remove their references from the dict)
+        foreach (string name in servers.Keys)
+        {
+            servers[name].Dispose();
+            servers.Remove(name);
         }
     }
 }
