@@ -29,11 +29,11 @@ public class Core : IDisposable
         exited = new ManualResetEvent(false);
 
         // subscribe to exit events
-        PosixSignalRegistration.Create(PosixSignal.SIGINT, PosixSignalReceived);
-        PosixSignalRegistration.Create(PosixSignal.SIGQUIT, PosixSignalReceived);
-        PosixSignalRegistration.Create(PosixSignal.SIGTERM, PosixSignalReceived);
-        AppDomain.CurrentDomain.ProcessExit += ExitGracefully;
-        AppDomain.CurrentDomain.UnhandledException += ExitImmediately;
+        PosixSignalRegistration.Create(PosixSignal.SIGINT, c => PosixSignalHandler(c, ExitGracefully));
+        PosixSignalRegistration.Create(PosixSignal.SIGQUIT, c => PosixSignalHandler(c, ExitGracefully));
+        PosixSignalRegistration.Create(PosixSignal.SIGTERM, c => PosixSignalHandler(c, ExitImmediately));
+        AppDomain.CurrentDomain.ProcessExit += (s, a) => ExitGracefully();
+        AppDomain.CurrentDomain.UnhandledException += (s, a) => ExitImmediately();
     }
 
     // called when the program has started
@@ -42,6 +42,9 @@ public class Core : IDisposable
     // called when the program needs to stop
     public async Task Stop()
     {
+        if (running == false)
+            return;
+
         // lastly; dispose of everything
         Dispose();
     }
@@ -57,37 +60,25 @@ public class Core : IDisposable
         running = false;
     }
 
-    private void ExitGracefully(object sender = null, EventArgs args = null)
+    // allows the program's execution to run it's corse, then let execution terminate
+    private void ExitGracefully()
     {
-        // call stop to allow the program's execution to run it's corse if it's still running
         Stop().Wait();
     }
 
-    private void ExitImmediately(object sender = null, EventArgs args = null)
+    // call dispose to dispose of everything as fast as possible
+    private void ExitImmediately()
     {
         log.Error("exiting immediately! this might cause data loss.");
 
-        // call dispose to dispose of everything as fast as possible
         Dispose();
     }
 
-    // handles posix signals
-    private void PosixSignalReceived(PosixSignalContext context)
+    private void PosixSignalHandler(PosixSignalContext context, Action exec)
     {
-        log.Info($"received the '{context.Signal}' signal!");
-
-        Action action = context.Signal switch
-        {
-            PosixSignal.SIGINT => () => ExitGracefully(),
-            PosixSignal.SIGQUIT => () => ExitGracefully(),
-            PosixSignal.SIGTERM => () => ExitImmediately(),
-
-            _ => () => Throw(log, new InvalidOperationException($"signal {context.Signal} is unknown!")),
-        };
-
-        // cancel the default response, and handle it using the action
+        log.Info($"processing posix signal: {context.Signal}");
         context.Cancel = true;
-        action.Invoke();
+        exec.Invoke();
     }
 
     // called when the program needs to stop immediately, cleans up all resources as fast as possible
