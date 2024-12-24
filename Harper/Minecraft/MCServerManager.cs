@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Configuration;
 using System.Formats.Tar;
 using System.IO;
@@ -19,6 +20,8 @@ public class MCServerManager : IModule
     private readonly ILog log = null;
     private readonly Dictionary<string, MCServer> servers = null;
     private bool disposed = false;
+
+    public IEnumerable<string> ServerNames => servers.Keys;
 
     public MCServerManager()
     {
@@ -40,6 +43,11 @@ public class MCServerManager : IModule
             // creates a new instance of the minecraft server, and adds it to the dictionary
             servers.Add(server.name, new MCServer(server));
         }
+    }
+
+    public MCServer GetServer(string name)
+    {
+        return servers[name];
     }
 
     public Task Start()

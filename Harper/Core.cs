@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,6 +14,9 @@ namespace Harper;
 
 public class Core : IDisposable
 {
+    private static Core instance;
+    public static Core Instance => instance;
+
     private readonly ILog log = null;
     private readonly IModule[] modules;                 // contains the modules of this application
     private readonly ManualResetEvent exited = null;    // signals when the application has quit
@@ -27,6 +31,10 @@ public class Core : IDisposable
     // constructor
     public Core()
     {
+        if (instance != null)
+            throw new InvalidOperationException("only one instance of Core may exist");
+        instance = this;
+
         Log.Initialize();
         log = this.GetLogger();
         exited = new ManualResetEvent(false);
@@ -90,5 +98,14 @@ public class Core : IDisposable
 
         exitCode = 0;
         exited.Set();
+    }
+
+    public static T GetModuleOfType<T>() where T : IModule, new()
+    {
+        return (
+            from mod in Instance.modules.AsEnumerable()
+            where mod is T
+            select (T)mod)
+            .First();
     }
 }
