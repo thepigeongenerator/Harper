@@ -41,7 +41,7 @@ public class MCServerManager : IModule
                 Throw(log, new ConfigurationErrorsException($"a server with the name '{server.name}' has already been defined!"));
 
             // creates a new instance of the minecraft server, and adds it to the dictionary
-            servers.Add(server.name, new MCServer(server));
+            servers.Add(server.name, new MCServer(this, server));
         }
     }
 
