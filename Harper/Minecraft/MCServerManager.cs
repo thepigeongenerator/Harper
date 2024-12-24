@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Formats.Tar;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Harper.Logging;
 using Harper.Minecraft.Data;
@@ -13,9 +15,9 @@ namespace Harper.Minecraft;
 
 public class MCServerManager : IModule
 {
+    public readonly string backupDir = null;
     private readonly ILog log = null;
     private readonly Dictionary<string, MCServer> servers = null;
-    private readonly string backupDir = null;
     private bool disposed = false;
 
     public MCServerManager()

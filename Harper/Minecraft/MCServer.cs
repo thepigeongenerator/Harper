@@ -15,6 +15,7 @@ public class MCServer : IDisposable
     public readonly Process serverProcess = null;
     public readonly string serverDir = null;
     public readonly string worldDir = null;
+    public readonly string worldName = null;
 
     private ServerState state = ServerState.ERROR;
     private object serverProcessLock = null;
@@ -41,7 +42,8 @@ public class MCServer : IDisposable
         if (string.IsNullOrEmpty(serverDir)) throw new FileNotFoundException($"can't parse the server directory from path '{settings.executablePath}'");
 
         // init other fields
-        worldDir = settings.GetWorldPath(serverDir);
+        worldName = settings.GetWorldName(serverDir);
+        worldDir = Path.Combine(serverDir, worldName);
         log = this.GetLogger();
 
         // get the start info for the server process

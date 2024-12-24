@@ -93,7 +93,7 @@ public class DiscordBot : IModule
         else
         {
             Console.Error.Write($"'the user {command.User.Username}' had insufficient permissions to execute command: '{command.CommandName}'");
-            await command.RespondAsync(":x: You don't have sufficient permissions to exectute commands!");
+            await command.RespondAsync(":x: You don't have sufficient permissions to execute commands!");
         }
     }
 
