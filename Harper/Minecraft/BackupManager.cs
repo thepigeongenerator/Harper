@@ -44,12 +44,12 @@ public static class BackupManager
     }
 
     // get the file path (for the .tar file)
-    private static string GetFilePath(string backupDir, string worldName, bool indexIsZero)
+    private static string GetFilePath(string backupDir, string name, bool indexIsZero)
     {
         string date = DateTime.Now.ToString("yyyy-MM-dd"); //format the date of the file name
 
         // get a list of all the backups made today
-        string[] backupsToday = Directory.GetFiles(backupDir, $"{date}_*_{worldName}.tar.gz"); // use a glob pattern to get anything that matches today's and the world name
+        string[] backupsToday = Directory.GetFiles(backupDir, $"{date}_*_{name}.tar.gz");       // use a glob pattern to get anything that matches today's and the world name
         backupsToday = Array.FindAll(backupsToday, IsValidPath);                                // filter this array using a regex, just to make sure we didn't catch any exceptions
         Array.Sort(backupsToday, CompBackupPaths);                                              // sort the final result using the custom sorter
 
@@ -59,15 +59,15 @@ public static class BackupManager
             : int.Parse(Path.GetFileNameWithoutExtension(backupsToday[^1]).Split('_')[1]) + 1;  // otherwise, get the index from the latest backup, and add 1
 
         // return the final file path
-        return Path.Combine(backupDir, $"{date}_{index}_{worldName}.tar.gz");
+        return Path.Combine(backupDir, $"{date}_{index}_{name}.tar.gz");
     }
 
     public static async Task CreateBackup(MCServer server, MCServerManager serverManager)
     {
-        string backupDir = Path.Combine(serverManager.backupDir, server.worldName);             // combine the backup directory abd world
-        bool mkBackupDir = Directory.Exists(backupDir) == false;                                // whether the backup directory needs to be made
-        string pathgz = GetFilePath(serverManager.backupDir, server.worldName, mkBackupDir);    // the .tar.gz file path
-        string pathtar = pathgz[^3..];                                                          // use an index from end slice to exclude ".gz" and not re-allocate the string
+        string backupDir = Path.Combine(serverManager.backupDir, server.settings.name);             // combine the backup directory and name
+        bool mkBackupDir = Directory.Exists(backupDir) == false;                                    // whether the backup directory needs to be made
+        string pathgz = GetFilePath(serverManager.backupDir, server.settings.name, mkBackupDir);    // the .tar.gz file path
+        string pathtar = pathgz[^3..];                                                              // use an index from end slice to exclude ".gz" and not re-allocate the string
 
         // if the backup directory doesn't exist, create it
         if (mkBackupDir == false)
@@ -79,13 +79,13 @@ public static class BackupManager
         using GZipStream gzip = new(fsout, CompressionLevel.SmallestSize);                  // gzip compressor
 
         // compression
-        log.Info($"({server.worldName}) creating '{pathtar}' from '{server.worldDir}'");
+        log.Info($"({server.settings.name}) creating '{pathtar}' from '{server.worldDir}'");
         await TarFile.CreateFromDirectoryAsync(server.worldDir, fsin, true);    // create the tar file
 
-        log.Info($"({server.worldName}) compressing '{pathtar}' to '{pathgz}'");
+        log.Info($"({server.settings.name}) compressing '{pathtar}' to '{pathgz}'");
         await fsin.CopyToAsync(gzip);                                           // compress it using gzip
 
-        log.Info($"({server.worldName}) deleting '{pathtar}'");
+        log.Info($"({server.settings.name}) deleting '{pathtar}'");
         File.Delete(pathtar);                                                   // delete the created tar file
     }
 }

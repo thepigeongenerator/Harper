@@ -51,7 +51,7 @@ public readonly struct MCServerSettings
     }
 
     // gets the world directory of this world from the server directory using server.properties
-    public string GetWorldName(string serverDir)
+    public string GetWorldDir(string serverDir)
     {
         // get the server.properties file
         string propertiesPath = Path.Combine(serverDir, "server.properties");
@@ -64,7 +64,7 @@ public readonly struct MCServerSettings
         string ln = FileUtil.GetFirstLine(propertiesPath, ln => ln.StartsWith("level-name"));
 
         //get everything after '='
-        int startIndex = ln.IndexOf('=') + 1;   // get the index
-        return ln[startIndex..];                // return the array slice of line
+        int startIndex = ln.IndexOf('=') + 1;               // get the index
+        return Path.Combine(serverDir, ln[startIndex..]);   // the array slice of the line, and combine it with the server directory, return the result
     }
 }
