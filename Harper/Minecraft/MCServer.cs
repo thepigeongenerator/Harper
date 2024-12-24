@@ -11,6 +11,7 @@ namespace Harper.Minecraft;
 public class MCServer : IDisposable
 {
     private readonly ILog log = null;
+    private readonly MCServerManager serverManager;
     public readonly MCServerSettings settings = default;
     public readonly Process serverProcess = null;
     public readonly string serverDir = null;
@@ -20,17 +21,19 @@ public class MCServer : IDisposable
     private ServerState state = ServerState.ERROR;
     private object serverProcessLock = null;
     private uint32 faultyShutdownCount = 0;
+    private bool creatingBackup = false;
     private bool disposed = false;
 
     // boolean shothands
-    public bool CanStart => (state & ServerState.CAN_START) != 0;
+    public bool CanStart => (state & ServerState.CAN_START) != 0 && (creatingBackup == false);
     public bool CanStop => (state & ServerState.CAN_STOP) != 0;
     public bool CanKill => (state & ServerState.CAN_KILL) != 0;
     public bool Running => (state & ServerState.RUNNING) != 0;
 
     // constructor
-    public MCServer(MCServerSettings settings)
+    public MCServer(MCServerManager serverManager, MCServerSettings settings)
     {
+        this.serverManager = serverManager;
         this.settings = settings;
         serverProcessLock = new object();
 
@@ -70,6 +73,32 @@ public class MCServer : IDisposable
     public void SendCommand(string command)
     {
         serverProcess.StandardInput.WriteLine(command);
+    }
+
+    public async Task MakeBackup()
+    {
+        log.Info($"a backup has been requested for '{settings.name}', creating one now!");
+        bool wasrunning = Running;
+
+        if (Running)
+        {
+            SendCommand("kick @a a backup was requested, the server has automatically been shut down for this process. It will be up again in a bit.");
+            await Stop();
+            log.Warn($"server '{settings.name}' has been shut down due to a backup having been requested and it being unsafe to leave the server on during this process.");
+        }
+
+        lock (serverProcessLock)
+            creatingBackup = true;
+
+        DateTime start = DateTime.Now;
+        await BackupManager.CreateBackup(this, serverManager);
+        log.Info($"the backup has concluded! it took {Math.Round((DateTime.Now - start).TotalSeconds, 1)}s");
+
+        lock (serverProcessLock)
+            creatingBackup = false;
+
+        if (wasrunning)
+            Start();
     }
 
     // starts the server
