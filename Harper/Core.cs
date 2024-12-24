@@ -20,7 +20,7 @@ public class Core : IDisposable
     private readonly ILog log = null;
     private readonly IModule[] modules;                 // contains the modules of this application
     private readonly ManualResetEvent exited = null;    // signals when the application has quit
-    private readonly ErrorHandler errorHandler = null;
+    private readonly ErrorHandler errorHandler = null;  // for handling errors
     private int8 exitCode = 1;                          // assume an exit code of 1; failure
     private bool running = false;
     private bool disposed = false;

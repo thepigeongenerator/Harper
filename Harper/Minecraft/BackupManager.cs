@@ -38,9 +38,9 @@ public static class BackupManager
             return splitA[0].CompareTo(splitB[0]);
 
         // get the file index
-        int32 aInt = int.Parse(splitA[1]);
-        int32 bInt = int.Parse(splitB[1]);
-        return aInt < bInt ? -1 : 1;        // it should be impossible for the values to be equal, so this assumption is carried here. Otherwise one will appear
+        int32 aIndx = int32.Parse(splitA[1]);
+        int32 bIndx = int32.Parse(splitB[1]);
+        return aIndx < bIndx ? -1 : 1;        // it should be impossible for the values to be equal, so this assumption is carried here. Otherwise one will appear
     }
 
     // get the file path (for the .tar file)
@@ -54,7 +54,7 @@ public static class BackupManager
         Array.Sort(backupsToday, CompBackupPaths);                                              // sort the final result using the custom sorter
 
         // get the index that this backup should be
-        int index = backupsToday.Length == 0 || indexIsZero
+        int32 index = backupsToday.Length == 0 || indexIsZero
             ? 0                                                                                 // if there are 0 backups today or the override is set; index = 0
             : int.Parse(Path.GetFileNameWithoutExtension(backupsToday[^1]).Split('_')[1]) + 1;  // otherwise, get the index from the latest backup, and add 1
 

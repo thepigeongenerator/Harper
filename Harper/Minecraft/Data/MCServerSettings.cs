@@ -64,7 +64,7 @@ public readonly struct MCServerSettings
         string ln = FileUtil.GetFirstLine(propertiesPath, ln => ln.StartsWith("level-name"));
 
         //get everything after '='
-        int startIndex = ln.IndexOf('=') + 1;               // get the index
+        int32 startIndex = ln.IndexOf('=') + 1;               // get the index
         return Path.Combine(serverDir, ln[startIndex..]);   // the array slice of the line, and combine it with the server directory, return the result
     }
 }
