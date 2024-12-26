@@ -36,7 +36,7 @@ public class ErrorHandler
     {
         StringBuilder error = new("exiting immediately! this might cause data loss.");
         if (e != null)
-            error.Append($" exception: {e.Message}");
+            error.Append($" {e.GetType().Name}: {e.Message}");
         log.Fatal(error);
         log.Debug(e);
 

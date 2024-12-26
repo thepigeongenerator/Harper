@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -40,6 +41,8 @@ public class Core : IDisposable
         exited = new ManualResetEvent(false);
         errorHandler = new ErrorHandler(this, log);
 
+        log.Debug($"cwd: {Directory.GetCurrentDirectory()}");
+
         modules = [
             new DiscordBot(),
             new MCServerManager(),
@@ -61,7 +64,11 @@ public class Core : IDisposable
     public void Run()
     {
         running = true;
-        ForEachModule(m => m.Start()).Wait();
+        ForEachModule(m =>
+        {
+            log.Info($"starting {m.GetType().Name}");
+            return m.Start();
+        }).Wait();
 
         // wait for the application to exit
         exited.WaitOne();
@@ -79,7 +86,8 @@ public class Core : IDisposable
         this.exitCode = exitCode;
     }
 
-    public async Task Restart() {
+    public async Task Restart()
+    {
         await Quit(2); // return an exit code of 2, signifying that the application should restart instead
     }
 

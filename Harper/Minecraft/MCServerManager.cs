@@ -30,6 +30,7 @@ public class MCServerManager : IModule
         // init or get the file
         FileUtil.CopyTemplateIfNotExists(FilePath.SETTING_MCSERVER_SETTINGS, FilePath.TEMPLATE_MCSERVER_SETTINGS);
         var settings = JsonConvert.DeserializeObject<MCServerManagerSettings>(File.ReadAllText(FilePath.SETTING_MCSERVER_SETTINGS));
+        log.Debug("Finished deserialization!");
 
         // define the dictionary, with the capacity set to the servers length
         servers = new(settings.servers.Length);

@@ -60,7 +60,7 @@ public static class FileUtil
         if (File.Exists(path))
             return;
 
-        throw new FileNotFoundException($"could not find a file at '{path}'", Path.GetFileName(path));
+        throw new FileNotFoundException($"could not find a file at '{Path.GetFullPath(path)}'", Path.GetFileName(path));
     }
 
     // copies the template file to the path location, if the path location doesn't exist
