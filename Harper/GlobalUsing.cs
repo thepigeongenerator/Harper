@@ -12,4 +12,3 @@ global using uint64 = System.UInt64;
 
 // other usings
 global using static Harper.Util.Const;
-global using static Harper.Util.ExceptionHelper;

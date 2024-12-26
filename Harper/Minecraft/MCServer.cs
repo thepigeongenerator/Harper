@@ -107,7 +107,7 @@ public class MCServer : IDisposable
         lock (serverProcessLock)
         {
             if (CanStart == false)
-                Throw(log, new InvalidOperationException($"attempted to start server '{settings.name}' whilst it was in an invalid state!"));
+                throw new InvalidOperationException($"attempted to start server '{settings.name}' whilst it was in an invalid state!");
 
             log.Info($"starting server...");
             bool success = serverProcess.Start();
@@ -119,7 +119,7 @@ public class MCServer : IDisposable
     public async Task Stop()
     {
         if (CanStop == false)
-            Throw(log, new InvalidOperationException($"attempted to stop server '{settings.name}' whilst it was in an invalid state!"));
+            throw new InvalidOperationException($"attempted to stop server '{settings.name}' whilst it was in an invalid state!");
 
         log.Info($"stopping server...");
         state = ServerState.STOPPING;
@@ -145,7 +145,7 @@ public class MCServer : IDisposable
     public async Task Kill()
     {
         if (CanKill == false)
-            Throw(log, new InvalidOperationException($"attempted to kill server '{settings.name}' whilst it was in an invalid state!"));
+            throw new InvalidOperationException($"attempted to kill server '{settings.name}' whilst it was in an invalid state!");
 
         log.Warn("Forcefully killing server!");
         serverProcess.Kill(true); // kill the entire process tree
@@ -158,7 +158,7 @@ public class MCServer : IDisposable
 
         // if the process still hasn't exited, throw an exception
         if (exiting.IsCompleted == false)
-            Throw(log, new TimeoutException($"attempted to kill '{settings.name}', but took too long."));
+            throw new TimeoutException($"attempted to kill '{settings.name}', but took too long.");
     }
 
     // called when the process has exited

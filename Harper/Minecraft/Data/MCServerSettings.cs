@@ -8,7 +8,6 @@ namespace Harper.Minecraft.Data;
 
 public struct MCServerSettings
 {
-    public static readonly ILog log;
     public string name;
     public float minGB;
     public float maxGB;
@@ -18,21 +17,16 @@ public struct MCServerSettings
     public bool automaticStartup;
     public string additionalJvmArgs;
 
-    static MCServerSettings()
-    {
-        log = LogManager.GetLogger(typeof(MCServerSettings));
-    }
-
     // makes sure that all settings are correct
     public void Validate()
     {
-        if (string.IsNullOrWhiteSpace(name)) Throw(log, new ArgumentException("the server name cannot be null or whitespace!"));
-        if (minGB < 0.5F) Throw(log, new ArgumentOutOfRangeException($"{nameof(minGB)} may not be less than 0.5"));
-        if (maxGB < minGB) Throw(log, new ArgumentOutOfRangeException($"{nameof(maxGB)} is not allowed to be less than {nameof(minGB)}!"));
-        if (!File.Exists(executablePath)) Throw(log, new FileNotFoundException($"the given executable path: '{executablePath}' is invalid!"));
-        if (!(executablePath.EndsWith(".sh") | executablePath.EndsWith(".jar"))) Throw(log, new FileNotFoundException($"{nameof(executablePath)} is not a .sh or .jar file!"));
-        if (maxRestartAttempts < 0) Throw(log, new ArgumentOutOfRangeException(nameof(maxRestartAttempts), $"value {maxRestartAttempts} is not allowed to be less than 0"));
-        //if (maxBackups < -1) Throw(log, new ArgumentOutOfRangeException(nameof(maxBackups), $"value {maxBackups} is not allowed to be less than -1"));
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("the server name cannot be null or whitespace!");
+        if (minGB < 0.5F) throw new ArgumentOutOfRangeException($"{nameof(minGB)} may not be less than 0.5");
+        if (maxGB < minGB) throw new ArgumentOutOfRangeException($"{nameof(maxGB)} is not allowed to be less than {nameof(minGB)}!");
+        if (!File.Exists(executablePath)) throw new FileNotFoundException($"the given executable path: '{executablePath}' is invalid!");
+        if (!(executablePath.EndsWith(".sh") | executablePath.EndsWith(".jar"))) throw new FileNotFoundException($"{nameof(executablePath)} is not a .sh or .jar file!");
+        if (maxRestartAttempts < 0) throw new ArgumentOutOfRangeException(nameof(maxRestartAttempts), $"value {maxRestartAttempts} is not allowed to be less than 0");
+        //if (maxBackups < -1) throw new ArgumentOutOfRangeException(nameof(maxBackups), $"value {maxBackups} is not allowed to be less than -1");
         // automatic startup will default to 'false'
         // additionalJvmArgs will default to 'null', which is valid
     }
