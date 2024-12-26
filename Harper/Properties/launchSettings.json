@@ -1,0 +1,9 @@
+{
+    "profiles": {
+        "debug": {
+            "commandName": "Project",
+            "dotnetRunMessages": true,
+            "workingDirectory": "./"
+        }
+    }
+}
