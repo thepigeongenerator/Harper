@@ -14,12 +14,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="settings/" />
+    <None Remove="settings/*" />
   </ItemGroup>
 
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
     <DefineConstants>_LINUX</DefineConstants>
   </PropertyGroup>
-
 
 </Project>
