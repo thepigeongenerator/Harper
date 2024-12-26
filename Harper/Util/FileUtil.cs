@@ -70,6 +70,12 @@ public static class FileUtil
         if (File.Exists(path))
             return;
 
+        {
+            string dirPath = Path.GetDirectoryName(path);
+            if (Directory.Exists(dirPath) == false)
+                Directory.CreateDirectory(dirPath);
+        }
+
         File.Copy(templatePath, path);
     }
 
