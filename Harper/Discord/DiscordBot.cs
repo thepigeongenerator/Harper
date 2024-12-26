@@ -10,6 +10,7 @@ using Discord.WebSocket;
 using Harper.Logging;
 using Harper.Util;
 using log4net;
+using MinecraftServerApplication.Discord.Commands;
 
 namespace Harper.Discord;
 
@@ -74,10 +75,9 @@ public class DiscordBot : IModule
     // is called when the bot is in it's "ready" state
     private async Task ReadyHandler()
     {
-        // transferred code from last version
-        // await interactionService.AddModuleAsync<UtilCommands>(null);
-        // await interactionService.AddModuleAsync<ServerCommands>(null);
-        // await interactionService.AddModuleAsync<MinecraftCommmands>(null);
+        await interactionService.AddModuleAsync<UtilCommands>(null);
+        await interactionService.AddModuleAsync<ServerCommands>(null);
+        await interactionService.AddModuleAsync<MinecraftCommmands>(null);
         await interactionService.RegisterCommandsGloballyAsync(true);
     }
 
