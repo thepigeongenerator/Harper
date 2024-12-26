@@ -15,7 +15,7 @@ public static class Log
     public static void Initialize()
     {
         // create the pattern layout
-        PatternLayout pattern = new("[%date{HH:mm:ss}] %-5level %-20.20logger - %message%newline");
+        PatternLayout pattern = new("[%date{HH:mm:ss}] %-8level %-32.32logger{1} - %message%newline");
         pattern.ActivateOptions();
 
         // create the console appender with the pattern layout
