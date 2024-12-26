@@ -69,15 +69,18 @@ public class Core : IDisposable
     }
 
     // called when the program needs to stop
-    public async Task Quit(uint8 exitCode = 0)
+    public async Task Quit(int8 exitCode = 0)
     {
         if (running == false)
             return;
 
         await ForEachModule(m => m.Stop());
 
-        // lastly; dispose of everything
-        Dispose();
+        this.exitCode = exitCode;
+    }
+
+    public async Task Restart() {
+        await Quit(2); // return an exit code of 2, signifying that the application should restart instead
     }
 
     // called when the program needs to stop immediately, cleans up all resources as fast as possible
