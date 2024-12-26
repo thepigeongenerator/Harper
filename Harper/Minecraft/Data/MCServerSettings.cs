@@ -27,10 +27,10 @@ public struct MCServerSettings
     public void Validate()
     {
         if (string.IsNullOrWhiteSpace(name)) Throw(log, new ArgumentException("the server name cannot be null or whitespace!"));
-        if (minGB >= maxGB) Throw(log, new ArgumentOutOfRangeException($"{nameof(minGB)} is not allowed to be less than {nameof(maxGB)}!"));
-        if (minGB >= 0.5F) Throw(log, new ArgumentOutOfRangeException($"{nameof(minGB)} must be more than or equal to 0.5"));
+        if (minGB < 0.5F) Throw(log, new ArgumentOutOfRangeException($"{nameof(minGB)} may not be less than 0.5"));
+        if (maxGB < minGB) Throw(log, new ArgumentOutOfRangeException($"{nameof(maxGB)} is not allowed to be less than {nameof(minGB)}!"));
         if (!File.Exists(executablePath)) Throw(log, new FileNotFoundException($"the given executable path: '{executablePath}' is invalid!"));
-        if (executablePath.EndsWith(".sh") | executablePath.EndsWith(".jar")) Throw(log, new FileNotFoundException($"{nameof(executablePath)} is not a .sh or .jar file!"));
+        if (!(executablePath.EndsWith(".sh") | executablePath.EndsWith(".jar"))) Throw(log, new FileNotFoundException($"{nameof(executablePath)} is not a .sh or .jar file!"));
         if (maxRestartAttempts < 0) Throw(log, new ArgumentOutOfRangeException(nameof(maxRestartAttempts), $"value {maxRestartAttempts} is not allowed to be less than 0"));
         //if (maxBackups < -1) Throw(log, new ArgumentOutOfRangeException(nameof(maxBackups), $"value {maxBackups} is not allowed to be less than -1"));
         // automatic startup will default to 'false'
