@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Text;
 using log4net;
 
 namespace Harper;
@@ -19,7 +20,7 @@ public class ErrorHandler
         PosixSignalRegistration.Create(PosixSignal.SIGQUIT, c => PosixSignalHandler(c, ExitGracefully));
         PosixSignalRegistration.Create(PosixSignal.SIGTERM, c => PosixSignalHandler(c, ExitImmediately));
         AppDomain.CurrentDomain.ProcessExit += (s, a) => ExitGracefully();
-        AppDomain.CurrentDomain.UnhandledException += (s, a) => ExitImmediately();
+        AppDomain.CurrentDomain.UnhandledException += (s, a) => ExitImmediately((Exception)a.ExceptionObject);
     }
 
 
@@ -30,9 +31,14 @@ public class ErrorHandler
     }
 
     // call dispose to dispose of everything as fast as possible
-    private void ExitImmediately()
+    private void ExitImmediately() => ExitImmediately(null);
+    private void ExitImmediately(Exception e)
     {
-        log.Error("exiting immediately! this might cause data loss.");
+        StringBuilder error = new("exiting immediately! this might cause data loss.");
+        if (e != null)
+            error.Append($" exception: {e.Message}");
+        log.Fatal(error);
+        log.Debug(e);
 
         core.Dispose();
     }
