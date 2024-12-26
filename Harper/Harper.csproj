@@ -13,6 +13,10 @@
     <PackageReference Include="log4net" Version="3.0.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="settings/" />
+  </ItemGroup>
+
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
     <DefineConstants>_LINUX</DefineConstants>
   </PropertyGroup>

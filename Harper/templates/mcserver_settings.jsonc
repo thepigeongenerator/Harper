@@ -1,0 +1,29 @@
+// here you can define the various minecraft servers you'd like to be running
+// example configuration below:
+{
+    "backupDir": "/home/minecraft/backups",
+    "servers": [
+        {
+            "name": "super cool minecraft server",
+            "minGB": 4.0,
+            "maxGB": 8.0,
+            "executablePath": "/home/minecraft/servers/my_awesome_server/server.jar",
+            "maxRestartAttempts": 0,
+            "automaticStartup": false,
+            "additionalJvmArgs": null
+        }
+    ]
+}
+
+
+
+// different components:
+// backupDir: string to the path where the backups are located, the application will create directories for each server you create and set the backups of the world in there in a .tar.gz format
+// servers:
+//      name: the unique name that you identify the server with, can be a non-empty string which isn't equal to any other server
+//      minGB: the total amount of memory allocated on startup must be greater than or equal to 0.5
+//      maxGB: the total amount of memory that can be allocated during runtime must be greater than or equal to minGB
+//      executablePath: the path that the server's executable is located, must be either a file with the .jar or the .sh extension.
+//      maxRestartAttempts: the maximum amount of times that the server is allowed to be restarted, cannot be less than 0
+//      automaticStartup: whether the server is automatically started when the server is, true or false
+//      additionalJvmArgs: custom jvm arguments you'd like to pass to the jvm, string or null
