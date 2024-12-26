@@ -56,6 +56,10 @@ public class DiscordBot : IModule
             throw new ConfigurationErrorsException();
         }
 
+        log.Info("validating bot token...");
+        TokenUtils.ValidateToken(TokenType.Bot, token);
+        log.Info("bot token validation was successful!");
+
         await client.LoginAsync(TokenType.Bot, token);
         await client.SetStatusAsync(UserStatus.Online);
         await client.StartAsync();
