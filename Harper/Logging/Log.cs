@@ -3,6 +3,7 @@ using log4net;
 using log4net.Appender;
 using log4net.Config;
 using log4net.Core;
+using log4net.Filter;
 using log4net.Layout;
 using log4net.Repository;
 using log4net.Repository.Hierarchy;
@@ -18,22 +19,11 @@ public static class Log
         patternLayout.ActivateOptions();
 
         // create the console appender with the pattern layout
-        ColoredConsoleAppender console = new()
+        ConsoleAppender console = new()
         {
             Layout = patternLayout
         };
         console.ActivateOptions();
-
-        ColoredConsoleAppender.LevelColors[] colours = [
-            new() { Level = Level.Debug, ForeColor = ColoredConsoleAppender.Colors.Purple },
-            new() { Level = Level.Info, ForeColor = ColoredConsoleAppender.Colors.White },
-            new() { Level = Level.Warn, ForeColor = ColoredConsoleAppender.Colors.Yellow },
-            new() { Level = Level.Error, ForeColor = ColoredConsoleAppender.Colors.Red },
-            new() { Level = Level.Fatal, ForeColor = ColoredConsoleAppender.Colors.Red | ColoredConsoleAppender.Colors.HighIntensity },
-        ];
-
-        foreach (ColoredConsoleAppender.LevelColors mapping in colours)
-            console.AddMapping(mapping);
 
         // configure the root logger with a treshold
         var hierarchy = (Hierarchy)LogManager.GetRepository();
