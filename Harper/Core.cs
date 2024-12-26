@@ -106,6 +106,6 @@ public class Core : IDisposable
             from mod in Instance.modules.AsEnumerable()
             where mod is T
             select (T)mod)
-            .First();
+            .FirstOrDefault();
     }
 }

@@ -25,6 +25,7 @@ public class MCServer : IDisposable
     private bool disposed = false;
 
     // boolean shothands
+    public ServerState State => state;
     public bool CanStart => (state & ServerState.CAN_START) != 0 && (creatingBackup == false);
     public bool CanStop => (state & ServerState.CAN_STOP) != 0;
     public bool CanKill => (state & ServerState.CAN_KILL) != 0;
