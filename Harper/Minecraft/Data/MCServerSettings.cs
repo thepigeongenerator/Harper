@@ -6,17 +6,17 @@ using log4net;
 
 namespace Harper.Minecraft.Data;
 
-public readonly struct MCServerSettings
+public struct MCServerSettings
 {
     public static readonly ILog log;
-    public readonly string name;
-    public readonly float minGB;
-    public readonly float maxGB;
-    public readonly string executablePath;
-    public readonly int32 maxRestartAttempts; // I hate how this is a signed integer due to JSON
-    //public readonly int32 maxBackups;
-    public readonly bool automaticStartup;
-    public readonly string additionalJvmArgs;
+    public string name;
+    public float minGB;
+    public float maxGB;
+    public string executablePath;
+    public int32 maxRestartAttempts; // I hate how this is a signed integer due to JSON
+    //public int32 maxBackups;
+    public bool automaticStartup;
+    public string additionalJvmArgs;
 
     static MCServerSettings()
     {

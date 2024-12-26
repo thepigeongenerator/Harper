@@ -4,11 +4,11 @@ using log4net;
 
 namespace Harper.Minecraft.Data;
 
-public readonly struct MCServerManagerSettings
+public struct MCServerManagerSettings
 {
     public static readonly ILog log;
-    public readonly string backupDir;
-    public readonly MCServerSettings[] servers;
+    public string backupDir;
+    public MCServerSettings[] servers;
 
     static MCServerManagerSettings()
     {
