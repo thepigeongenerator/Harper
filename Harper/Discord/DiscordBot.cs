@@ -51,10 +51,7 @@ public class DiscordBot : IModule
 
         string token = Environment.GetEnvironmentVariable(ENV_HARPER_BOT_TOKEN);
         if (token == null)
-        {
-            Console.Error.WriteLine($"please set a bot token in the '{ENV_HARPER_BOT_TOKEN}' environment variable");
-            throw new ConfigurationErrorsException();
-        }
+            throw new ConfigurationErrorsException($"please set a bot token in the '{ENV_HARPER_BOT_TOKEN}' environment variable");
 
         log.Info("validating bot token...");
         TokenUtils.ValidateToken(TokenType.Bot, token);
@@ -89,14 +86,14 @@ public class DiscordBot : IModule
     {
         if (allowedIds.Contains(command.User.Id))
         {
-            Console.WriteLine($"'{command.User.Username}' is executuing command '{command.CommandName}' in '{command.Channel.Name}'");
+            log.Info($"'{command.User.Username}' is executuing command '{command.CommandName}' in '{command.Channel.Name}'");
             await command.RespondAsync("harper is thinking...");
             var context = new InteractionContext(client, command, command.Channel);
             await interactionService.ExecuteCommandAsync(context, null);
         }
         else
         {
-            Console.Error.Write($"'the user {command.User.Username}' had insufficient permissions to execute command: '{command.CommandName}'");
+            log.Warn($"'the user {command.User.Username}' had insufficient permissions to execute command: '{command.CommandName}'");
             await command.RespondAsync(":x: You don't have sufficient permissions to execute commands!");
         }
     }
