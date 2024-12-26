@@ -15,14 +15,26 @@ public static class Log
     public static void Initialize()
     {
         // create the pattern layout
-        PatternLayout patternLayout = new("[%date{HH:mm:ss}] %-5level %-20.20logger - %message%newline");
-        patternLayout.ActivateOptions();
+        PatternLayout pattern = new("[%date{HH:mm:ss}] %-5level %-20.20logger - %message%newline");
+        pattern.ActivateOptions();
 
         // create the console appender with the pattern layout
-        ConsoleAppender console = new()
+        AnsiColorTerminalAppender console = new()
         {
-            Layout = patternLayout
+            Layout = pattern
         };
+
+        AnsiColorTerminalAppender.LevelColors[] colours = [
+            new() { Level = Level.Debug, ForeColor = AnsiColorTerminalAppender.AnsiColor.Magenta },
+            new() { Level = Level.Info, ForeColor = AnsiColorTerminalAppender.AnsiColor.White },
+            new() { Level = Level.Warn, ForeColor = AnsiColorTerminalAppender.AnsiColor.Yellow },
+            new() { Level = Level.Error, ForeColor = AnsiColorTerminalAppender.AnsiColor.Red },
+            new() { Level = Level.Fatal, ForeColor = AnsiColorTerminalAppender.AnsiColor.White, BackColor = AnsiColorTerminalAppender.AnsiColor.Red },
+        ];
+
+        foreach (AnsiColorTerminalAppender.LevelColors mapping in colours)
+            console.AddMapping(mapping);
+
         console.ActivateOptions();
 
         // configure the root logger with a treshold
