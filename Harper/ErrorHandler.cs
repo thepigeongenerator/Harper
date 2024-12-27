@@ -8,11 +8,16 @@ namespace Harper;
 
 public class ErrorHandler
 {
-    private readonly Core core;
-    private readonly ILog log;
+    private static ErrorHandler instance = null;
+    private readonly Core core = null;
+    private readonly ILog log = null;
 
     public ErrorHandler(Core core, ILog log)
     {
+        if (instance != null)
+            throw new InvalidOperationException("there's only allowed to be one error handler!");
+        instance = this;
+
         this.core = core;
         this.log = log;
 
@@ -52,5 +57,24 @@ public class ErrorHandler
         log.Info($"processing posix signal: {context.Signal}");
         context.Cancel = true;
         exec.Invoke();
+    }
+
+    public static Task CatchError(Func<Task> act)
+    {
+        try
+        {
+            act.Invoke().Wait();
+        }
+        catch (Exception e)
+        {
+#if DEBUG
+            instance.ExitImmediately(e);
+#else
+            instance.log.Error($"an exception occurred but was caught! {e.GetType().Name}: {e.Message}");
+            instance.log.Debug(e);
+#endif
+        }
+
+        return Task.CompletedTask;
     }
 }

@@ -93,34 +93,43 @@ public class DiscordBot : IModule
     // is called when the bot is in it's "ready" state
     private async Task ReadyHandler()
     {
-        await interactionService.AddModuleAsync<UtilCommands>(null);
-        await interactionService.AddModuleAsync<ServerCommands>(null);
-        await interactionService.AddModuleAsync<MinecraftCommmands>(null);
-        await interactionService.RegisterCommandsGloballyAsync(true);
+        await ErrorHandler.CatchError(async () =>
+        {
+            await interactionService.AddModuleAsync<UtilCommands>(null);
+            await interactionService.AddModuleAsync<ServerCommands>(null);
+            await interactionService.AddModuleAsync<MinecraftCommmands>(null);
+            await interactionService.RegisterCommandsGloballyAsync(true);
+        });
     }
 
     // handles executed commands
     private async Task CommandHandler(SocketSlashCommand command)
     {
-        if (allowedIds.Contains(command.User.Id))
+        await ErrorHandler.CatchError(async () =>
         {
-            log.Info($"'{command.User.Username}' is executuing command '{command.CommandName}' in '{command.Channel.Name}'");
-            await command.RespondAsync("harper is thinking...");
-            var context = new InteractionContext(client, command, command.Channel);
-            await interactionService.ExecuteCommandAsync(context, null);
-        }
-        else
-        {
-            log.Warn($"'the user {command.User.Username}' had insufficient permissions to execute command: '{command.CommandName}'");
-            await command.RespondAsync(":x: You don't have sufficient permissions to execute commands!");
-        }
+            if (allowedIds.Contains(command.User.Id))
+            {
+                log.Info($"'{command.User.Username}' is executuing command '{command.CommandName}' in '{command.Channel.Name}'");
+                await command.RespondAsync("harper is thinking...");
+                var context = new InteractionContext(client, command, command.Channel);
+                await interactionService.ExecuteCommandAsync(context, null);
+            }
+            else
+            {
+                log.Warn($"'the user {command.User.Username}' had insufficient permissions to execute command: '{command.CommandName}'");
+                await command.RespondAsync(":x: You don't have sufficient permissions to execute commands!");
+            }
+        });
     }
 
     // for handling autocompletions
     private async Task AutoCompleteHandler(SocketAutocompleteInteraction interaction)
     {
-        var context = new InteractionContext(client, interaction, interaction.Channel);
-        await interactionService.ExecuteCommandAsync(context, null);
+        await ErrorHandler.CatchError(async () =>
+        {
+            var context = new InteractionContext(client, interaction, interaction.Channel);
+            await interactionService.ExecuteCommandAsync(context, null);
+        });
     }
 
     // for converting the discord logs into the current application runtime's logs
