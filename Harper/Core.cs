@@ -93,7 +93,7 @@ public class Core : IDisposable
         running = false;
         this.exitCode = exitCode;
 
-        log.Info($"shutting down application with code {exitCode}");
+        log.Info($"shutting down application with code {unchecked((uint8)exitCode)} ({exitCode:X2})");
         await ForEachModule(m =>
         {
             log.Info($"stopping {m.GetType().Name}");
