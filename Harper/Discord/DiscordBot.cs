@@ -100,21 +100,22 @@ public class DiscordBot : IModule
     }
 
     // handles executed commands
-    private async Task CommandHandler(SocketSlashCommand command)
+    private async Task CommandHandler(SocketSlashCommand cmd)
     {
+        log.Debug($"latency: {Math.Round((DateTime.UtcNow - cmd.CreatedAt).TotalMilliseconds, 1)}ms");
         await ErrorHandler.CatchError(async () =>
         {
-            if (allowedIds.Contains(command.User.Id))
+            await cmd.DeferAsync(ephemeral: true);
+            if (allowedIds.Contains(cmd.User.Id))
             {
-                log.Info($"'{command.User.Username}' is executuing command '{command.CommandName}' in '{command.Channel.Name}'");
-                await command.RespondAsync("harper is thinking...");
-                var context = new InteractionContext(client, command, command.Channel);
+                log.Info($"'{cmd.User.Username}' is executuing command '{cmd.CommandName}' in '{cmd.Channel.Name}'");
+                var context = new InteractionContext(client, cmd, cmd.Channel);
                 await interactionService.ExecuteCommandAsync(context, null);
             }
             else
             {
-                log.Warn($"'the user {command.User.Username}' had insufficient permissions to execute command: '{command.CommandName}'");
-                await command.RespondAsync(":x: You don't have sufficient permissions to execute commands!");
+                log.Warn($"'the user {cmd.User.Username}' had insufficient permissions to execute command: '{cmd.CommandName}'");
+                await cmd.RespondAsync(":x: You don't have sufficient permissions to execute commands!");
             }
         });
     }
@@ -132,7 +133,7 @@ public class DiscordBot : IModule
     // for converting the discord logs into the current application runtime's logs
     private Task LogHandler(LogMessage msg)
     {
-        string entry = msg.Message ?? null;
+        string entry = msg.Message ?? "null";
         Action act = msg.Severity switch
         {
             LogSeverity.Info => () => log.Info(entry),
