@@ -46,7 +46,7 @@ internal class MinecraftCommmands : CommandHandler
         }
 
         //check the server's state
-        if (predicate.Invoke(server))
+        if (predicate.Invoke(server) == false)
         {
             await SetError($"`{name}` has an illegal state!");
             return null;
