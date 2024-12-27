@@ -54,7 +54,7 @@ public class Core : IDisposable
     private Task ForEachModule(Func<IModule, Task> exec)
     {
         List<Task> tasks = new(modules.Length);
-        return Task.WhenAny(TaskUtil.ForEachTask<IModule>(mod => exec.Invoke(mod), modules));
+        return Task.WhenAll(TaskUtil.ForEachTask<IModule>(mod => exec.Invoke(mod), modules));
     }
 
     // called when the program is executed, keeps the thread until it's finished executing
