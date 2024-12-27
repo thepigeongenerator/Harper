@@ -11,6 +11,13 @@ public class ErrorHandler
     private static ErrorHandler instance = null;
     private readonly Core core = null;
     private readonly ILog log = null;
+    private readonly PosixSignalRegistration[] registrations = null;
+
+    private Action<PosixSignalContext> PosixStopHandle => c => PosixSignalHandler(c, ExitGracefully);
+    private Action<PosixSignalContext> PosixTermHandle => c => PosixSignalHandler(c, ExitImmediately);
+    private EventHandler EventStopHandle => (s, a) => ExitGracefully();
+    private UnhandledExceptionEventHandler UnhandledExceptionHandle => (s, a) => ExitImmediately((Exception)a.ExceptionObject);
+    private EventHandler<UnobservedTaskExceptionEventArgs> TaskExceptionHandle => (s, a) => ExitImmediately((Exception)a.Exception);
 
     public ErrorHandler(Core core, ILog log)
     {
@@ -20,12 +27,28 @@ public class ErrorHandler
         this.log = log;
 
         // subscribe to exit events
-        PosixSignalRegistration.Create(PosixSignal.SIGINT, c => PosixSignalHandler(c, ExitGracefully));
-        PosixSignalRegistration.Create(PosixSignal.SIGQUIT, c => PosixSignalHandler(c, ExitGracefully));
-        PosixSignalRegistration.Create(PosixSignal.SIGTERM, c => PosixSignalHandler(c, ExitImmediately));
-        AppDomain.CurrentDomain.ProcessExit += (s, a) => ExitGracefully();
-        AppDomain.CurrentDomain.UnhandledException += (s, a) => ExitImmediately((Exception)a.ExceptionObject);
-        TaskScheduler.UnobservedTaskException += (s, a) => ExitImmediately((Exception)a.Exception);
+        registrations = [
+            PosixSignalRegistration.Create(PosixSignal.SIGINT, PosixStopHandle),
+            PosixSignalRegistration.Create(PosixSignal.SIGQUIT, PosixStopHandle),
+            PosixSignalRegistration.Create(PosixSignal.SIGTERM, PosixTermHandle),
+        ];
+        AppDomain.CurrentDomain.ProcessExit += EventStopHandle;
+        AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandle;
+        TaskScheduler.UnobservedTaskException += TaskExceptionHandle;
+    }
+
+    // destructor
+    ~ErrorHandler()
+    {
+        // unsubscribe from exit events
+        foreach (var reg in registrations)
+            reg.Dispose();
+
+        PosixSignalRegistration.Create(PosixSignal.SIGQUIT, PosixStopHandle);
+        PosixSignalRegistration.Create(PosixSignal.SIGTERM, PosixTermHandle);
+        AppDomain.CurrentDomain.ProcessExit -= EventStopHandle;
+        AppDomain.CurrentDomain.UnhandledException -= UnhandledExceptionHandle;
+        TaskScheduler.UnobservedTaskException -= TaskExceptionHandle;
     }
 
 

@@ -160,5 +160,13 @@ public class DiscordBot : IModule
         // dispose of the other things
         client.Dispose();
         interactionService.Dispose();
+
+
+        // unsubscribe from events
+        client.Ready -= ReadyHandler;
+        client.SlashCommandExecuted -= CommandHandler;
+        client.AutocompleteExecuted -= AutoCompleteHandler;
+        client.Log -= LogHandler;
+        interactionService.Log -= LogHandler;
     }
 }

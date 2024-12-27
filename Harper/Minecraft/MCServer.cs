@@ -202,6 +202,9 @@ public class MCServer : IDisposable
         if (CanKill)
             Kill().Wait();
 
+        // unsubscribe from events
+        serverProcess.Exited -= OnShutdown;
+
         // dispose the process itself.
         serverProcess.Dispose();
     }
