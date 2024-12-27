@@ -14,8 +14,6 @@ public class ErrorHandler
 
     public ErrorHandler(Core core, ILog log)
     {
-        if (instance != null)
-            throw new InvalidOperationException("there's only allowed to be one error handler!");
         instance = this;
 
         this.core = core;

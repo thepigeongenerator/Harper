@@ -64,7 +64,6 @@ public class Core : IDisposable
     // executes something for each module
     private Task ForEachModule(Func<IModule, Task> exec)
     {
-        List<Task> tasks = new(modules.Length);
         return Task.WhenAll(TaskUtil.ForEachTask<IModule>(mod => exec.Invoke(mod), modules));
     }
 
@@ -90,15 +89,17 @@ public class Core : IDisposable
     {
         if (running == false)
             return;
+
         running = false;
         this.exitCode = exitCode;
 
-        log.Info($"shutting down application with code {unchecked((uint8)exitCode)} ({exitCode:X2})");
+        log.Info($"shutting down application with code {unchecked((uint8)exitCode)} (0x{exitCode:X2})");
         await ForEachModule(m =>
         {
             log.Info($"stopping {m.GetType().Name}");
             return m.Stop();
         });
+        log.Info("finished shutting down modules!");
 
         exited.Set();
     }
