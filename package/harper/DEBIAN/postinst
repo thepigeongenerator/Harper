@@ -1,4 +1,0 @@
-#!/bin/bash
-
-systemctl enable harper.service
-systemctl start harper.service

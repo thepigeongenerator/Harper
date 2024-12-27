@@ -1,8 +1,0 @@
-Package: harper
-Version: 5.15.0
-Architecture: all
-Essential: no
-Priority: optional
-Depends: default-jre-headless
-Maintainer: thepigeongenerator
-Description: manages minecraft servers with a discord bot
