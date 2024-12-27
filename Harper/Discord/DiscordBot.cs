@@ -24,7 +24,6 @@ public class DiscordBot : IModule
     private readonly DiscordSocketClient client = null;
     private readonly InteractionService interactionService = null;
     private readonly uint64[] allowedIds = [];
-    private bool running = false;
     private bool disposed = false;
 
     public DiscordBot()
@@ -34,7 +33,7 @@ public class DiscordBot : IModule
 
         // initialize the discord client
         client = new(new() { GatewayIntents = INTENTS, LogLevel = LogSeverity.Debug });
-        interactionService = new(client.Rest);
+        interactionService = new(client.Rest, new() { LogLevel = LogSeverity.Debug });
 
         // init configuration
         FileUtil.CopyTemplateIfNotExists(FilePath.SETTING_HARPER_ALLOWED_USERS, FilePath.TEMPLATE_HARPER_ALLOWED_USERS);
@@ -45,6 +44,7 @@ public class DiscordBot : IModule
         client.SlashCommandExecuted += CommandHandler;
         client.AutocompleteExecuted += AutoCompleteHandler;
         client.Log += LogHandler;
+        interactionService.Log += LogHandler;
     }
 
     private async Task<bool> ValidateBotToken(string token)
@@ -65,8 +65,6 @@ public class DiscordBot : IModule
     // starts the discord bot
     public async Task Start()
     {
-        running = true;
-
         string token = Environment.GetEnvironmentVariable(ENV_HARPER_BOT_TOKEN);
         if (token == null)
             throw new ConfigurationErrorsException($"please set a bot token in the '{ENV_HARPER_BOT_TOKEN}' environment variable");
@@ -87,7 +85,6 @@ public class DiscordBot : IModule
         await client.SetStatusAsync(UserStatus.Offline);
         await client.LogoutAsync();
         await client.StopAsync();
-        running = false;
     }
 
     // is called when the bot is in it's "ready" state
@@ -159,7 +156,8 @@ public class DiscordBot : IModule
         GC.SuppressFinalize(this);
         disposed = true;
 
-        // just dispose of the client
+        // dispose of the other things
         client.Dispose();
+        interactionService.Dispose();
     }
 }
