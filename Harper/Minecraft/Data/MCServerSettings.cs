@@ -57,8 +57,14 @@ public struct MCServerSettings
         // otherwise, read the setting set in the file
         string ln = FileUtil.GetFirstLine(propertiesPath, ln => ln.StartsWith("level-name"));
 
-        //get everything after '='
-        int32 startIndex = ln.IndexOf('=') + 1;               // get the index
-        return Path.Combine(serverDir, ln[startIndex..]);   // the array slice of the line, and combine it with the server directory, return the result
+        // get everything after '=', if the line has been found
+        if (ln != null)
+        {
+            int32 startIndex = ln.IndexOf('=') + 1;               // get the index
+            return Path.Combine(serverDir, ln[startIndex..]);   // the array slice of the line, and combine it with the server directory, return the result
+        }
+
+        // otherwise assume the default level name of "world"
+        return Path.Combine(serverDir, "world");
     }
 }
