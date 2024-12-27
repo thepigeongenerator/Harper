@@ -66,6 +66,7 @@ public class MCServer : IDisposable
         // create the server process
         serverProcess = new Process() { StartInfo = startInfo };
         serverProcess.Exited += OnShutdown;
+        serverProcess.EnableRaisingEvents = true;
         state = ServerState.STOPPED;
     }
 
