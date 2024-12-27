@@ -165,7 +165,7 @@ public class MCServer : IDisposable
     private void OnShutdown(object sender, System.EventArgs e)
     {
         int8 exitcode = unchecked((int8)serverProcess.ExitCode); // truncate the exit code (we aren't on windows, so more isn't needed)
-        log.Info($"the server '{settings.name}' has exited! With code {exitcode} (0x{exitcode:X2})"); // show the exit code in 2 base-16 digits.
+        log.Info($"the server '{settings.name}' has exited! With code {unchecked((uint8)exitcode)} (0x{exitcode:X2})"); // show the exit code in 2 base-16 digits.
 
         // if the exit code is negative (ergo 127<), return; this exit code has been caused by the operating system.
         // in the case that it's 0; also just return as this indicates success.

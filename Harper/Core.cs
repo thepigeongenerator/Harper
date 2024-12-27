@@ -47,8 +47,8 @@ public class Core : IDisposable
 
         {
             FileVersionInfo ver = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
-        #if DEBUG
-        log.Info($"Running application version: v{ver.FileVersion} (DEBUG)");
+#if DEBUG
+            log.Info($"Running application version: v{ver.FileVersion} (DEBUG)");
 #else
         log.Info($"Running application version: v{ver.FileVersion}");
 #endif
@@ -72,6 +72,8 @@ public class Core : IDisposable
     public void Run()
     {
         running = true;
+
+        log.Info($"starting application");
         ForEachModule(m =>
         {
             log.Info($"starting {m.GetType().Name}");
@@ -88,10 +90,16 @@ public class Core : IDisposable
     {
         if (running == false)
             return;
-
-        await ForEachModule(m => m.Stop());
-
+        running = false;
         this.exitCode = exitCode;
+
+        log.Info($"shutting down application with code {exitCode}");
+        await ForEachModule(m =>
+        {
+            log.Info($"stopping {m.GetType().Name}");
+            return m.Stop();
+        });
+
         exited.Set();
     }
 
