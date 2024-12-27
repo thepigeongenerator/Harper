@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Interactions;
@@ -45,6 +46,21 @@ public class DiscordBot : IModule
         client.Log += LogHandler;
     }
 
+    private async Task<bool> ValidateBotToken(string token)
+    {
+        using HttpClient client = new();
+        client.DefaultRequestHeaders.Add("Authorization", $"Bot {token}");
+        try
+        {
+            HttpResponseMessage response = await client.GetAsync("https://discord.com/api/v10/users/@me");
+            return response.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     // starts the discord bot
     public async Task Start()
     {
@@ -55,7 +71,8 @@ public class DiscordBot : IModule
             throw new ConfigurationErrorsException($"please set a bot token in the '{ENV_HARPER_BOT_TOKEN}' environment variable");
 
         log.Info("validating bot token...");
-        TokenUtils.ValidateToken(TokenType.Bot, token);
+        if (await ValidateBotToken(token) == false)
+            throw new HttpRequestException($"the supplied bot token in '{ENV_HARPER_BOT_TOKEN}' is not valid! Ensure you set a correct bot token!");
         log.Info("bot token validation was successful!");
 
         await client.LoginAsync(TokenType.Bot, token);
