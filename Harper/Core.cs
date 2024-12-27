@@ -9,6 +9,7 @@ using Harper.Discord;
 using Harper.Logging;
 using Harper.Minecraft;
 using Harper.Minecraft.Data;
+using Harper.Util;
 using log4net;
 
 namespace Harper;
@@ -53,11 +54,7 @@ public class Core : IDisposable
     private Task ForEachModule(Func<IModule, Task> exec)
     {
         List<Task> tasks = new(modules.Length);
-
-        foreach (IModule mod in modules)
-            tasks.Add(exec.Invoke(mod));
-
-        return Task.WhenAny(tasks);
+        return Task.WhenAny(TaskUtil.ForEachTask<IModule>(mod => exec.Invoke(mod), modules));
     }
 
     // called when the program is executed, keeps the thread until it's finished executing
