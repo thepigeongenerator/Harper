@@ -36,11 +36,13 @@ public class ErrorHandler
     private void ExitImmediately() => ExitImmediately(null);
     private void ExitImmediately(Exception e)
     {
-        StringBuilder error = new("exiting immediately! this might cause data loss.");
-        if (e != null)
-            error.Append($" {e.GetType().Name}: {e.Message}");
-        log.Fatal(error);
-        log.Debug(e);
+        if (e == null)
+            log.Warn("exiting immediately! this might cause data loss.");
+        else
+        {
+            log.Fatal($"exiting due to an exception! this might cause data loss. {e.GetType().Name}: {e.Message}");
+            log.Debug(e);
+        }
 
         core.Dispose();
     }
