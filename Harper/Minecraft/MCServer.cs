@@ -170,7 +170,12 @@ public class MCServer : IDisposable
         // if the exit code is negative (ergo 127<), return; this exit code has been caused by the operating system.
         // in the case that it's 0; also just return as this indicates success.
         if (exitcode <= 0)
+        {
+            state = exitcode == 0 ? ServerState.STOPPED : ServerState.KILLED;
             return;
+        }
+
+        state = ServerState.ERROR;
 
         // restart the server if we still can
         if (faultyShutdownCount >= settings.maxRestartAttempts)
