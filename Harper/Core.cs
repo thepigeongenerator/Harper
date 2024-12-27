@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -42,6 +44,15 @@ public class Core : IDisposable
         exited = new ManualResetEvent(false);
         errorHandler = new ErrorHandler(this, log);
 
+
+        {
+            FileVersionInfo ver = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
+        #if DEBUG
+        log.Info($"Running application version: v{ver.FileVersion} (DEBUG)");
+#else
+        log.Info($"Running application version: v{ver.FileVersion}");
+#endif
+        }
         log.Debug($"cwd: {Directory.GetCurrentDirectory()}");
 
         modules = [
@@ -81,6 +92,7 @@ public class Core : IDisposable
         await ForEachModule(m => m.Stop());
 
         this.exitCode = exitCode;
+        exited.Set();
     }
 
     public async Task Restart()
