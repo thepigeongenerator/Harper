@@ -32,6 +32,8 @@ public class MCServerManager : IModule
         var settings = JsonConvert.DeserializeObject<MCServerManagerSettings>(File.ReadAllText(FilePath.SETTING_MCSERVER_SETTINGS));
         log.Debug("Finished deserialization!");
 
+        backupDir = settings.backupDir;
+
         // define the dictionary, with the capacity set to the servers length
         servers = new(settings.servers.Length);
 
