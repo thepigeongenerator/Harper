@@ -8,6 +8,9 @@ namespace Harper.Util;
 
 public static class FileUtil
 {
+    // efficiently processes lines in a file
+    // allows you to customise when you want to stop the data flow, what items to skip with skipIf
+    // and when you've found the item you want with breakIf
     public static void ForEachLine(string path, Action<string> action) => ForEachLine(path, s => true, action);
     public static void ForEachLine(string path, Predicate<string> skipIf, Action<string> action) => ForEachLine(path, skipIf, s => false, action);
     public static void ForEachLine(string path, Predicate<string> skipIf, Predicate<string> breakIf, Action<string> action)
@@ -23,7 +26,7 @@ public static class FileUtil
             ln = reader.ReadLine(); // read a singular line
 
             // break if the line is null
-            if (ln == null || breakIf.Invoke(ln))
+            if (ln == null)
                 break;
 
             // skip if the predicate returns 'true'
@@ -32,6 +35,10 @@ public static class FileUtil
 
             // invoke the action
             action.Invoke(ln);
+
+            // if the predicate is matched, break
+            if (breakIf.Invoke(ln))
+                break;
         } while (c++ < uint16.MaxValue);
     }
 
