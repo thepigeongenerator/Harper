@@ -105,7 +105,7 @@ public class DiscordBot : IModule
         log.Debug($"latency: {Math.Round((DateTime.UtcNow - cmd.CreatedAt).TotalMilliseconds, 1)}ms");
         await ErrorHandler.CatchError(async () =>
         {
-            await cmd.DeferAsync(ephemeral: true);
+            await cmd.DeferAsync();
             if (allowedIds.Contains(cmd.User.Id))
             {
                 log.Info($"'{cmd.User.Username}' is executuing command '{cmd.CommandName}' in '{cmd.Channel.Name}'");

@@ -8,26 +8,15 @@ using Harper;
 namespace MinecraftServerApplication.Discord;
 public abstract class CommandHandler : InteractionModuleBase
 {
-    // sends a message as a response to the user who executed the command edits the original message
+    // edits the response to the original response of the slash command
     private async Task CreateResponse(string msg, Color colour)
     {
-        IUserMessage originalMessage = await GetOriginalResponseAsync();
-        Embed newEmbed = new EmbedBuilder()
+        Embed embed = new EmbedBuilder()
             .WithDescription(msg)
             .WithColor(colour)
             .Build();
 
-        if (originalMessage != null)
-            await DeleteOriginalResponseAsync();
-
-        await Context.Channel.SendMessageAsync(embed: newEmbed);
-
-
-        //modify the original message
-        //await originalMessage.ModifyAsync(properties =>
-        //{
-        //    properties.Embed = newEmbed;
-        //});
+        await FollowupAsync(embed: embed);
     }
 
     public async Task Respond(string msg, Color colour) => await ErrorHandler.CatchError(async () => await CreateResponse(msg, colour));

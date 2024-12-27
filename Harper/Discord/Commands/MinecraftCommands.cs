@@ -75,7 +75,7 @@ internal class MinecraftCommmands : CommandHandler
             );
         }
 
-        response.Remove(0, response.Length - 1);
+        response.Remove(response.Length - 1, 1); // remove the last character from the string
         await SetInfo(response.ToString());
     }
 
