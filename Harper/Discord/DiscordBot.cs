@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -32,7 +33,7 @@ public class DiscordBot : IModule
         log = this.GetLogger();
 
         // initialize the discord client
-        client = new(new() { GatewayIntents = INTENTS });
+        client = new(new() { GatewayIntents = INTENTS, LogLevel = LogSeverity.Debug });
         interactionService = new(client.Rest);
 
         // init configuration

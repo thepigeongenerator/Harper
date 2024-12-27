@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 using log4net;
 
 namespace Harper;
@@ -21,6 +22,7 @@ public class ErrorHandler
         PosixSignalRegistration.Create(PosixSignal.SIGTERM, c => PosixSignalHandler(c, ExitImmediately));
         AppDomain.CurrentDomain.ProcessExit += (s, a) => ExitGracefully();
         AppDomain.CurrentDomain.UnhandledException += (s, a) => ExitImmediately((Exception)a.ExceptionObject);
+        TaskScheduler.UnobservedTaskException += (s, a) => ExitImmediately((Exception)a.Exception);
     }
 
 
