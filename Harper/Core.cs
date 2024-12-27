@@ -118,6 +118,7 @@ public class Core : IDisposable
 
         exitCode = 0;
         exited.Set();
+        instance = null;
     }
 
     public static T GetModuleOfType<T>() where T : IModule, new()

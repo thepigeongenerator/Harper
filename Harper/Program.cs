@@ -6,6 +6,6 @@ do
     application.Run();
     exitCode = application.ExitCode;
 }
-while (exitCode != 2);
+while (exitCode == 2);
 
 return unchecked((uint8)(exitCode));
