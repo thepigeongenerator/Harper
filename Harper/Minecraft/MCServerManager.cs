@@ -53,12 +53,18 @@ public class MCServerManager : IModule
 
     public Task Start()
     {
-        throw new NotImplementedException();
+        foreach (string name in ServerNames)
+        {
+            if (servers[name].settings.automaticStartup)
+                servers[name].Start();
+        }
+
+        return Task.CompletedTask;
     }
 
-    public Task Stop()
+    public async Task Stop()
     {
-        throw new NotImplementedException();
+        await Task.WhenAll(TaskUtil.ForEachTask<MCServer>(server => server.Stop(), servers.Values));
     }
 
     // cleans up held resources as fast as possible
