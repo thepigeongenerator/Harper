@@ -159,13 +159,7 @@ public class DiscordBot : IModule
         GC.SuppressFinalize(this);
         disposed = true;
 
-        if (running)
-            Stop().Wait();
-
-        // unsubscribe from events
-        client.Ready -= ReadyHandler;
-        client.SlashCommandExecuted -= CommandHandler;
-        client.AutocompleteExecuted -= AutoCompleteHandler;
-        client.Log -= LogHandler;
+        // just dispose of the client
+        client.Dispose();
     }
 }
