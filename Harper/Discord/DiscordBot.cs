@@ -152,5 +152,11 @@ public class DiscordBot : IModule
 
         if (running)
             Stop().Wait();
+
+        // unsubscribe from events
+        client.Ready -= ReadyHandler;
+        client.SlashCommandExecuted -= CommandHandler;
+        client.AutocompleteExecuted -= AutoCompleteHandler;
+        client.Log -= LogHandler;
     }
 }
