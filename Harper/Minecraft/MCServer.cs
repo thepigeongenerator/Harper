@@ -197,9 +197,9 @@ public class MCServer : IDisposable
         disposed = true;
         GC.SuppressFinalize(this);
 
-        // kill the process if it's still running
+        // kill the process if we can
         // don't allow for a graceful exit, as we ain't got time for that.
-        if (serverProcess.HasExited == false)
+        if (CanKill)
             Kill().Wait();
 
         // dispose the process itself.

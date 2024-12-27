@@ -5,12 +5,14 @@ namespace Harper.Minecraft.Data;
 public enum ServerState : uint8
 {
     ERROR = 0,
-    TRANSITION = 1, // 🏳‍⚧
-    RUNNING = 2,
-    STOPPED = 4,
-    KILLED = 8,
-    STARTING = RUNNING | TRANSITION,
-    STOPPING = STOPPED | TRANSITION,
+    RUNNING = 1,
+    STOPPED = 2,
+    KILLED = 4,
+    // 8: unused
+    STARTING = RUNNING << 4,
+    STOPPING = STOPPED << 4,
+    // 64: unused
+    // 128: unused
     CAN_START = ERROR | STOPPED | KILLED,
     CAN_STOP = RUNNING | STARTING,
     CAN_KILL = CAN_STOP | STOPPING,

@@ -66,7 +66,11 @@ public class MCServerManager : IModule
 
     public async Task Stop()
     {
-        await Task.WhenAll(TaskUtil.ForEachTask<MCServer>(server => server.Stop(), servers.Values));
+        await Task.WhenAll(TaskUtil.ForEachTask<MCServer>(async server =>
+        {
+            if (server.CanStop)
+                await server.Stop();
+        }, servers.Values));
     }
 
     // cleans up held resources as fast as possible
