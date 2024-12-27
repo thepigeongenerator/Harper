@@ -26,8 +26,8 @@ public static class FileUtil
             if (ln == null || breakIf.Invoke(ln))
                 break;
 
-            // skip if the predicate returns 'false'
-            if (skipIf.Invoke(ln) == false)
+            // skip if the predicate returns 'true'
+            if (skipIf.Invoke(ln))
                 continue;
 
             // invoke the action
@@ -42,7 +42,7 @@ public static class FileUtil
         LinkedList<T> data = new();
 
         // call ForEachLine, checking that the line isn't a comment
-        ForEachLine(path, ln => (ln[0] != '#'), ln =>
+        ForEachLine(path, ln => (ln[0] == '#'), ln =>
         {
             // use the given parser to get a result. Add to the data if successful
             (bool success, T res) = parser.Invoke(ln);
