@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Testing", "Testing\Testing.csproj", "{EA4AEC70-01C7-4446-8925-A39545261C2F}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Harper", "Harper\Harper.csproj", "{4E9A78CA-4B45-4B4E-B380-1CE23C885BB1}"
 EndProject
 Global
@@ -13,10 +11,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{EA4AEC70-01C7-4446-8925-A39545261C2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EA4AEC70-01C7-4446-8925-A39545261C2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EA4AEC70-01C7-4446-8925-A39545261C2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EA4AEC70-01C7-4446-8925-A39545261C2F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4E9A78CA-4B45-4B4E-B380-1CE23C885BB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4E9A78CA-4B45-4B4E-B380-1CE23C885BB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E9A78CA-4B45-4B4E-B380-1CE23C885BB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
