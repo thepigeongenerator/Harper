@@ -12,7 +12,7 @@ public static class Const
         public const string TEMPLATE = "./templates/";
 #elif _LINUX
     public const string SETTING = "/etc/harper/";
-    public const string TEMPLATE = "/usr/share/harper/settings/";
+    public const string TEMPLATE = "/usr/share/harper/templates/";
 #else
 #error platform is unsupported
 #endif
