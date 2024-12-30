@@ -8,7 +8,8 @@ jobs:
   compile:
     runs-on: ubuntu-latest
     outputs:
-        version: ${{ steps.set-version-output.outputs.version }}
+      HARPER_VERSION: ${{steps.set-harper-version.outputs.HARPER_VERSION}}
+
     steps:
       - uses: actions/checkout@v4
       - name: setup .NET
@@ -22,8 +23,8 @@ jobs:
         run: dotnet publish Harper -c Release -r linux-x64 --no-restore
 
       - name: set version output var
-        id: set-version-output
-        run: echo "name=version::$(grep -oP '(?<=<FileVersion>)(.*?)(?=</FileVersion>)' Harper/Harper.csproj)" >> $GITHUB_OUTPUT
+        id: set-harper-version
+        run: echo "HARPER_VERSION=$(grep -oP '(?<=<FileVersion>)(.*?)(?=</FileVersion>)' Harper/Harper.csproj)" >> $GITHUB_OUTPUT
 
       - name: upload artifacts
         uses: actions/upload-artifact@v4
@@ -62,7 +63,7 @@ jobs:
         run: |
           echo "\
           Package: harper
-          Version: ${{needs.compile.outputs.version}}
+          Version: ${{needs.compile.outputs.HARPER_VERSION}}
           Description: manages minecraft servers with a discord bot
           Maintainer: thepigeongenerator
           Architecture: all
@@ -70,7 +71,7 @@ jobs:
           Priority: optional
           Pre-Depends: systemd
           Depends: default-jre-headless | default-jre | openjdk-11-jre | openjdk-17-jre | openjdk-11-jre | openjdk-8-jre
-          " > harper/DEBIAN/control
+          " | tee harper/DEBIAN/control
 
       - name: create debian package
         run: dpkg-deb --build harper
