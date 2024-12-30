@@ -1,6 +1,9 @@
 #!/bin/bash
 
-while true; do
+exit=2
+while [[ $exit -eq 2 ]]; do
     /usr/share/harper/Harper
-    [[ $? -ne 2 ]] && break
+    exit=$?
 done
+
+exit $exit
