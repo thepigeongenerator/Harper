@@ -77,7 +77,7 @@ jobs:
           Essential: no
           Priority: optional
           Pre-Depends: systemd
-          Depends: default-jre-headless | default-jre | openjdk-11-jre | openjdk-17-jre | openjdk-11-jre | openjdk-8-jre
+          Depends: dotnet-runtime-8.0, default-jre-headless | default-jre | openjdk-11-jre | openjdk-17-jre | openjdk-11-jre | openjdk-8-jre
           " | tee harper/DEBIAN/control
 
       - name: create debian package
