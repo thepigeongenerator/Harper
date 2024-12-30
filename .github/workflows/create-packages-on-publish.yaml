@@ -23,7 +23,7 @@ jobs:
 
       - name: set version output var
         id: set-version-output
-        run: echo "::set-output name=version::$(grep -oP '(?<=<FileVersion>)(.*?)(?=</FileVersion>)' Harper/Harper.csproj)"
+        run: echo "name=version::$(grep -oP '(?<=<FileVersion>)(.*?)(?=</FileVersion>)' Harper/Harper.csproj)" >> ${{github.env.output}}
 
       - name: upload artifacts
         uses: actions/upload-artifact@v4
