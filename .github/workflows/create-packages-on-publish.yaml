@@ -65,7 +65,7 @@ jobs:
           Version: ${{needs.compile.outputs.version}}
           Description: manages minecraft servers with a discord bot
           Maintainer: thepigeongenerator
-          Architecture: any
+          Architecture: all
           Essential: no
           Priority: optional
           Pre-Depends: systemd
