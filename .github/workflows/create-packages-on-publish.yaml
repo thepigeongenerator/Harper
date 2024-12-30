@@ -75,7 +75,7 @@ jobs:
       - name: create debian package
         run: dpkg-deb --build harper
 
-      - name: upload package file
+      - name: publish package file
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{github.event.release.tag_name}}
