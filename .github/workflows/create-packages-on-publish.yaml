@@ -59,6 +59,13 @@ jobs:
       - name: copy program files
         run: cp -r art/Harper/bin/Release/net8.0/linux-x64/publish/* harper/usr/share/harper
 
+      - name: add executing perms to files
+        run: |
+          chmod +x \
+          harper/usr/share/harper/*.dll \
+          harper/usr/share/harper/Harper \
+          harper/usr/bin/harper
+
       - name: create package control file
         run: |
           echo "\
