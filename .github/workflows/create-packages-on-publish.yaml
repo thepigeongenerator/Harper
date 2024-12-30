@@ -1,0 +1,84 @@
+run-name: create packages on publish
+on:
+  release:
+    types:
+      created
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    outputs:
+        version: ${{ steps.set-version-output.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - run: dotnet restore Harper
+
+      - name: create publish files
+        run: dotnet publish Harper -c Release -r linux-x64 --no-restore
+
+      - name: set version output var
+        id: set-version-output
+        run: echo "::set-output name=version::$(grep -oP '(?<=<FileVersion>)(.*?)(?=</FileVersion>)' Harper/Harper.csproj)"
+
+      - name: upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: art
+          path: |
+            pkgconfig/
+            Harper/templates/
+            Harper/bin/Release/net8.0/linux-x64/publish/
+
+  create-debian-package:
+    runs-on: ubuntu-latest
+    needs: compile
+    steps:
+      - name: download workspace artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: art
+          path: ${{github.workspace}}/art
+
+      - name: init directory structure
+        run: |
+          mkdir -p harper/usr/share/harper/templates
+          mkdir -p harper/usr/bin
+          mkdir -p harper/etc/systemd/system
+          mkdir -p harper/DEBIAN
+      - name: copy configuration files
+        run: |
+          cp art/pkgconfig/harper harper/usr/bin/harper
+          cp art/pkgconfig/harper.service harper/etc/systemd/system/harper.service
+          cp -r art/Harper/templates harper/usr/share/harper/templates
+      - name: copy program files
+        run: cp -r art/Harper/bin/Release/net8.0/linux-x64/publish/* harper/usr/share/harper
+
+      - name: create package control file
+        run: |
+          echo "\
+          Package: harper
+          Version: ${{needs.compile.outputs.version}}
+          Description: manages minecraft servers with a discord bot
+          Maintainer: thepigeongenerator
+          Architecture: any
+          Essential: no
+          Priority: optional
+          Pre-Depends: systemd
+          Depends: default-jre-headless | default-jre, openjdk-*
+          " > harper/DEBIAN/control
+
+      - name: create debian package
+        run: dpkg-deb --build harper
+
+      - name: upload package file
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{github.event.release.tag_name}}
+          files: harper.deb
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
