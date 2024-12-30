@@ -69,7 +69,7 @@ jobs:
           Essential: no
           Priority: optional
           Pre-Depends: systemd
-          Depends: default-jre-headless | default-jre, openjdk-11-jre, openjdk-17-jre, openjdk-11-jre , openjdk-8-jre
+          Depends: default-jre-headless | default-jre | openjdk-11-jre | openjdk-17-jre | openjdk-11-jre | openjdk-8-jre
           " > harper/DEBIAN/control
 
       - name: create debian package
