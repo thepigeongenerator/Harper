@@ -1,3 +1,4 @@
+# suppress-env-warning: ACT
 run-name: create packages on publish
 on:
   release:
@@ -49,13 +50,13 @@ jobs:
         run: |
           mkdir -p harper/usr/share/harper/templates
           mkdir -p harper/usr/bin
-          mkdir -p harper/etc/systemd/system
+          mkdir -p harper/usr/lib/systemd/system
           mkdir -p harper/DEBIAN
       - name: copy configuration files
         run: |
           cp art/pkgconfig/harper harper/usr/bin/harper
-          cp art/pkgconfig/harper.service harper/etc/systemd/system/harper.service
-          cp -r art/Harper/templates harper/usr/share/harper/templates
+          cp art/pkgconfig/harper.service harper/usr/lib/systemd/system/harper.service
+          cp -r art/Harper/templates/* harper/usr/share/harper/templates
       - name: copy program files
         run: cp -r art/Harper/bin/Release/net8.0/linux-x64/publish/* harper/usr/share/harper
 
@@ -85,8 +86,14 @@ jobs:
 
       - name: publish package file
         uses: softprops/action-gh-release@v2
+        if: ${{!env.ACT}}
         with:
           tag_name: ${{github.event.release.tag_name}}
           files: harper.deb
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          path: harper.deb
+        if: ${{env.ACT}}
