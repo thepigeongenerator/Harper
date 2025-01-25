@@ -36,13 +36,13 @@ public abstract class CommandHandler : InteractionModuleBase
     public async Task SetError(string msg) => await Respond(msg, Color.Red);
     public async Task SetCritical(string msg) => await Respond(msg, Color.DarkRed);
 
-    public async Task<bool> EnsurePermissions(CmdPerms reqperms)
+    public async Task<bool> InsufficientPerms(CmdPerms reqperms)
     {
         DiscordBot harper = GetHarper();
         if (harper.HasPermissions(Context.User.Id, reqperms))
-            return true;
+            return false;
 
         await SetCritical(":x: You don't have sufficient permissions to execute this command!");
-        return false;
+        return true;
     }
 }

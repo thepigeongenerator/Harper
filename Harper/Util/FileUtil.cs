@@ -49,7 +49,7 @@ public static class FileUtil
         LinkedList<(T1, T2)> data = new();
 
         // call ForEachLine, checking that the line isn't a comment
-        ForEachLine(path, ln => (ln[0] == '#'), ln =>
+        ForEachLine(path, ln => (string.IsNullOrWhiteSpace(ln) || ln.StartsWith('#')), ln =>
         {
             string[] def = ln.Split(':', StringSplitOptions.TrimEntries);
 
