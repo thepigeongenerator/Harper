@@ -43,22 +43,25 @@ public static class FileUtil
     }
 
     // deserializes a list of objects, ignoring lines that start with '#'
-    public static T[] DeserializeList<T>(string path, Func<string, (bool, T)> parser)
+    public static Dictionary<T1, T2> DeserializeDict<T1, T2>(string path, Func<string, (bool, T1)> parser1, Func<string, (bool, T2)> parser2)
     {
         // use a linked list to make allocation of new data faster
-        LinkedList<T> data = new();
+        LinkedList<(T1, T2)> data = new();
 
         // call ForEachLine, checking that the line isn't a comment
         ForEachLine(path, ln => (ln[0] == '#'), ln =>
         {
+            string[] def = ln.Split(':', StringSplitOptions.TrimEntries);
+
             // use the given parser to get a result. Add to the data if successful
-            (bool success, T res) = parser.Invoke(ln);
-            if (success)
-                data.AddFirst(res);
+            (bool success, T1 res) a = parser1.Invoke(def[0]);
+            (bool success, T2 res) b = parser2.Invoke(def[1]);
+            if (a.success && b.success)
+                data.AddFirst((a.res, b.res));
         });
 
         // convert the data to an array and return it.
-        return data.ToArray<T>();
+        return data.ToDictionary<T1, T2>();
     }
 
     // throws an exception if the file doesn't exist

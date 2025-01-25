@@ -1,3 +1,10 @@
 # enter the discord user ID's of the users you'd like to give command permission to
 # each ID must be on a separate line
 # read about how you get the user ID in discord here: https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID
+# where the syntax is: "ID: permission", where an id of "0" acts as permissions for those not in this list
+# permissions:
+# 0: no permissions
+# 1: add whitelist permission
+# 2: manage minecraft servers
+# 3: manage bot
+0: 0

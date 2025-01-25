@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Harper.Discord.Commands;
 using Harper.Logging;
 using Harper.Util;
 using log4net;
@@ -23,7 +24,7 @@ public class DiscordBot : IModule
     private readonly ILog log = null;
     private readonly DiscordSocketClient client = null;
     private readonly InteractionService interactionService = null;
-    private readonly uint64[] allowedIds = [];
+    private readonly Dictionary<uint64, uint8> permData = null;
     private bool disposed = false;
 
     public DiscordBot()
@@ -36,8 +37,9 @@ public class DiscordBot : IModule
         interactionService = new(client.Rest, new() { LogLevel = LogSeverity.Debug });
 
         // init configuration
-        FileUtil.CopyTemplateIfNotExists(FilePath.SETTING_HARPER_ALLOWED_USERS, FilePath.TEMPLATE_HARPER_ALLOWED_USERS);
-        allowedIds = FileUtil.DeserializeList<uint64>(FilePath.SETTING_HARPER_ALLOWED_USERS, str => (uint64.TryParse(str, out uint64 res), res));
+        FileUtil.CopyTemplateIfNotExists(FilePath.SETTING_HARPER_COMMAND_PERMS, FilePath.TEMPLATE_HARPER_COMMAND_PERMS);
+        permData = FileUtil.DeserializeDict<uint64, uint8>(FilePath.SETTING_HARPER_COMMAND_PERMS, str => (uint64.TryParse(str, out uint64 res), res), str => (uint8.TryParse(str, out uint8 res), res));
+        permData.TrimExcess(); // trim the excess, as we won't be writing to this any longer
 
         // subscribe to events
         client.Ready += ReadyHandler;
@@ -99,6 +101,14 @@ public class DiscordBot : IModule
         });
     }
 
+    // checks whether the user has the correct permissions
+    public bool HasPermissions(uint64 userId, CmdPerms reqperms)
+    {
+        if (permData.ContainsKey(userId)) return permData[userId] >= (uint8)reqperms;
+        if (permData.ContainsKey(0)) return permData[0] >= (uint8)reqperms;
+        return false;
+    }
+
     // handles executed commands
     private async Task CommandHandler(SocketSlashCommand cmd)
     {
@@ -106,17 +116,9 @@ public class DiscordBot : IModule
         await ErrorHandler.CatchError(async () =>
         {
             await cmd.DeferAsync();
-            if (allowedIds.Contains(cmd.User.Id))
-            {
-                log.Info($"'{cmd.User.Username}' is executuing command '{cmd.CommandName}' in '{cmd.Channel.Name}'");
-                var context = new InteractionContext(client, cmd, cmd.Channel);
-                await interactionService.ExecuteCommandAsync(context, null);
-            }
-            else
-            {
-                log.Warn($"'the user {cmd.User.Username}' had insufficient permissions to execute command: '{cmd.CommandName}'");
-                await cmd.RespondAsync(":x: You don't have sufficient permissions to execute commands!");
-            }
+            log.Info($"'{cmd.User.Username}' is executuing command '{cmd.CommandName}' in '{cmd.Channel.Name}'");
+            var context = new InteractionContext(client, cmd, cmd.Channel);
+            await interactionService.ExecuteCommandAsync(context, null);
         });
     }
 
