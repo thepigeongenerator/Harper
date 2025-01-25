@@ -39,6 +39,8 @@ jobs:
   create-debian-package:
     runs-on: ubuntu-latest
     needs: compile
+    env:
+      FNAME: harper-v${{needs.compile.outputs.HARPER_VERSION}}
     steps:
       - name: download workspace artifact
         uses: actions/download-artifact@v4
@@ -48,24 +50,24 @@ jobs:
 
       - name: init directory structure
         run: |
-          mkdir -p harper/usr/share/harper/templates
-          mkdir -p harper/usr/bin
-          mkdir -p harper/usr/lib/systemd/system
-          mkdir -p harper/DEBIAN
+          mkdir -p ${{env.FNAME}}/usr/share/harper/templates
+          mkdir -p ${{env.FNAME}}/usr/bin
+          mkdir -p ${{env.FNAME}}/usr/lib/systemd/system
+          mkdir -p ${{env.FNAME}}/DEBIAN
       - name: copy configuration files
         run: |
-          cp art/pkgconfig/harper harper/usr/bin/harper
-          cp art/pkgconfig/harper.service harper/usr/lib/systemd/system/harper.service
-          cp -r art/Harper/templates/* harper/usr/share/harper/templates
+          cp art/pkgconfig/harper ${{env.FNAME}}/usr/bin/harper
+          cp art/pkgconfig/harper.service ${{env.FNAME}}/usr/lib/systemd/system/harper.service
+          cp -r art/Harper/templates/* ${{env.FNAME}}/usr/share/harper/templates
       - name: copy program files
-        run: cp -r art/Harper/bin/Release/net8.0/linux-x64/publish/* harper/usr/share/harper
+        run: cp -r art/Harper/bin/Release/net8.0/linux-x64/publish/* ${{env.FNAME}}/usr/share/harper
 
       - name: add executing perms to files
         run: |
           chmod +x \
-          harper/usr/share/harper/*.dll \
-          harper/usr/share/harper/Harper \
-          harper/usr/bin/harper
+          ${{env.FNAME}}/usr/share/harper/*.dll \
+          ${{env.FNAME}}/usr/share/harper/Harper \
+          ${{env.FNAME}}/usr/bin/harper
 
       - name: create package control file
         run: |
@@ -79,10 +81,10 @@ jobs:
           Priority: optional
           Pre-Depends: systemd
           Depends: dotnet-runtime-8.0, default-jre-headless | default-jre | openjdk-11-jre | openjdk-17-jre | openjdk-11-jre | openjdk-8-jre
-          " | tee harper/DEBIAN/control
+          " | tee ${{env.FNAME}}/DEBIAN/control
 
       - name: create debian package
-        run: dpkg-deb --build harper
+        run: dpkg-deb --build ${{env.FNAME}}
 
       - name: publish package file
         uses: softprops/action-gh-release@v2
@@ -95,5 +97,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          path: harper.deb
+          path: ${{env.FNAME}}.deb
         if: ${{env.ACT}}
