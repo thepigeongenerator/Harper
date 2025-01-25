@@ -18,8 +18,8 @@ public static class Const
 #endif
 
         // set other paths
-        public const string SETTING_HARPER_COMMAND_PERMS = SETTING + "allowed_users";
-        public const string TEMPLATE_HARPER_COMMAND_PERMS = TEMPLATE + "allowed_users";
+        public const string SETTING_HARPER_COMMAND_PERMS = SETTING + "command_perms";
+        public const string TEMPLATE_HARPER_COMMAND_PERMS = TEMPLATE + "command_perms";
         public const string SETTING_MCSERVER_SETTINGS = SETTING + "mcserver_settings.jsonc";
         public const string TEMPLATE_MCSERVER_SETTINGS = TEMPLATE + "mcserver_settings.jsonc";
     }
