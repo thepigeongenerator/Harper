@@ -59,7 +59,7 @@ internal class MinecraftCommmands : CommandHandler
     [SlashCommand("info", "gets the info of the Minecraft server")]
     public async Task InfoCmd()
     {
-        if (await EnsurePermissions(CmdPerms.NONE)) return;
+        if (await InsufficientPerms(CmdPerms.NONE)) return;
         if (await ServerManagerNull()) return;
 
         StringBuilder response = new(2000); // discord's character limit
@@ -84,7 +84,7 @@ internal class MinecraftCommmands : CommandHandler
     [SlashCommand("whitelist", "adds a player to the whitelist")]
     public async Task WhitelistCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.CanStartServers))] string name, [Summary("username", "specifies the minecraft javausername you want added to the whitelist")] string username)
     {
-        if (await EnsurePermissions(CmdPerms.ADD_WHITELIST)) return;
+        if (await InsufficientPerms(CmdPerms.ADD_WHITELIST)) return;
         MCServer server = await GetServer(name, s => s.Running);
 
         server.SendCommand($"whitelist add {username}");
@@ -94,7 +94,7 @@ internal class MinecraftCommmands : CommandHandler
     [SlashCommand("start", "starts the minecraft server")]
     public async Task StartCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.CanStartServers))] string name)
     {
-        if (await EnsurePermissions(CmdPerms.MANAGE_MC_SERVER)) return;
+        if (await InsufficientPerms(CmdPerms.MANAGE_MC_SERVER)) return;
         MCServer server = await GetServer(name, s => s.CanStart);
 
         await SetInfo($"starting `{name}`...");
@@ -105,7 +105,7 @@ internal class MinecraftCommmands : CommandHandler
     [SlashCommand("stop", "stops the minecraft server, if it takes too long the process is killed instead.")]
     public async Task StopCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.CanStopServers))] string name)
     {
-        if (await EnsurePermissions(CmdPerms.MANAGE_MC_SERVER)) return;
+        if (await InsufficientPerms(CmdPerms.MANAGE_MC_SERVER)) return;
         MCServer server = await GetServer(name, s => s.CanStop);
 
         await SetInfo($"shutting down `{name}`...");
@@ -116,7 +116,7 @@ internal class MinecraftCommmands : CommandHandler
     [SlashCommand("restart", "restarts the minecraft server. If stopping takes too long the process is killed instead.")]
     public async Task RestartCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.CanStopServers))] string name)
     {
-        if (await EnsurePermissions(CmdPerms.MANAGE_MC_SERVER)) return;
+        if (await InsufficientPerms(CmdPerms.MANAGE_MC_SERVER)) return;
         MCServer server = await GetServer(name, s => s.CanStop);
 
         await SetInfo($"shutting down `{name}`...");
@@ -129,7 +129,7 @@ internal class MinecraftCommmands : CommandHandler
     [SlashCommand("kill", "forcefully kills a minecraft server *only run if there is an issue*")]
     public async Task KillCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.CanKillServers))] string name)
     {
-        if (await EnsurePermissions(CmdPerms.MANAGE_MC_SERVER)) return;
+        if (await InsufficientPerms(CmdPerms.MANAGE_MC_SERVER)) return;
         MCServer server = await GetServer(name, s => s.CanKill);
 
         await SetInfo($"killing `{name}`...");
@@ -140,7 +140,7 @@ internal class MinecraftCommmands : CommandHandler
     [SlashCommand("backup", "manually creates a backup of the current state of the server.")]
     public async Task BackupCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.AllServers))] string name)
     {
-        if (await EnsurePermissions(CmdPerms.MANAGE_MC_SERVER)) return;
+        if (await InsufficientPerms(CmdPerms.MANAGE_MC_SERVER)) return;
         MCServer server = await GetServer(name, s => s.CanKill);
 
         await SetInfo($"creating a backup for `{name}`, be patient, this might take a while. *note, the server will be restarted if it was running prior.*");
