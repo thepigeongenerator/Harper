@@ -82,7 +82,7 @@ internal class MinecraftCommmands : CommandHandler
     }
 
     [SlashCommand("whitelist", "adds a player to the whitelist")]
-    public async Task WhitelistCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.CanStartServers))] string name, [Summary("username", "specifies the minecraft javausername you want added to the whitelist")] string username)
+    public async Task WhitelistCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.CanStopServers))] string name, [Summary("username", "specifies the minecraft javausername you want added to the whitelist")] string username)
     {
         if (await InsufficientPerms(CmdPerms.ADD_WHITELIST)) return;
         MCServer server = await GetServer(name, s => s.Running);
