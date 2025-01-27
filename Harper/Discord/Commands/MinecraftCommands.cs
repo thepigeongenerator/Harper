@@ -88,7 +88,7 @@ internal class MinecraftCommmands : CommandHandler
         MCServer server = await GetServer(name, s => s.Running);
 
         server.SendCommand($"whitelist add {username}");
-        await SetInfo($"added user `{username}` command on server `{name}`!");
+        await SetInfo($"executed the command to whitelist `{username}` on `{name}`!");
     }
 
     [SlashCommand("start", "starts the minecraft server")]
