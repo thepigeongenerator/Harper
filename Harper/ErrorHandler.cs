@@ -80,11 +80,12 @@ public class ErrorHandler
         exec.Invoke();
     }
 
-    public static Task CatchError(Func<Task> act)
+    // catches upon errors, returns "true" if one occurred
+    public static async Task<bool> CatchError(Func<Task> act)
     {
         try
         {
-            act.Invoke().Wait();
+            await act.Invoke();
         }
         catch (Exception e)
         {
@@ -94,8 +95,9 @@ public class ErrorHandler
             instance.log.Error($"an exception occurred but was caught! {e.GetType().Name}: {e.Message}");
             instance.log.Debug(e);
 #endif
+            return true;
         }
 
-        return Task.CompletedTask;
+        return false;
     }
 }
