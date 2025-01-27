@@ -95,7 +95,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: ${{!env.ACT}}
         with:
-          tag_name: ${{github.event.release.tag_name}}
+          tag_name: ${{github.event.release.tag_name || github.event.inputs.release_tag}}
           files: ${{env.FNAME}}.deb
           fail_on_unmatched_files: true
         env:
