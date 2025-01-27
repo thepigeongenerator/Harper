@@ -23,7 +23,7 @@ A minecraft server manager, through a discord bot.
 5. write your bot token as an environment variable to `/etc/harper/token.env`:
    ```sh
     # echo "HARPER_BOT_TOKEN=tokenhere" > /env/harper/token.env
-    # chmod 600 /env/harper/token.env'
+    # chmod 600 /env/harper/token.env
    ```
 6. lastly, you can start the harper unit again and check whether it has successfully started
    ```sh
