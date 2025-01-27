@@ -141,7 +141,7 @@ internal class MinecraftCommmands : CommandHandler
     public async Task BackupCmd([Summary("server-name", "specifies the server to target"), Autocomplete(typeof(AutoCompleters.AllServers))] string name)
     {
         if (await InsufficientPerms(CmdPerms.MANAGE_MC_SERVER)) return;
-        MCServer server = await GetServer(name, s => s.CanKill);
+        MCServer server = await GetServer(name, s => true);
 
         await SetInfo($"creating a backup for `{name}`, be patient, this might take a while. *note, the server will be restarted if it was running prior.*");
         DateTime start = DateTime.Now;
