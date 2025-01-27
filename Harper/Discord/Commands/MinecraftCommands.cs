@@ -86,6 +86,7 @@ internal class MinecraftCommmands : CommandHandler
     {
         if (await InsufficientPerms(CmdPerms.ADD_WHITELIST)) return;
         MCServer server = await GetServer(name, s => s.Running);
+        if (server == null) return;
 
         server.SendCommand($"whitelist add {username}");
         await SetInfo($"executed the command to whitelist `{username}` on `{name}`!");
@@ -96,6 +97,7 @@ internal class MinecraftCommmands : CommandHandler
     {
         if (await InsufficientPerms(CmdPerms.MANAGE_MC_SERVER)) return;
         MCServer server = await GetServer(name, s => s.CanStart);
+        if (server == null) return;
 
         await SetInfo($"starting `{name}`...");
         server.Start();
@@ -107,6 +109,7 @@ internal class MinecraftCommmands : CommandHandler
     {
         if (await InsufficientPerms(CmdPerms.MANAGE_MC_SERVER)) return;
         MCServer server = await GetServer(name, s => s.CanStop);
+        if (server == null) return;
 
         await SetInfo($"shutting down `{name}`...");
         await server.Stop();
@@ -118,6 +121,7 @@ internal class MinecraftCommmands : CommandHandler
     {
         if (await InsufficientPerms(CmdPerms.MANAGE_MC_SERVER)) return;
         MCServer server = await GetServer(name, s => s.CanStop);
+        if (server == null) return;
 
         await SetInfo($"shutting down `{name}`...");
         await server.Stop();
@@ -131,6 +135,7 @@ internal class MinecraftCommmands : CommandHandler
     {
         if (await InsufficientPerms(CmdPerms.MANAGE_MC_SERVER)) return;
         MCServer server = await GetServer(name, s => s.CanKill);
+        if (server == null) return;
 
         await SetInfo($"killing `{name}`...");
         await server.Kill();
@@ -142,6 +147,7 @@ internal class MinecraftCommmands : CommandHandler
     {
         if (await InsufficientPerms(CmdPerms.MANAGE_MC_SERVER)) return;
         MCServer server = await GetServer(name, s => true);
+        if (server == null) return;
 
         await SetInfo($"creating a backup for `{name}`, be patient, this might take a while. *note, the server will be restarted if it was running prior.*");
         DateTime start = DateTime.Now;
