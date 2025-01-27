@@ -21,6 +21,7 @@ public static class BackupManager
     // for ensuring that the path we're trying to process is a valid one
     private static bool IsValidPath(string path)
     {
+        path = Path.GetFileName(path);
         Regex mat = new(@"^\d{4}-\d{2}-\d{2}_\d+_.*\.tar\.gz$");
         return mat.Match(path).Success;
     }
