@@ -68,8 +68,9 @@ public class DiscordBot : IModule
     public async Task Start()
     {
         string token = Environment.GetEnvironmentVariable(ENV_HARPER_BOT_TOKEN);
-        if (token == null)
-            throw new ConfigurationErrorsException($"please set a bot token in the '{ENV_HARPER_BOT_TOKEN}' environment variable");
+        if (string.IsNullOrWhiteSpace(token))
+            throw new ConfigurationErrorsException($"please set a bot token in the '{ENV_HARPER_BOT_TOKEN}' environment variable.\n"
+            + "eg. for systemctl: '# echo \"{ENV_HARPER_BOT_TOKEN}=tokenhere\" > /env/harper/token.env && chmod 600 /env/harper/token.env'");
 
         log.Info("validating bot token...");
         if (await ValidateBotToken(token) == false)
