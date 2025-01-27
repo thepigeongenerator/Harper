@@ -151,8 +151,14 @@ internal class MinecraftCommmands : CommandHandler
 
         await SetInfo($"creating a backup for `{name}`, be patient, this might take a while. *note, the server will be restarted if it was running prior.*");
         DateTime start = DateTime.Now;
-        await ErrorHandler.CatchError(server.MakeBackup);
+        if (await ErrorHandler.CatchError(server.MakeBackup) == false)
+        {
+            await SetCritical($"something went terribly wrong when creating a backup for {name}!");
+            return;
+        }
+
         DateTime end = DateTime.Now;
         await SetSuccess($"a backup has successfully been made for {name}! It took {Math.Round((end - start).TotalSeconds, 1)}s to perform this task.");
+
     }
 }
