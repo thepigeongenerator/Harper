@@ -91,7 +91,8 @@ jobs:
         if: ${{!env.ACT}}
         with:
           tag_name: ${{github.event.release.tag_name}}
-          files: harper.deb
+          files: ${{env.FNAME}}.deb
+          fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
