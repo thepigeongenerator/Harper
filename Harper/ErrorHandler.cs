@@ -6,19 +6,22 @@ using log4net;
 
 namespace Harper;
 
+// handles the errors that may occur in the program, allows for catching errors if they're deeply nested in multi-threaded mind-fuckery
 public class ErrorHandler
 {
-    private static ErrorHandler instance = null;
-    private readonly Core core = null;
-    private readonly ILog log = null;
-    private readonly PosixSignalRegistration[] registrations = null;
+    private static ErrorHandler instance = null;                        // will contain the latest instance for ease of access
+    private readonly Core core = null;                                  // a reference to the core, so we can send the appropriate signals to the core (quit / dispose)
+    private readonly ILog log = null;                                   // reference to the core's logger for logging
+    private readonly PosixSignalRegistration[] registrations = null;    // stores the posix signal registrations so we can unsubscribe them later
 
+    // anonymous functions to allow for later unsubscribing
     private Action<PosixSignalContext> PosixStopHandle => c => PosixSignalHandler(c, ExitGracefully);
     private Action<PosixSignalContext> PosixTermHandle => c => PosixSignalHandler(c, ExitImmediately);
     private EventHandler EventStopHandle => (s, a) => ExitGracefully();
     private UnhandledExceptionEventHandler UnhandledExceptionHandle => (s, a) => ExitImmediately((Exception)a.ExceptionObject);
     private EventHandler<UnobservedTaskExceptionEventArgs> TaskExceptionHandle => (s, a) => ExitImmediately((Exception)a.Exception);
 
+    // constructor
     public ErrorHandler(Core core, ILog log)
     {
         instance = this;
