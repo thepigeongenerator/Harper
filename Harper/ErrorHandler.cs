@@ -44,8 +44,6 @@ public class ErrorHandler
         foreach (var reg in registrations)
             reg.Dispose();
 
-        PosixSignalRegistration.Create(PosixSignal.SIGQUIT, PosixStopHandle);
-        PosixSignalRegistration.Create(PosixSignal.SIGTERM, PosixTermHandle);
         AppDomain.CurrentDomain.ProcessExit -= EventStopHandle;
         AppDomain.CurrentDomain.UnhandledException -= UnhandledExceptionHandle;
         TaskScheduler.UnobservedTaskException -= TaskExceptionHandle;
