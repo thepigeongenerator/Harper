@@ -12,6 +12,18 @@ namespace Harper.Logging;
 
 public static class Log
 {
+    public static bool LogDebug()
+    {
+#if DEBUG
+        return true;
+#else
+        string env = Environment.GetEnvironmentVariable(ENV_HARPER_DEBUG);
+        if (int32.TryParse(env, out int32 i))
+            return i != 0;
+        return false;
+#endif
+    }
+
     public static void Initialize()
     {
         // create the pattern layout
@@ -40,12 +52,12 @@ public static class Log
         // configure the root logger with a treshold
         var hierarchy = (Hierarchy)LogManager.GetRepository();
         hierarchy.Root.AddAppender(console);
-#if DEBUG
-        hierarchy.Root.Level = log4net.Core.Level.Debug;
-#else
-        hierarchy.Root.Level = log4net.Core.Level.Info;
-#endif
         hierarchy.Configured = true;
+
+        if (LogDebug())
+            hierarchy.Root.Level = log4net.Core.Level.Debug;
+        else
+            hierarchy.Root.Level = log4net.Core.Level.Info;
 
         // configure the repository with the appender
         BasicConfigurator.Configure(console);
