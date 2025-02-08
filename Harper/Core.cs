@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Discord;
 using Harper.Discord;
 using Harper.Logging;
 using Harper.Minecraft;
@@ -36,7 +37,7 @@ public class Core : IDisposable
     public Core()
     {
         if (instance != null)
-            throw new InvalidOperationException("only one instance of Core may exist");
+            throw new InvalidOperationException($"only one instance of {typeof(Core)} may exist");
         instance = this;
 
         Log.Initialize();
@@ -50,7 +51,7 @@ public class Core : IDisposable
 #if DEBUG
             log.Info($"Running application version: v{ver.FileVersion} (DEBUG)");
 #else
-        log.Info($"Running application version: v{ver.FileVersion}");
+            log.Info($"Running application version: v{ver.FileVersion}");
 #endif
         }
         log.Debug($"cwd: {Directory.GetCurrentDirectory()}");
@@ -62,7 +63,7 @@ public class Core : IDisposable
     }
 
     // executes something for each module
-    private Task ForEachModule(Func<IModule, Task> exec)
+    private Task ForEachModule(Func<IModule, Task<bool>> exec)
     {
         return Task.WhenAll(TaskUtil.ForEachTask<IModule>(mod => exec.Invoke(mod), modules));
     }
@@ -76,7 +77,7 @@ public class Core : IDisposable
         ForEachModule(m =>
         {
             log.Info($"starting {m.GetType().Name}");
-            return m.Start();
+            return ErrorHandler.CatchError(m.Start);
         }).Wait();
 
         // wait for the application to exit
@@ -97,7 +98,7 @@ public class Core : IDisposable
         await ForEachModule(m =>
         {
             log.Info($"stopping {m.GetType().Name}");
-            return m.Stop();
+            return ErrorHandler.CatchError(m.Stop);
         });
         log.Info("finished shutting down modules!");
 
