@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <FileVersion>6.4</FileVersion>
@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Discord.Net" Version="3.16.0" />
+    <PackageReference Include="Discord.Net" Version="3.17.1" />
     <PackageReference Include="log4net" Version="3.0.3" />
   </ItemGroup>
 
