@@ -5,6 +5,7 @@ using Harper.Discord.Commands;
 using Harper.Minecraft;
 using Harper.Util;
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -149,16 +150,20 @@ internal class MinecraftCommmands : CommandHandler
         MCServer server = await GetServer(name, s => true);
         if (server == null) return;
 
+        TimeSpan time = default;
+        string fpath = null;
         await SetInfo($"creating a backup for `{name}`, be patient, this might take a while. *note, the server will be restarted if it was running prior.*");
-        DateTime start = DateTime.Now;
-        if (await ErrorHandler.CatchError(server.MakeBackup))
+        bool failed = await ErrorHandler.CatchError(
+            async () => (time, fpath) = await server.MakeBackup()
+        );
+
+        if (failed || string.IsNullOrWhiteSpace(fpath))
+            await SetCritical($"something went terribly wrong when creating a backup for {name}! (busy for {Math.Round(time.TotalSeconds, 1)})");
+        else
         {
-            await SetCritical($"something went terribly wrong when creating a backup for {name}!");
-            return;
+            uint64 len = (uint64)(new FileInfo(fpath).Length);
+            await SetSuccess($"a backup has successfully been made for {name}! It took {Math.Round(time.TotalSeconds, 1)}s to perform this task.\n"
+                + $"Backup size: {StringUtil.FormatBytes(len)}");
         }
-
-        DateTime end = DateTime.Now;
-        await SetSuccess($"a backup has successfully been made for {name}! It took {Math.Round((end - start).TotalSeconds, 1)}s to perform this task.");
-
     }
 }

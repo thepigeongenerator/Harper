@@ -63,7 +63,7 @@ public static class BackupManager
         return Path.Combine(backupDir, $"{date}_{index}_{name}.tar.gz");
     }
 
-    public static async Task CreateBackup(MCServer server, MCServerManager serverManager)
+    public static async Task<(TimeSpan, string)> CreateBackup(MCServer server, MCServerManager serverManager)
     {
         string backupDir = Path.Combine(serverManager.backupDir, server.settings.name);             // combine the backup directory and name
         bool mkBackupDir = Directory.Exists(backupDir) == false;                                    // whether the backup directory needs to be made
@@ -73,6 +73,7 @@ public static class BackupManager
             Directory.CreateDirectory(backupDir);
 
         string pathgz = GetFilePath(backupDir, server.settings.name);                       // the .tar.gz file path
+        DateTime start = DateTime.Now;
 
         // IDisposables
         using FileStream fsout = new(pathgz, FileMode.CreateNew, FileAccess.Write);         // the filestream for the .tar.gz file, containing the compressed data
@@ -81,6 +82,10 @@ public static class BackupManager
         // compression
         log.Info($"({server.settings.name}) creating '{pathgz}' from compressing '{server.worldDir}'");
         await TarFile.CreateFromDirectoryAsync(server.worldDir, gzip, true);    // create the .tar.gz file
-        log.Info($"({server.settings.name}) finished compressing!'");
+
+        TimeSpan time = (DateTime.Now - start);
+        log.Info($"({server.settings.name}) finished compressing! {Math.Round(time.TotalMilliseconds, 1)}");
+
+        return (time, pathgz);
     }
 }

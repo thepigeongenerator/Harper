@@ -76,7 +76,9 @@ public class MCServer : IDisposable
         serverProcess.StandardInput.WriteLine(command);
     }
 
-    public async Task MakeBackup()
+    // creates a backup of this server, restarts server if running prior
+    // returns a timespan of the duration that the backup took, and the backup file (backup file is "null" if an error occurred)
+    public async Task<(TimeSpan, string)> MakeBackup()
     {
         log.Info($"a backup has been requested for '{settings.name}', creating one now!");
         bool wasrunning = Running;
@@ -91,15 +93,29 @@ public class MCServer : IDisposable
         lock (serverProcessLock)
             creatingBackup = true;
 
-        DateTime start = DateTime.Now;
-        await BackupManager.CreateBackup(this, serverManager);
-        log.Info($"the backup has concluded! it took {Math.Round((DateTime.Now - start).TotalSeconds, 1)}s");
+        (TimeSpan t, string p) res;
+        {
+            DateTime start = DateTime.Now;
+            try
+            {
+                res = await BackupManager.CreateBackup(this, serverManager);
+            }
+            catch
+            {
+                res = (DateTime.Now - start, null);
+            }
+        }
+
+        if (File.Exists(res.p) == false)
+            res.p = null;
 
         lock (serverProcessLock)
             creatingBackup = false;
 
         if (wasrunning)
             Start();
+
+        return res;
     }
 
     // starts the server
