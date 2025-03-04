@@ -15,7 +15,7 @@ public static class Log
 #if DEBUG
         return true;
 #else
-        string env = Environment.GetEnvironmentVariable(ENV_HARPER_DEBUG);
+        string env = System.Environment.GetEnvironmentVariable(ENV_HARPER_DEBUG);
         if (int32.TryParse(env, out int32 i))
             return i != 0;
         return false;
