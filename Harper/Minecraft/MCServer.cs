@@ -53,7 +53,7 @@ public class MCServer : IDisposable
         ProcessStartInfo startInfo = new()
         {
             FileName = Path.GetExtension(settings.executablePath) == ".jar"
-                ? "/bin/java" : "/bin/bash",        // execute with java or bash, depending on the extension
+                ? "/bin/java" : settings.executablePath,        // execute with java, or the shell script directly
             Arguments = settings.GetJvmArguments(), // the jvm arguments
             WorkingDirectory = serverDir,           // working directory = folder containing jar
             UseShellExecute = false,                // makes the process start locally
