@@ -65,7 +65,7 @@ jobs:
           cp art/pkgconfig/harper.service ${{env.FNAME}}/usr/lib/systemd/system/harper.service
           cp -r art/Harper/templates/* ${{env.FNAME}}/usr/share/harper/templates
       - name: copy program files
-        run: cp -r art/Harper/bin/Release/net8.0/linux-x64/publish/* ${{env.FNAME}}/usr/share/harper
+        run: cp -r art/Harper/bin/Release/net9.0/linux-x64/publish/* ${{env.FNAME}}/usr/share/harper
 
       - name: add executing perms to files
         run: |
@@ -85,7 +85,7 @@ jobs:
           Essential: no
           Priority: optional
           Pre-Depends: systemd
-          Depends: dotnet-runtime-8.0, default-jre-headless | default-jre | openjdk-11-jre | openjdk-17-jre | openjdk-11-jre | openjdk-8-jre
+          Depends: dotnet-runtime-9.0, default-jre-headless | default-jre | openjdk-11-jre | openjdk-17-jre | openjdk-11-jre | openjdk-8-jre
           " | tee ${{env.FNAME}}/DEBIAN/control
 
       - name: create debian package
