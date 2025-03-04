@@ -39,7 +39,7 @@ jobs:
           path: |
             pkgconfig/
             Harper/templates/
-            Harper/bin/Release/net8.0/linux-x64/publish/
+            Harper/bin/Release/net9.0/linux-x64/publish/
 
   create-debian-package:
     runs-on: ubuntu-latest
