@@ -68,7 +68,7 @@ public class ErrorHandler
         else
         {
             log.Fatal($"exiting due to an exception! this might cause data loss. {e.GetType().Name}: {e.Message}");
-            log.Debug(e);
+            log.Fatal(e);
         }
 
         core.Dispose();
@@ -94,7 +94,7 @@ public class ErrorHandler
             instance.ExitImmediately(e);
 #else
             instance.log.Error($"an exception occurred but was caught! {e.GetType().Name}: {e.Message}");
-            instance.log.Debug(e);
+            instance.log.Error(e);
 #endif
             return true;
         }
