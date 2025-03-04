@@ -1,17 +1,13 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Discord;
 using Harper.Discord;
 using Harper.Logging;
 using Harper.Minecraft;
-using Harper.Minecraft.Data;
 using Harper.Util;
 using log4net;
 

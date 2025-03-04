@@ -3,6 +3,7 @@ using log4net.Appender;
 using log4net.Config;
 using log4net.Core;
 using log4net.Layout;
+using log4net.Filter;
 using log4net.Repository.Hierarchy;
 
 namespace Harper.Logging;
@@ -36,6 +37,7 @@ public static class Log
         stdout.AddMapping(new() { Level = Level.Debug, ForeColor = AnsiColorTerminalAppender.AnsiColor.Magenta });
         stdout.AddMapping(new() { Level = Level.Info, ForeColor = AnsiColorTerminalAppender.AnsiColor.White });
         stdout.AddMapping(new() { Level = Level.Warn, ForeColor = AnsiColorTerminalAppender.AnsiColor.Yellow });
+        stdout.AddFilter(new LevelRangeFilter() { LevelMin = Level.Debug, LevelMax = Level.Warn });
         stdout.ActivateOptions();
 
         // create a console appender printing to stderr
@@ -46,9 +48,10 @@ public static class Log
         };
         stderr.AddMapping(new() { Level = Level.Error, ForeColor = AnsiColorTerminalAppender.AnsiColor.Red });
         stderr.AddMapping(new() { Level = Level.Fatal, ForeColor = AnsiColorTerminalAppender.AnsiColor.White, BackColor = AnsiColorTerminalAppender.AnsiColor.Red });
-        stdout.ActivateOptions();
+        stderr.AddFilter(new LevelRangeFilter() { LevelMin = Level.Error });
+        stderr.ActivateOptions();
 
-        // configure the root logger with a treshold
+        // configure the root logger with a threshold
         var hierarchy = (Hierarchy)LogManager.GetRepository();
         hierarchy.Root.AddAppender(stdout);
         hierarchy.Root.AddAppender(stderr);

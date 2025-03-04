@@ -1,7 +1,3 @@
-using System;
-using System.Diagnostics;
-using Harper.Util;
-
 int8 exitCode = 1;
 
 {
