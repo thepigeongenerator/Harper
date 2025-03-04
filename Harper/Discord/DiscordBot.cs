@@ -1,14 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Microsoft.Extensions.DependencyInjection;
 using Harper.Discord.Commands;
 using Harper.Logging;
 using Harper.Util;
@@ -24,6 +22,7 @@ public class DiscordBot : IModule
     private readonly ILog log = null;
     private readonly DiscordSocketClient client = null;
     private readonly InteractionService interactionService = null;
+    private readonly IServiceProvider services = null;
     private readonly Dictionary<uint64, uint8> permData = null;
     private bool disposed = false;
 
@@ -34,7 +33,13 @@ public class DiscordBot : IModule
 
         // initialize the discord client
         client = new(new() { GatewayIntents = INTENTS, LogLevel = LogSeverity.Debug });
-        interactionService = new(client.Rest, new() { LogLevel = LogSeverity.Debug });
+
+        // initialize dependency injection container
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddSingleton(client);
+        serviceCollection.AddSingleton(new InteractionService(client.Rest, new InteractionServiceConfig { LogLevel = LogSeverity.Debug }));
+        services = serviceCollection.BuildServiceProvider();
+        interactionService = services.GetRequiredService<InteractionService>();
 
         // init configuration
         FileUtil.CopyTemplateIfNotExists(FilePath.SETTING_HARPER_COMMAND_PERMS, FilePath.TEMPLATE_HARPER_COMMAND_PERMS);
@@ -95,9 +100,9 @@ public class DiscordBot : IModule
     {
         await ErrorHandler.CatchError(async () =>
         {
-            await interactionService.AddModuleAsync<UtilCommands>(null);
-            await interactionService.AddModuleAsync<ServerCommands>(null);
-            await interactionService.AddModuleAsync<MinecraftCommmands>(null);
+            await interactionService.AddModuleAsync<UtilCommands>(services);
+            await interactionService.AddModuleAsync<ServerCommands>(services);
+            await interactionService.AddModuleAsync<MinecraftCommmands>(services);
             await interactionService.RegisterCommandsGloballyAsync(true);
         });
     }
